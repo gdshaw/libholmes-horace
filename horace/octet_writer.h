@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <string>
 
 namespace horace {
 
@@ -111,6 +112,11 @@ public:
 	 * @param value the value to be written
 	 */
 	void write_base128(uint64_t value);
+
+	/** Write a character string to the stream.
+	 * @param s the string to be written
+	 */
+	void write_string(const std::string& s);
 };
 
 } /* namespace horace */

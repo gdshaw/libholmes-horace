@@ -3,6 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <memory>
+
 #include "horace/eof_error.h"
 #include "horace/octet_reader.h"
 
@@ -66,6 +68,12 @@ uint64_t octet_reader::read_base128() {
 		result |= byte & 0x7f;
 	}
 	return result;
+}
+
+std::string octet_reader::read_string(size_t length) {
+	std::unique_ptr<char[]> buffer = std::make_unique<char[]>(length);
+	read(buffer.get(), length);
+	return std::string(buffer.get(), length);
 }
 
 } /* namespace horace */

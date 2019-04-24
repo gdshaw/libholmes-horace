@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <string>
 
 namespace horace {
 
@@ -118,6 +119,12 @@ public:
 	 * @return the decoded value of the integer
 	 */
 	uint64_t read_base128();
+
+	/** Read a character string from the stream.
+	 * @param length the required length, in octets
+	 * @return the resulting character string
+	 */
+	std::string read_string(size_t length);
 };
 
 } /* namespace horace */

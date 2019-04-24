@@ -17,6 +17,8 @@ namespace horace {
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
 public:
+	static const unsigned int ATTR_SOURCE = 0x00;
+
 	virtual ~attribute() = default;
 
 	/** Get the type of this attribute.
