@@ -113,6 +113,11 @@ public:
 			_read(buf, nbyte);
 		}
 	}
+
+	/** Read an unsigned base-128 integer from the stream.
+	 * @return the decoded value of the integer
+	 */
+	uint64_t read_base128();
 };
 
 } /* namespace horace */

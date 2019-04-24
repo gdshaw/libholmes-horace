@@ -106,6 +106,11 @@ public:
 
 	/** Flush any unwritten octets buffered by this class. */
 	void flush();
+
+	/** Write an unsigned base-128 integer to the stream.
+	 * @param value the value to be written
+	 */
+	void write_base128(uint64_t value);
 };
 
 } /* namespace horace */

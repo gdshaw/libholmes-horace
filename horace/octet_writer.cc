@@ -47,4 +47,16 @@ void octet_writer::flush() {
 	}
 }
 
+void octet_writer::write_base128(uint64_t value) {
+	int size = 7;
+	while ((value >> size) != 0) {
+		size += 7;
+	}
+	while (size > 7) {
+		size -= 7;
+		write(0x80 | ((value >> size) & 0x7f));
+        }
+	write(value & 0x7f);
+}
+
 } /* namespace horace */

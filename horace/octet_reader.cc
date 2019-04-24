@@ -57,4 +57,15 @@ size_t octet_reader::_read_direct(void* buf, size_t nbyte) {
 	throw eof_error();
 }
 
+uint64_t octet_reader::read_base128() {
+	uint8_t byte = read();
+	uint64_t result = byte & 0x7f;
+	while (byte & 0x80) {
+		result <<= 7;
+		byte = read();
+		result |= byte & 0x7f;
+	}
+	return result;
+}
+
 } /* namespace horace */
