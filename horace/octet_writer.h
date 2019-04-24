@@ -108,6 +108,12 @@ public:
 	/** Flush any unwritten octets buffered by this class. */
 	void flush();
 
+	/** Write an unsigned integer of given width to the stream.
+	 * @param value the value to be written
+	 * @param width the required width, in octets
+	 */
+	void write_unsigned(uint64_t value, size_t width);
+
 	/** Write an unsigned base-128 integer to the stream.
 	 * @param value the value to be written
 	 */

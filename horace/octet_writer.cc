@@ -47,6 +47,12 @@ void octet_writer::flush() {
 	}
 }
 
+void octet_writer::write_unsigned(uint64_t value, size_t width) {
+	for (size_t i = 0, j = (width - 1) * 8; i != width; i += 1, j -= 8) {
+		write((value >> j) & 0xff);
+	}
+}
+
 void octet_writer::write_base128(uint64_t value) {
 	int size = 7;
 	while ((value >> size) != 0) {
@@ -55,7 +61,7 @@ void octet_writer::write_base128(uint64_t value) {
 	while (size > 7) {
 		size -= 7;
 		write(0x80 | ((value >> size) & 0x7f));
-	}
+        }
 	write(value & 0x7f);
 }
 

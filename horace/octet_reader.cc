@@ -59,6 +59,15 @@ size_t octet_reader::_read_direct(void* buf, size_t nbyte) {
 	throw eof_error();
 }
 
+uint64_t octet_reader::read_unsigned(size_t width) {
+	uint64_t result = 0;
+	while (width--) {
+		result <<= 8;
+		result |= read() & 0xff;
+	}
+	return result;
+}
+
 uint64_t octet_reader::read_base128() {
 	uint8_t byte = read();
 	uint64_t result = byte & 0x7f;

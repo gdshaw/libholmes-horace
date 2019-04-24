@@ -18,6 +18,7 @@ namespace horace {
 class attribute {
 public:
 	static const unsigned int ATTR_SOURCE = 0x00;
+	static const unsigned int ATTR_SEQNUM = 0x01;
 
 	virtual ~attribute() = default;
 
