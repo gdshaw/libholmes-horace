@@ -6,6 +6,7 @@
 #include "horace/attribute.h"
 #include "horace/source_attribute.h"
 #include "horace/seqnum_attribute.h"
+#include "horace/packet_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
@@ -18,6 +19,8 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in) {
 		return std::make_unique<source_attribute>(in, length);
 	case ATTR_SEQNUM:
 		return std::make_unique<seqnum_attribute>(in, length);
+	case ATTR_PACKET:
+		return std::make_unique<packet_attribute>(in, length);
 	default:
 		return std::make_unique<unrecognised_attribute>(
 			in, type, length);

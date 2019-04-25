@@ -19,6 +19,7 @@ class attribute {
 public:
 	static const unsigned int ATTR_SOURCE = 0x00;
 	static const unsigned int ATTR_SEQNUM = 0x01;
+	static const unsigned int ATTR_PACKET = 0x02;
 
 	virtual ~attribute() = default;
 
