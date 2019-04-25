@@ -26,8 +26,8 @@ unrecognised_attribute::unrecognised_attribute(int type,
 	_length(length) {}
 
 void unrecognised_attribute::write(std::ostream& out) const {
-	std::cout << "attr" << std::dec << type() << "(";
-	std::cout << std::hex << std::setfill('0');
+	out << "attr" << std::dec << type() << "(";
+	out << std::hex << std::setfill('0');
 	for (size_t i = 0; i != _length; ++i) {
 		out << std::setw(2) << (_content[i] & 0xff);
 	}

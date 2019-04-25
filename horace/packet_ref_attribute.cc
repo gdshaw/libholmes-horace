@@ -15,7 +15,7 @@ packet_ref_attribute::packet_ref_attribute(const void* content, size_t length):
 	_length(length) {}
 
 void packet_ref_attribute::write(std::ostream& out) const {
-	std::cout << "packet(" << std::hex << std::setfill('0');
+	out << "packet(" << std::hex << std::setfill('0');
 	for (size_t i = 0; i != _length; ++i) {
 		out << std::setw(2) << (_content[i] & 0xff);
 	}
