@@ -79,6 +79,19 @@ uint64_t octet_reader::read_base128() {
 	return result;
 }
 
+uint64_t octet_reader::read_base128(size_t& count) {
+	uint8_t byte = read();
+	count += 1;
+	uint64_t result = byte & 0x7f;
+	while (byte & 0x80) {
+		result <<= 7;
+		byte = read();
+		count += 1;
+		result |= byte & 0x7f;
+	}
+	return result;
+}
+
 std::string octet_reader::read_string(size_t length) {
 	std::unique_ptr<char[]> buffer = std::make_unique<char[]>(length);
 	read(buffer.get(), length);

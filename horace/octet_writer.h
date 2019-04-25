@@ -123,6 +123,12 @@ public:
 	 * @param s the string to be written
 	 */
 	void write_string(const std::string& s);
+
+	/** Calculate the length of a value when written as base-128.
+	 * @param value the value to be written
+	 * @return the length, in octets
+	 */
+	static size_t base128_length(uint64_t value);
 };
 
 } /* namespace horace */

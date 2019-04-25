@@ -14,9 +14,9 @@
 
 namespace horace {
 
-std::unique_ptr<attribute> attribute::parse(octet_reader& in) {
-	uint64_t type = in.read_base128();
-	uint64_t length = in.read_base128();
+std::unique_ptr<attribute> attribute::parse(octet_reader& in,
+	int type, size_t length) {
+
 	switch (type) {
 	case ATTR_SOURCE:
 		return std::make_unique<source_attribute>(in, length);
@@ -38,6 +38,12 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in) {
 		return std::make_unique<unrecognised_attribute>(
 			in, type, length);
 	}
+}
+
+std::unique_ptr<attribute> attribute::parse(octet_reader& in) {
+	int type = in.read_base128();
+	size_t length = in.read_base128();
+	return parse(in, type, length);
 }
 
 } /* namespace horace */

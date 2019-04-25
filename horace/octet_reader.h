@@ -126,6 +126,12 @@ public:
 	 */
 	uint64_t read_base128();
 
+	/** Read an unsigned base-128 integer from the stream.
+	 * @param count a counter for the number of octets read
+	 * @return the decoded value of the integer
+	 */
+	uint64_t read_base128(size_t& count);
+
 	/** Read a character string from the stream.
 	 * @param length the required length, in octets
 	 * @return the resulting character string

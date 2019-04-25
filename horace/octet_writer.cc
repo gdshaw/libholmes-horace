@@ -69,4 +69,12 @@ void octet_writer::write_string(const std::string& s) {
 	write(s.data(), s.length());
 }
 
+size_t octet_writer::base128_length(uint64_t value) {
+	size_t size = 1;
+	while ((value >> size * 7) != 0) {
+		size += 1;
+	}
+	return size;
+}
+
 } /* namespace horace */
