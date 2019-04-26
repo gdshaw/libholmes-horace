@@ -8,7 +8,7 @@
 
 #include <time.h>
 
-#include "horace/attribute.h"
+#include "horace/absolute_timestamp_attribute.h"
 
 namespace horace {
 
@@ -18,7 +18,7 @@ namespace horace {
  * leap seconds.
  */
 class posix_timespec_attribute:
-	public attribute {
+	public absolute_timestamp_attribute {
 private:
 	/** The timestamp as a timespec. */
 	struct timespec _ts;

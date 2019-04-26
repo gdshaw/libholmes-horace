@@ -8,7 +8,7 @@
 
 #include <sys/types.h>
 
-#include "horace/attribute.h"
+#include "horace/absolute_timestamp_attribute.h"
 
 namespace horace {
 
@@ -17,7 +17,7 @@ namespace horace {
  * since the POSIX epoch 1970-01-01 00:00:00 UTC, excluding leap seconds.
  */
 class posix_timestamp_attribute:
-	public attribute {
+	public absolute_timestamp_attribute {
 private:
 	/** The timestamp as a time_t. */
 	time_t _ts;
