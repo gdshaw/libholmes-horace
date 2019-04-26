@@ -27,7 +27,7 @@ private:
 	/** The attributes of this record. */
 	std::list<std::shared_ptr<attribute>> _attributes;
 public:
-	/** Construct unrecognised attribute from an octet reader.
+	/** Construct unrecognised record from an octet reader.
 	 * The type and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
 	 * @param in the octet reader
@@ -40,9 +40,7 @@ public:
 		return _type;
 	}
 
-	virtual size_t length() const;
-	virtual void write(std::ostream& out) const;
-	virtual void write(octet_writer& out) const;
+	virtual std::string type_name() const;
 };
 
 } /* namespace horace */
