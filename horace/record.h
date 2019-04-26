@@ -39,6 +39,7 @@ protected:
 	void append(std::shared_ptr<attribute> attr);
 public:
 	static const int REC_SESSION_START = 0x00;
+	static const int REC_SESSION_END = 0x01;
 
 	virtual ~record() = default;
 

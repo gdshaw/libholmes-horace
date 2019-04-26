@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-#include "horace/attribute.h"
+#include "horace/timestamp_attribute.h"
 
 namespace horace {
 
@@ -18,7 +18,7 @@ namespace horace {
  * relative timestamp).
  */
 class relative_timestamp_attribute:
-	public attribute {
+	public timestamp_attribute {
 private:
 	/** The timestamp as a number of time units. */
 	uint64_t _ts;
