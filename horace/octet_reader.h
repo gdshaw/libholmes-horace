@@ -81,7 +81,7 @@ public:
 	 * @param count the number of octets initially available for reading
 	 */
 	octet_reader(void* buffer, size_t size, size_t count):
-		_buffer(reinterpret_cast<char*>(buffer)),
+		_buffer(static_cast<char*>(buffer)),
 		_limit(_buffer + size),
 		_ptr(_buffer),
 		_end(_buffer + count) {}

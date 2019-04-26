@@ -14,7 +14,7 @@ packet_attribute::packet_attribute(octet_reader& in, size_t length):
 	packet_ref_attribute(new char[length], length) {
 
 	char* _content = const_cast<char*>(
-		reinterpret_cast<const char*>(content()));
+		static_cast<const char*>(content()));
 	try {
 		in.read(_content, length);
 	} catch (...) {
@@ -28,7 +28,7 @@ packet_attribute::~packet_attribute() {
 	// pointer to the packet content as this point, however it does
 	// not and has no reason to dereference it during destruction.
 	char* _content = const_cast<char*>(
-		reinterpret_cast<const char*>(content()));
+		static_cast<const char*>(content()));
 	delete[] _content;
 }
 

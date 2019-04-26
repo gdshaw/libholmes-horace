@@ -11,7 +11,7 @@
 namespace horace {
 
 packet_ref_attribute::packet_ref_attribute(const void* content, size_t length):
-	_content(reinterpret_cast<const char*>(content)),
+	_content(static_cast<const char*>(content)),
 	_length(length) {}
 
 void packet_ref_attribute::write(std::ostream& out) const {

@@ -20,7 +20,7 @@ void octet_reader::_refill() {
 }
 
 void octet_reader::_read(void* buf, size_t nbyte) {
-	char* bptr = reinterpret_cast<char*>(buf);
+	char* bptr = static_cast<char*>(buf);
 	while (nbyte) {
 		size_t bcount = _end - _ptr;
 		if (bcount) {

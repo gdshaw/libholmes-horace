@@ -66,7 +66,7 @@ public:
 	 * @param size the required buffer size
 	 */
 	octet_writer(void* buffer, size_t size):
-		_buffer(reinterpret_cast<char*>(buffer)),
+		_buffer(static_cast<char*>(buffer)),
 		_limit(_buffer + size),
 		_ptr(_buffer) {}
 

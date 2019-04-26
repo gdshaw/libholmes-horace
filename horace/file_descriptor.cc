@@ -55,7 +55,7 @@ size_t file_descriptor::read(void* buf, size_t nbyte) {
 }
 
 void file_descriptor::write(const void* buf, size_t nbyte) {
-	const char* ptr = reinterpret_cast<const char*>(buf);
+	const char* ptr = static_cast<const char*>(buf);
 	while (nbyte > 0) {
 		ssize_t count = ::write(_fd, ptr, nbyte);
 		if (count == -1) {
