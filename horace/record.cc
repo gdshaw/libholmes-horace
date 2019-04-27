@@ -7,6 +7,7 @@
 #include "horace/record.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
+#include "horace/packet_record.h"
 #include "horace/unrecognised_record.h"
 
 namespace horace {
@@ -71,6 +72,9 @@ std::unique_ptr<record> record::parse(octet_reader& in,
 		break;
 	case REC_SESSION_END:
 		rec = std::make_unique<session_end_record>(std::move(*rec));
+		break;
+	case REC_PACKET:
+		rec = std::make_unique<packet_record>(std::move(*rec));
 		break;
 	}
 	return rec;

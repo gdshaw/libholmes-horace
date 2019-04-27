@@ -32,14 +32,10 @@ protected:
 	 * @param length the length of the content, in octets
 	 */
 	record(octet_reader& in, size_t length);
-
-	/** Append an attribute to this record.
-	 * @param attr the attribute to be appended
-	 */
-	void append(std::shared_ptr<attribute> attr);
 public:
 	static const int REC_SESSION_START = 0x00;
 	static const int REC_SESSION_END = 0x01;
+	static const int REC_PACKET = 0x20;
 
 	virtual ~record() = default;
 
@@ -64,6 +60,11 @@ public:
 	const std::list<std::shared_ptr<attribute>> attributes() const {
 		return _attributes;
 	}
+
+	/** Append an attribute to this record.
+	 * @param attr the attribute to be appended
+	 */
+	void append(std::shared_ptr<attribute> attr);
 
 	/** Write this record in human-readable form to an output stream.
 	 * This functionality can also be accessed via operator<<,
