@@ -13,6 +13,10 @@ session_start_record::session_start_record(record&& rec):
 	_source_attr(0),
 	_timestamp_attr(0) {
 
+	if (type() != REC_SESSION_START) {
+		throw horace_error("incorrect type code for session start record");
+	}
+
 	for (auto attr : attributes()) {
 		if (std::shared_ptr<source_attribute> source_attr =
 			std::dynamic_pointer_cast<source_attribute>(attr)) {
@@ -41,16 +45,6 @@ session_start_record::session_start_record(record&& rec):
 		throw horace_error(
 			"missing timestamp attribute in start of session record");
 	}
-}
-
-session_start_record::session_start_record(
-	std::shared_ptr<source_attribute> source_attr,
-	std::shared_ptr<absolute_timestamp_attribute> timestamp_attr):
-	_source_attr(source_attr),
-	_timestamp_attr(timestamp_attr) {
-
-	append(source_attr);
-	append(timestamp_attr);
 }
 
 } /* namespace horace */

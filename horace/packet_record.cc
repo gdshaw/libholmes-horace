@@ -13,6 +13,10 @@ packet_record::packet_record(record&& rec):
 	_packet_attr(0),
 	_timestamp_attr(0) {
 
+	if (type() != REC_PACKET) {
+		throw horace_error("incorrect type code for packet record");
+	}
+
 	for (auto attr : attributes()) {
 		if (std::shared_ptr<packet_attribute> packet_attr =
 			std::dynamic_pointer_cast<packet_attribute>(attr)) {

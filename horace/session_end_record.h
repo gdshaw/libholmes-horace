@@ -23,21 +23,11 @@ public:
 	 */
 	session_end_record(record&& rec);
 
-	/** Construct from required attributes.
-	 * @param timestamp_attr the timestamp attribute
-	 */
-	session_end_record(
-		std::shared_ptr<timestamp_attribute> timestamp_attr);
-
 	/** Get the timestamp attribute.
 	 * @return the timestamp attribute
 	 */
 	const timestamp_attribute& timestamp() const {
 		return *_timestamp_attr;
-	}
-
-	virtual int type() const {
-		return REC_SESSION_END;
 	}
 
 	virtual std::string type_name() const {

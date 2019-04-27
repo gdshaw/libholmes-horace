@@ -22,9 +22,6 @@ private:
 	/** The timestamp attribute. */
 	std::shared_ptr<timestamp_attribute> _timestamp_attr;
 public:
-	/** Construct packet record with no attributes. */
-	packet_record() = default;
-
 	/** Move-construct from generic record.
 	 * @param rec the record
 	 */
@@ -42,10 +39,6 @@ public:
 	 */
 	const std::shared_ptr<timestamp_attribute> timestamp() const {
 		return _timestamp_attr;
-	}
-
-	virtual int type() const {
-		return REC_PACKET;
 	}
 
 	virtual std::string type_name() const {

@@ -27,13 +27,6 @@ public:
 	 */
 	session_start_record(record&& rec);
 
-	/** Construct from required attributes.
-	 * @param source_attr the source attribute
-	 * @param timestamp_attr the timestamp attribute
-	 */
-	session_start_record(std::shared_ptr<source_attribute> source_attr,
-		std::shared_ptr<absolute_timestamp_attribute> timestamp_attr);
-
 	/** Get the source attribute.
 	 * @return the source attribute
 	 */
@@ -46,10 +39,6 @@ public:
 	 */
 	const absolute_timestamp_attribute& timestamp() const {
 		return *_timestamp_attr;
-	}
-
-	virtual int type() const {
-		return REC_SESSION_START;
 	}
 
 	virtual std::string type_name() const {

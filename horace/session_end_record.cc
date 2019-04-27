@@ -12,6 +12,10 @@ session_end_record::session_end_record(record&& rec):
 	record(std::move(rec)),
 	_timestamp_attr(0) {
 
+	if (type() != REC_SESSION_END) {
+		throw horace_error("incorrect type code for session end record");
+	}
+
 	for (auto attr : attributes()) {
 		if (std::shared_ptr<timestamp_attribute> timestamp_attr =
 			std::dynamic_pointer_cast<timestamp_attribute>(attr)) {
@@ -28,13 +32,6 @@ session_end_record::session_end_record(record&& rec):
 		throw horace_error(
 			"missing timestamp attribute in end of session record");
 	}
-}
-
-session_end_record::session_end_record(
-	std::shared_ptr<timestamp_attribute> timestamp_attr):
-	_timestamp_attr(timestamp_attr) {
-
-	append(timestamp_attr);
 }
 
 } /* namespace horace */
