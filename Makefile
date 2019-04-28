@@ -17,6 +17,8 @@ LDLIBS = -ldl
 
 SRC = $(wildcard src/*.cc)
 BIN = $(SRC:src/%.cc=bin/%)
+MAINBIN = bin/$(pkgname)
+AUXBIN = $(filter-out $(MAINBIN),$(BIN))
 
 HORACE = $(wildcard horace/*.cc)
 
@@ -45,6 +47,20 @@ clean: $(EPDIRS:%=%/clean)
 
 %/clean: always
 	make -C $* clean
+
+.PHONY: install
+install: all
+	@mkdir -p $(bindir)
+	@mkdir -p $(libexecdir)/$(pkgname)/bin
+	@mkdir -p $(libexecdir)/$(pkgname)/endpoints
+	cp $(MAINBIN) $(bindir)/
+	cp $(AUXBIN) $(libexecdir)/$(pkgname)/bin/
+	cp $(EPLIBS) $(libexecdir)/$(pkgname)/endpoints/
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(bindir)/$(notdir $(MAINBIN))
+	rm -rf $(libexecdir)/$(pkgname)
 
 .PHONY: always
 always:
