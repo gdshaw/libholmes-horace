@@ -7,17 +7,21 @@
 #define LIBHOLMES_HORACE_NETIF_ENDPOINT
 
 #include "horace/endpoint.h"
+#include "horace/event_reader_endpoint.h"
 
 namespace horace {
 
 /** An endpoint class to represent a network interface. */
 class netif_endpoint:
-	public endpoint {
+	public endpoint,
+	public event_reader_endpoint {
 public:
 	/** Construct network interface endpoint.
 	 * @param name the name of this endpoint
 	 */
 	netif_endpoint(const std::string& name);
+
+	virtual std::unique_ptr<event_reader> make_event_reader();
 };
 
 } /* namespace horace */

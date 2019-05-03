@@ -4,11 +4,16 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "netif_endpoint.h"
+#include "netif_event_reader.h"
 
 namespace horace {
 
 netif_endpoint::netif_endpoint(const std::string& name):
 	endpoint(name) {}
+
+std::unique_ptr<event_reader> netif_endpoint::make_event_reader() {
+	return std::make_unique<netif_event_reader>();
+};
 
 } /* namespace horace */
 

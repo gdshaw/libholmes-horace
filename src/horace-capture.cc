@@ -8,7 +8,9 @@
 
 #include <getopt.h>
 
+#include "horace/record.h"
 #include "horace/endpoint.h"
+#include "horace/event_reader_endpoint.h"
 
 /** Print help text.
  * @param out the ostream to which the help text should be written
@@ -32,6 +34,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	// Parse source endpoint.
 	if (optind == argc) {
 		std::cerr << "Source endpoint not specified."
 			<< std::endl;
@@ -40,6 +43,17 @@ int main(int argc, char* argv[]) {
 	std::unique_ptr<horace::endpoint> src_ep =
 		horace::endpoint::make(argv[optind++]);
 
+	// Make event reader for source endpoint.
+	horace::event_reader_endpoint* src_erep =
+		dynamic_cast<horace::event_reader_endpoint*>(src_ep.get());
+	if (!src_erep) {
+		std::cerr << "Source endpoint is unable to capture events."
+			<< std::endl;
+		exit(1);
+	}
+	std::unique_ptr<horace::event_reader> src_er = src_erep->make_event_reader();
+
+	// Parse destination endpoint.
 	if (optind == argc) {
 		std::cerr << "Destination endpoint not specified."
 			<< std::endl;
@@ -51,5 +65,10 @@ int main(int argc, char* argv[]) {
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
 			<< std::endl;
+	}
+
+	while (true) {
+		const horace::record& rec = src_er->read();
+		std::cout << rec << std::endl;
 	}
 }
