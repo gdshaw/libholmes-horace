@@ -9,10 +9,16 @@
 namespace horace {
 
 netif_endpoint::netif_endpoint(const std::string& name):
-	endpoint(name) {}
+	endpoint(name) {
+
+	std::string ifname = suffix();
+	if (!suffix().empty()) {
+		_if = interface(suffix());
+	}
+}
 
 std::unique_ptr<event_reader> netif_endpoint::make_event_reader() {
-	return std::make_unique<netif_event_reader>();
+	return std::make_unique<netif_event_reader>(*this);
 };
 
 } /* namespace horace */

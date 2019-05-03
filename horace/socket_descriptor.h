@@ -34,6 +34,21 @@ public:
 	 */
 	socket_descriptor(int domain, int type, int protocol);
 
+	/** Bind this socket descriptor to an address.
+	 * @param addr the address
+	 * @param addrlen the length of the address
+	 */
+	void bind(const struct sockaddr* addr, socklen_t addrlen);
+
+	/** Bind this socket descriptor to an address.
+	 * @param addr the address
+	 */
+	template<class T>
+	void bind(const T& addr) {
+		bind(reinterpret_cast<const struct sockaddr*>(&addr),
+			sizeof(addr));
+	}
+
 	/** Receive a message from this socket.
 	 * This function will block if a message is not immediately
 	 * available, unless there is no prospect of any further messages

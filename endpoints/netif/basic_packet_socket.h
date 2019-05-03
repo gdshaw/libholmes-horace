@@ -8,6 +8,8 @@
 
 #include "horace/socket_descriptor.h"
 
+#include "interface.h"
+
 namespace horace {
 
 class record;
@@ -31,6 +33,11 @@ public:
 	 * applies to the packet content.
 	 */
 	virtual const record& read() = 0;
+
+	/** Bind this socket to a given interface.
+	 * @param iface the interface
+	 */
+	void bind(const interface& iface);
 };
 
 } /* namespace horace */

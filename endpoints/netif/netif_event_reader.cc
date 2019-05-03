@@ -5,13 +5,17 @@
 
 #include "packet_socket.h"
 #include "netif_event_reader.h"
+#include "netif_endpoint.h"
 
 namespace horace {
 
 class record;
 
-netif_event_reader::netif_event_reader() {
+netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
 	_sock = std::make_unique<packet_socket>(1514);
+	if (ep.netif()) {
+		_sock->bind(ep.netif());
+	}
 }
 
 const record& netif_event_reader::read() {

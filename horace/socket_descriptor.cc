@@ -6,8 +6,8 @@
 #include <poll.h>
 #include <sys/socket.h>
 
-#include "libc_error.h"
-#include "socket_descriptor.h"
+#include "horace/libc_error.h"
+#include "horace/socket_descriptor.h"
 
 namespace horace {
 
@@ -16,6 +16,12 @@ socket_descriptor::socket_descriptor(int domain, int type, int protocol):
 
 	if (*this == -1) {
 		throw libc_error();
+	}
+}
+
+void socket_descriptor::bind(const struct sockaddr* addr, socklen_t addrlen) {
+	if (::bind(*this, addr, addrlen) == -1) {
+		throw horace::libc_error();
 	}
 }
 

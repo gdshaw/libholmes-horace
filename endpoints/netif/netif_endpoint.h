@@ -9,17 +9,29 @@
 #include "horace/endpoint.h"
 #include "horace/event_reader_endpoint.h"
 
+#include "interface.h"
+
 namespace horace {
 
 /** An endpoint class to represent a network interface. */
 class netif_endpoint:
 	public endpoint,
 	public event_reader_endpoint {
+private:
+	/** The network interface referred to by this endpoint. */
+	interface _if;
 public:
 	/** Construct network interface endpoint.
 	 * @param name the name of this endpoint
 	 */
 	netif_endpoint(const std::string& name);
+
+	/** Get the interface.
+	 * @return the interface
+	 */
+	const interface& netif() const {
+		return _if;
+	}
 
 	virtual std::unique_ptr<event_reader> make_event_reader();
 };

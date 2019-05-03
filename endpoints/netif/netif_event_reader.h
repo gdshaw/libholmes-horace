@@ -13,6 +13,8 @@
 
 namespace horace {
 
+class netif_endpoint;
+
 /** A class for reading events from a network interface endpoint. */
 class netif_event_reader:
 	public event_reader {
@@ -20,8 +22,10 @@ private:
 	/** The socket for capturing packets. */
 	std::unique_ptr<basic_packet_socket> _sock;
 public:
-	/** Construct network interface event reader. */
-	netif_event_reader();
+	/** Construct network interface event reader.
+	 * @param ep the endpoint to read from
+	 */
+	netif_event_reader(const netif_endpoint& ep);
 
 	virtual const record& read();
 };
