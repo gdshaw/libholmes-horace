@@ -12,7 +12,7 @@ libexecdir = $(libdir)
 pkgname = horace
 
 CPPFLAGS = -MD -MP -I. '-DLIBEXECDIR="$(libexecdir)"' '-DPKGNAME="$(pkgname)"'
-CXXFLAGS = -O2
+CXXFLAGS = -fPIC -O2
 LDLIBS = -ldl
 
 SRC = $(wildcard src/*.cc)
@@ -28,15 +28,15 @@ EPLIBS = $(foreach EPDIR,$(EPDIRS),$(EPDIR)/$(notdir $(EPDIR)).so)
 .PHONY: all
 all: $(BIN) $(EPLIBS)
 
-$(BIN): bin/%: src/%.o horace.a
+$(BIN): bin/%: src/%.o horace.so
 	@mkdir -p bin
 	g++ -rdynamic -o $@ $^ $(LDLIBS)
 
-%.so: always
+endpoints/%.so: always
 	make -C $(dir $@)
 
-horace.a: $(HORACE:%.cc=%.o)
-	ar rcs $@ $^
+horace.so: $(HORACE:%.cc=%.o)
+	gcc -shared -o $@ $^
 
 .PHONY: clean
 clean: $(EPDIRS:%=%/clean)
@@ -51,9 +51,11 @@ clean: $(EPDIRS:%=%/clean)
 .PHONY: install
 install: all
 	@mkdir -p $(bindir)
+	@mkdir -p $(libdir)
 	@mkdir -p $(libexecdir)/$(pkgname)/bin
 	@mkdir -p $(libexecdir)/$(pkgname)/endpoints
 	cp $(MAINBIN) $(bindir)/
+	cp horace.so $(libdir)/
 	cp $(AUXBIN) $(libexecdir)/$(pkgname)/bin/
 	cp $(EPLIBS) $(libexecdir)/$(pkgname)/endpoints/
 

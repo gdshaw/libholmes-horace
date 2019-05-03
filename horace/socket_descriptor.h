@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_SOCKET_DESCRIPTOR
 #define LIBHOLMES_HORACE_SOCKET_DESCRIPTOR
 
+#include <sys/socket.h>
+
 #include "horace/file_descriptor.h"
 
 namespace horace {
@@ -31,6 +33,35 @@ public:
 	 * @param protocol the required protocol
 	 */
 	socket_descriptor(int domain, int type, int protocol);
+
+	/** Receive a message from this socket.
+	 * This function will block if a message is not immediately
+	 * available, unless there is no prospect of any further messages
+	 * being received.
+	 * @param message a msghdr structure for receiving the message
+	 * @param flags a bitwise combination of zero or more MSG_ flags
+	 * @return the received message length, or 0 if none
+	 */
+	size_t recvmsg(struct msghdr* message, int flags);
+
+	/** Set socket option.
+	 * @param level the socket option level
+	 * @param optname the socket option name
+	 * @param optval the required value
+	 * @param optlen the size of the value
+	 */
+	void setsockopt(int level, int optname, const void* optval,
+		socklen_t optlen);
+
+	/** Set socket option.
+	 * @param level the socket option level
+	 * @param optname the socket option name
+	 * @param optval the required value
+	 */
+	template<class T>
+	void setsockopt(int level, int optname, const T& optval) {
+		setsockopt(level, optname, &optval, sizeof(optval));
+	}
 };
 
 } /* namespace horace */

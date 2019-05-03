@@ -35,6 +35,9 @@ public:
 	 */
 	record_builder& append(std::shared_ptr<attribute> attr);
 
+	/** Remove all attributes from this record. */
+	void reset();
+
 	/** Build record.
 	 * The record returned will be of a type appropriate to the
 	 * specified type code.

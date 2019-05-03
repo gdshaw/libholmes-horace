@@ -7,6 +7,7 @@
 #define LIBHOLMES_HORACE_FILE_DESCRIPTOR
 
 #include <cstddef>
+#include <string>
 #include <utility>
 
 namespace horace {

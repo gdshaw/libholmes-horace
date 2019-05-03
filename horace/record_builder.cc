@@ -41,6 +41,10 @@ record_builder& record_builder::append(std::shared_ptr<attribute> attr) {
 	return *this;
 }
 
+void record_builder::reset() {
+	_attributes.clear();
+}
+
 std::unique_ptr<record> record_builder::build() {
 	switch (type()) {
 	case REC_SESSION_START:
