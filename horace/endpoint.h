@@ -20,8 +20,10 @@ namespace horace {
  * the capabilities which are applicable. A dynamic cast should be
  * used to test for and gain access to a given capability.
  */
-class endpoint:
-	public uri {
+class endpoint {
+private:
+	/** The name of this endpoint, as a parsed URI. */
+	uri _name;
 public:
 	/** Construct endpoint.
 	 * @param name the name of this endpoint
@@ -30,6 +32,13 @@ public:
 
 	/** Destroy endpoint. */
 	virtual ~endpoint() = default;
+
+	/** Get the name of this endpoint.
+	 * @return the name, as a parsed URI.
+	 */
+	const uri& name() const {
+		return _name;
+	}
 
 	/** Make endpoint from name.
 	 * @param name the required endpoint name

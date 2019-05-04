@@ -12,7 +12,8 @@ namespace horace {
 null_endpoint::null_endpoint(const std::string& name):
 	endpoint(name) {
 
-	if (!path().empty()) {
+	std::string path = this->name().path();
+	if (!path.empty()) {
 		throw endpoint_error(
 			"null endpoint name must have empty path");
 	}

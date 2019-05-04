@@ -20,6 +20,9 @@ class netif_endpoint:
 private:
 	/** The network interface referred to by this endpoint. */
 	interface _if;
+
+	/** The snaplen, in octets. */
+	long _snaplen;
 public:
 	/** Construct network interface endpoint.
 	 * @param name the name of this endpoint
@@ -31,6 +34,13 @@ public:
 	 */
 	const interface& netif() const {
 		return _if;
+	}
+
+	/** Get the snaplen.
+	 * @return the snaplen, in octets
+	 */
+	long snaplen() const {
+		return _snaplen;
 	}
 
 	virtual std::unique_ptr<event_reader> make_event_reader();

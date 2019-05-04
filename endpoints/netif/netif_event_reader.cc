@@ -12,7 +12,7 @@ namespace horace {
 class record;
 
 netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
-	_sock = std::make_unique<packet_socket>(1514);
+	_sock = std::make_unique<packet_socket>(ep.snaplen());
 	if (ep.netif()) {
 		_sock->bind(ep.netif());
 	}

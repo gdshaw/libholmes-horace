@@ -5,13 +5,13 @@
 
 #include <dlfcn.h>
 
-#include "endpoint_error.h"
-#include "endpoint.h"
+#include "horace/endpoint_error.h"
+#include "horace/endpoint.h"
 
 namespace horace {
 
 endpoint::endpoint(const std::string& name):
-	uri(name) {}
+	_name(name) {}
 
 std::unique_ptr<endpoint> endpoint::make(const std::string& name) {
 	size_t index = name.find(':');
