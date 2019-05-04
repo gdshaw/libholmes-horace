@@ -26,6 +26,14 @@ packet_record::packet_record(record&& rec):
 					"duplicate packet attribute in packet record");
 			}
 			_packet_attr = packet_attr;
+		} else if (std::shared_ptr<packet_length_attribute> origlen_attr =
+			std::dynamic_pointer_cast<packet_length_attribute>(attr)) {
+
+			if (_origlen_attr) {
+				throw horace_error("duplicate packet "
+					"length attribute in packet record");
+			}
+			_origlen_attr = origlen_attr;
 		} else if (std::shared_ptr<timestamp_attribute> timestamp_attr =
 			std::dynamic_pointer_cast<timestamp_attribute>(attr)) {
 

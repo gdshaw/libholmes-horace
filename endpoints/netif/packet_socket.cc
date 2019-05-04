@@ -6,6 +6,7 @@
 #include "horace/record.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
+#include "horace/packet_length_attribute.h"
 
 #include "packet_socket.h"
 
@@ -38,13 +39,13 @@ const record& packet_socket::read() {
 	// Read a packet from the packet socket, with the MSG_TRUNC flag set
 	// in order to return the original length of the packet as opposed to
 	// the (potentially truncated) captured length.
-	size_t count = recvmsg(&_message, MSG_TRUNC);
+	size_t pkt_origlen = recvmsg(&_message, MSG_TRUNC);
 
 	// If the packet was not truncated then the captured length will be
 	// equal to the original length, otherwise it will be equal to the
 	// configured snaplen.
 	size_t pkt_snaplen = (_message.msg_flags & MSG_TRUNC) ?
-		_snaplen : count;
+		_snaplen : pkt_origlen;
 
 	// Find the timestamp which should be present in the control buffer.
 	struct timespec* ts = 0;
@@ -60,7 +61,11 @@ const record& packet_socket::read() {
 	_builder.reset();
 	_builder.append(std::make_shared<posix_timespec_attribute>(*ts));
 	_builder.append(std::make_shared<packet_ref_attribute>(
-		_buffer.get(), count));
+		_buffer.get(), pkt_snaplen));
+	if (pkt_snaplen != pkt_origlen) {
+		_builder.append(std::make_shared<packet_length_attribute>(
+			pkt_origlen));
+	}
 	return _builder;
 }
 

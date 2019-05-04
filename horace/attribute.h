@@ -20,6 +20,7 @@ public:
 	static const unsigned int ATTR_SOURCE = 0x00;
 	static const unsigned int ATTR_SEQNUM = 0x01;
 	static const unsigned int ATTR_PACKET = 0x02;
+	static const unsigned int ATTR_PACKET_LENGTH = 0x03;
 	static const unsigned int ATTR_TIMESTAMP_S = 0x04;
 	static const unsigned int ATTR_TIMESTAMP_MS = 0x05;
 	static const unsigned int ATTR_TIMESTAMP_US = 0x06;

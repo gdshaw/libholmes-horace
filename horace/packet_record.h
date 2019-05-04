@@ -7,6 +7,7 @@
 #define LIBHOLMES_HORACE_PACKET_RECORD
 
 #include "horace/packet_attribute.h"
+#include "horace/packet_length_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
 #include "horace/record.h"
 
@@ -18,6 +19,9 @@ class packet_record:
 private:
 	/** The packet attribute. */
 	std::shared_ptr<packet_attribute> _packet_attr;
+
+	/** An optional length attribute. */
+	std::shared_ptr<packet_length_attribute> _origlen_attr;
 
 	/** The timestamp attribute. */
 	std::shared_ptr<timestamp_attribute> _timestamp_attr;
@@ -32,6 +36,13 @@ public:
 	 */
 	const std::shared_ptr<packet_attribute> packet_attr() const {
 		return _packet_attr;
+	}
+
+	/** Get the packet length attribute, if there is one.
+	 * @return the packet length attribute, or 0 if none
+	 */
+	const std::shared_ptr<packet_length_attribute> origlen_attr() const {
+		return _origlen_attr;
 	}
 
 	/** Get the timestamp attribute.
