@@ -12,9 +12,9 @@ namespace horace {
 null_endpoint::null_endpoint(const std::string& name):
 	endpoint(name) {
 
-	if (!suffix().empty()) {
+	if (!path().empty()) {
 		throw endpoint_error(
-			"null endpoint name must have empty suffix");
+			"null endpoint name must have empty path");
 	}
 }
 

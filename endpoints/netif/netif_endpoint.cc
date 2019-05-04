@@ -11,9 +11,8 @@ namespace horace {
 netif_endpoint::netif_endpoint(const std::string& name):
 	endpoint(name) {
 
-	std::string ifname = suffix();
-	if (!suffix().empty()) {
-		_if = interface(suffix());
+	if (!path().empty()) {
+		_if = interface(path());
 	}
 }
 

@@ -6,7 +6,7 @@
 ENDPOINT := $(notdir $(shell pwd))
 
 CPPFLAGS = -MD -MP -I../..
-CXXFLAGS = -fPIC -O2
+CXXFLAGS = -fPIC -O2 --std=c++17
 
 SRC = $(wildcard *.cc)
 

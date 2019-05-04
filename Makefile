@@ -12,7 +12,7 @@ libexecdir = $(libdir)
 pkgname = horace
 
 CPPFLAGS = -MD -MP -I. '-DLIBEXECDIR="$(libexecdir)"' '-DPKGNAME="$(pkgname)"'
-CXXFLAGS = -fPIC -O2
+CXXFLAGS = -fPIC -O2 --std=c++17
 LDLIBS = -ldl
 
 SRC = $(wildcard src/*.cc)

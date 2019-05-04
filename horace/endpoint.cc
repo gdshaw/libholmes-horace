@@ -11,15 +11,7 @@
 namespace horace {
 
 endpoint::endpoint(const std::string& name):
-	_name(name) {}
-
-std::string endpoint::suffix() const {
-	size_t index = _name.find(':');
-	if (index == std::string::npos) {
-		throw endpoint_error("missing endpoint prefix in " + name());
-	}
-	return _name.substr(index + 1, std::string::npos);
-}
+	uri(name) {}
 
 std::unique_ptr<endpoint> endpoint::make(const std::string& name) {
 	size_t index = name.find(':');
