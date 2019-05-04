@@ -29,7 +29,8 @@ public:
 	/** Find value of parameter.
 	 * The required return type should be specified as a template
 	 * parameter. The only types currently supported are:
-	 * - long
+	 * - bool (taking a string "true" or "false")
+	 * - long (taking a decimal string)
 	 * - std::string
 	 * @param name the name of the parameter to be found
 	 */

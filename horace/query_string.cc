@@ -87,4 +87,19 @@ std::optional<long> query_string::find<long>(const std::string& name) const {
 	return stol(f->second);
 }
 
+template<>
+std::optional<bool> query_string::find<bool>(const std::string& name) const {
+	auto f = _parameters.find(name);
+	if (f == _parameters.end()) {
+		return std::nullopt;
+	}
+	if (f->second == "true") {
+		return true;
+	} else if (f->second == "false") {
+		return false;
+	} else {
+		return std::nullopt;
+	}
+}
+
 } /* namespace horace */

@@ -38,6 +38,11 @@ public:
 	 * @param iface the interface
 	 */
 	void bind(const interface& iface);
+
+	/** Set promiscuous mode for a given interface.
+	 * @param iface the interface
+	 */
+	void set_promiscuous(const interface& iface);
 };
 
 } /* namespace horace */

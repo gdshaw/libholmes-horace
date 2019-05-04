@@ -23,6 +23,9 @@ private:
 
 	/** The snaplen, in octets. */
 	long _snaplen;
+
+	/** True if promiscuous mode requested, otherwise false. */
+	bool _promiscuous;
 public:
 	/** Construct network interface endpoint.
 	 * @param name the name of this endpoint
@@ -41,6 +44,13 @@ public:
 	 */
 	long snaplen() const {
 		return _snaplen;
+	}
+
+	/** Check whether promiscuous mode requested.
+	 * @return true if promiscuous mode requested, otherwise false
+	 */
+	bool promiscuous() const {
+		return _promiscuous;
 	}
 
 	virtual std::unique_ptr<event_reader> make_event_reader();

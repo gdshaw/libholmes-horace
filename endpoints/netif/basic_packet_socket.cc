@@ -23,4 +23,11 @@ void basic_packet_socket::bind(const interface& iface) {
 	socket_descriptor::bind(addr);
 }
 
+void basic_packet_socket::set_promiscuous(const interface& iface) {
+	struct packet_mreq mreq = {0};
+	mreq.mr_ifindex = iface;
+	mreq.mr_type = PACKET_MR_PROMISC;
+	setsockopt(SOL_PACKET, PACKET_ADD_MEMBERSHIP, mreq);
+}
+
 } /* namespace horace */
