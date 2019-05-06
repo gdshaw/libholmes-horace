@@ -83,7 +83,7 @@ public:
 
 		attr.write(out);
 		return out;
-        }
+	}
 };
 
 } /* namespace horace */

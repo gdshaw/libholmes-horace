@@ -61,7 +61,7 @@ void octet_writer::write_base128(uint64_t value) {
 	while (size > 7) {
 		size -= 7;
 		write(0x80 | ((value >> size) & 0x7f));
-        }
+	}
 	write(value & 0x7f);
 }
 
