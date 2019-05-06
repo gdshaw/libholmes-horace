@@ -9,6 +9,7 @@
 #include "horace/record.h"
 
 #include "spoolfile.h"
+#include "filestore_scanner.h"
 #include "file_endpoint.h"
 #include "file_session_writer.h"
 
@@ -20,13 +21,20 @@ file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	session_writer(source_id),
 	_pathname(dst_ep.pathname() + "/" + source_id),
 	_fd(_pathname, O_RDONLY),
-	_lockfile(_pathname + "/.wrlock"),
-	_next_filenum(0) {}
+	_lockfile(_pathname + "/.wrlock") {
+
+	filestore_scanner scanner(_pathname);
+	_next_filenum = scanner.next_filenum();
+	_minwidth = scanner.minwidth();
+	if (_minwidth == 0) {
+		_minwidth = 6;
+	}
+}
 
 std::string file_session_writer::_next_pathname() {
 	// Construct the filename for the new spoolfile, incrementing the
 	// current filenum.
-	spoolfile sf(_next_filenum++, 8);
+	spoolfile sf(_next_filenum++, _minwidth);
 
 	// If this caused the filenum to overflow then roll back the filenum
 	// and throw an exception.

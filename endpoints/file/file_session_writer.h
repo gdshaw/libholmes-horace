@@ -36,6 +36,9 @@ private:
 	/** The number to use for the next spoolfile when it is created. */
 	uint64_t _next_filenum;
 
+	/** The minimum permitted width for a filenum, in digits. */
+	unsigned int _minwidth;
+
 	/** A writer for the spoolfile. */
 	std::unique_ptr<spoolfile_writer> _sfw;
 
