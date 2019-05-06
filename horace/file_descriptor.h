@@ -65,6 +65,7 @@ public:
 	 */
 	file_descriptor& operator=(file_descriptor&& that) {
 		std::swap(this->_fd, that._fd);
+		return *this;
 	}
 
 	/** Test whether file descriptor object is non-empty.
