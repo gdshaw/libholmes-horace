@@ -107,6 +107,14 @@ public:
 	 * @param nbyte the number of octets to be written
 	 */
 	void write(const void* buf, size_t nbyte);
+
+	/** Try to establish an exclusive file lock.
+	 * @return true if successful, otherwise false
+	 */
+	bool lock();
+
+	/** Release exclusive file lock. */
+	void unlock();
 };
 
 } /* namespace horace */

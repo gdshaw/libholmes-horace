@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/file.h>
 
 #include "horace/libc_error.h"
 #include "horace/file_descriptor.h"
@@ -69,5 +70,23 @@ void file_descriptor::write(const void* buf, size_t nbyte) {
 		nbyte -= count;
 	}
 }
+
+bool file_descriptor::lock() {
+	if (::flock(_fd, LOCK_EX|LOCK_NB) == -1) {
+		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+			return false;
+		} else {
+			throw libc_error();
+		}
+	}
+	return true;
+}
+
+void file_descriptor::unlock() {
+	if (::flock(_fd, LOCK_UN) == -1) {
+		throw libc_error();
+	}
+}
+
 
 } /* namespace horace */
