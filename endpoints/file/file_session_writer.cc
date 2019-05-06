@@ -16,6 +16,7 @@ namespace horace {
 
 file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	const std::string& source_id):
+	_dst_ep(&dst_ep),
 	session_writer(source_id),
 	_pathname(dst_ep.pathname() + "/" + source_id),
 	_fd(_pathname, O_RDONLY),
@@ -39,10 +40,28 @@ std::string file_session_writer::_next_pathname() {
 }
 
 void file_session_writer::handle_event(const record& rec) {
-	if (!_sfw) {
-		_sfw = std::make_unique<spoolfile_writer>(_next_pathname());
+	bool written = false;
+
+	// If there is a spoolfile in progress then attempt to write the
+	// record to it.
+	if (_sfw) {
+		written = _sfw->write(rec);
 	}
-	_sfw->write(rec);
+
+	// If the record has not yet been written, either because there
+	// is no spoolfile in progress or because it is full, open a new
+	// spoolfile and write to that instead.
+	if (!written) {
+		_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
+			_dst_ep->filesize());
+		written = _sfw->write(rec);
+	}
+
+	// Spoolfiles should allow at least one event record to be written,
+	// regardless of size, therefore the above is not expected to fail.
+	if (!written) {
+		throw endpoint_error("failed to write record to new spoolfile");
+	}
 }
 
 } /* namespace horace */

@@ -20,6 +20,9 @@ class file_endpoint:
 private:
 	/** The pathname for this endpoint. */
 	std::string _pathname;
+
+	/** The size to which spoolfiles are permitted to grow, in octets. */
+	size_t _filesize;
 public:
 	/** Construct file endpoint.
 	 * @param name the name of this endpoint
@@ -31,6 +34,13 @@ public:
 	 */
 	const std::string& pathname() const {
 		return _pathname;
+	}
+
+	/** Get the size to which spoolfiles are permitted to grow.
+	 * @return the size, in octets
+	 */
+	size_t filesize() const {
+		return _filesize;
 	}
 
 	virtual std::unique_ptr<session_writer> make_session_writer(

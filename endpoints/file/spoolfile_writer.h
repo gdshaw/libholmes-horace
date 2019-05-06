@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_SPOOLFILE_WRITER
 #define LIBHOLMES_HORACE_SPOOLFILE_WRITER
 
+#include <cstddef>
+
 #include "horace/file_descriptor.h"
 #include "horace/file_octet_writer.h"
 
@@ -19,11 +21,22 @@ private:
 
 	/** An octet writer for writing to the spoolfile. */
 	file_octet_writer _ow;
+
+	/** The current size of this spoolfile, in octets. */
+	size_t _size;
+
+	/** The capacity of this spoolfile, in octets. */
+	size_t _capacity;
+
+	/** True if no event records have been written, otherwise false. */
+	bool _first;
 public:
 	/** Construct spoolfile writer.
 	 * @param pathname the required pathname
+	 * @param capacity the required capacity, in octets
 	 */
-	explicit spoolfile_writer(const std::string& pathname);
+	explicit spoolfile_writer(const std::string& pathname,
+		size_t capacity);
 
 	spoolfile_writer(const spoolfile_writer&) = delete;
 	spoolfile_writer& operator=(const spoolfile_writer&) = delete;
@@ -37,10 +50,13 @@ public:
 	 */
 	void sync() const;
 
-	/** Write record to spoolfile.
+	/** Attempt to write record to spoolfile.
+	 * This operation will fail if the spoolfile has insufficient
+	 * capacity remaining.
 	 * @param rec the record to be written
+	 * @return true if successful, otherwise false
 	 */
-	void write(const record& rec);
+	bool write(const record& rec);
 };
 
 } /* namespace horace */
