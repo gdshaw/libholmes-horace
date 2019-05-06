@@ -71,6 +71,12 @@ void file_descriptor::write(const void* buf, size_t nbyte) {
 	}
 }
 
+void file_descriptor::fsync() const {
+	if (::fsync(_fd) == -1) {
+		throw libc_error();
+	}
+}
+
 bool file_descriptor::lock() {
 	if (::flock(_fd, LOCK_EX|LOCK_NB) == -1) {
 		if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {

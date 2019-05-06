@@ -108,6 +108,9 @@ public:
 	 */
 	void write(const void* buf, size_t nbyte);
 
+	/** Flush file content to durable storage. */
+	void fsync() const;
+
 	/** Try to establish an exclusive file lock.
 	 * @return true if successful, otherwise false
 	 */
