@@ -8,7 +8,11 @@
 
 #include <getopt.h>
 
+#include "horace/hostname.h"
+#include "horace/source_attribute.h"
+#include "horace/posix_timespec_attribute.h"
 #include "horace/record.h"
+#include "horace/record_builder.h"
 #include "horace/event_reader.h"
 #include "horace/session_writer.h"
 #include "horace/endpoint.h"
@@ -27,6 +31,8 @@ void write_help(std::ostream& out) {
 }
 
 int main(int argc, char* argv[]) {
+	horace::hostname source_id;
+
 	// Parse command line options.
 	int opt;
 	while ((opt = getopt(argc, argv, "+hV")) != -1) {
@@ -75,12 +81,18 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 	std::unique_ptr<horace::session_writer> dst_sw =
-		dst_swep->make_session_writer("foo");
+		dst_swep->make_session_writer(source_id);
 
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
 			<< std::endl;
 	}
+
+	horace::record_builder srecb(horace::record::REC_SESSION_START);
+	srecb.append(std::make_shared<horace::source_attribute>(source_id));
+	srecb.append(std::make_shared<horace::posix_timespec_attribute>());
+	std::unique_ptr<horace::record> srec = srecb.build();
+	dst_sw->write(*srec);
 
 	while (true) {
 		const horace::record& rec = src_er->read();

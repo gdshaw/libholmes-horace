@@ -7,6 +7,7 @@
 
 #include "horace/endpoint_error.h"
 #include "horace/record.h"
+#include "horace/session_start_record.h"
 
 #include "spoolfile.h"
 #include "filestore_scanner.h"
@@ -48,6 +49,16 @@ std::string file_session_writer::_next_pathname() {
 	return _pathname + "/" + sf.filename();
 }
 
+void file_session_writer::handle_session_start(const session_start_record& srec) {
+	if (_sfw) {
+		_sfw->sync();
+	}
+	_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
+		_dst_ep->filesize());
+	_sfw->write(srec);
+	_fd.fsync();
+}
+
 void file_session_writer::handle_event(const record& rec) {
 	bool written = false;
 
@@ -63,6 +74,7 @@ void file_session_writer::handle_event(const record& rec) {
 	if (!written) {
 		_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
 			_dst_ep->filesize());
+		_sfw->write(start_record());
 		_fd.fsync();
 		written = _sfw->write(rec);
 	}

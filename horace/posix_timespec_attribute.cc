@@ -5,10 +5,22 @@
 
 #include <iomanip>
 
+#include <time.h>
+
+#include "horace/libc_error.h"
 #include "horace/horace_error.h"
 #include "horace/posix_timespec_attribute.h"
 
 namespace horace {
+
+posix_timespec_attribute::posix_timespec_attribute() {
+	if (clock_gettime(CLOCK_REALTIME, &_ts) == -1) {
+		throw libc_error();
+	}
+}
+
+posix_timespec_attribute::posix_timespec_attribute(const struct timespec& ts):
+	_ts(ts) {}
 
 posix_timespec_attribute::posix_timespec_attribute(
 	octet_reader& in, size_t length) {
@@ -24,9 +36,6 @@ posix_timespec_attribute::posix_timespec_attribute(
 			"invalid tv_nsec in POSIX timespec attribute");
 	}
 }
-
-posix_timespec_attribute::posix_timespec_attribute(const struct timespec& ts):
-	_ts(ts) {}
 
 size_t posix_timespec_attribute::length() const {
 	size_t len = 5;
@@ -50,6 +59,15 @@ void posix_timespec_attribute::write(octet_writer& out) const {
 	out.write_base128(len);
 	out.write_unsigned(_ts.tv_sec, len - 4);
 	out.write_unsigned(_ts.tv_nsec, 4);
+}
+
+bool posix_timespec_attribute::equals(const absolute_timestamp_attribute& that) const {
+	const posix_timespec_attribute* _that =
+		dynamic_cast<const posix_timespec_attribute*>(&that);
+	if (_that) {
+		return false;
+	}
+	return (_that->_ts.tv_sec == _ts.tv_sec) && (_that->_ts.tv_nsec == _ts.tv_nsec);
 }
 
 } /* namespace horace */

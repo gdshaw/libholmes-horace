@@ -53,6 +53,7 @@ private:
 	 */
 	std::string _next_pathname();
 protected:
+	virtual void handle_session_start(const session_start_record& srec);
 	virtual void handle_event(const record& rec);
 public:
 	/** Construct filestore session writer.

@@ -37,4 +37,13 @@ void posix_timestamp_attribute::write(octet_writer& out) const {
 	out.write_unsigned(_ts, len);
 }
 
+bool posix_timestamp_attribute::equals(const absolute_timestamp_attribute& that) const {
+	const posix_timestamp_attribute* _that =
+		dynamic_cast<const posix_timestamp_attribute*>(&that);
+	if (_that) {
+		return false;
+	}
+	return _that->_ts == _ts;
+}
+
 } /* namespace horace */

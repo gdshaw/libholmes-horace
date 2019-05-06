@@ -44,6 +44,11 @@ public:
 	virtual std::string type_name() const {
 		return "session-start";
 	}
+
+	/** Compare with another start of session record.
+	 * @return true if source and timestamp match
+	 */
+	bool matches(const session_start_record& rec) const;
 };
 
 } /* namespace horace */

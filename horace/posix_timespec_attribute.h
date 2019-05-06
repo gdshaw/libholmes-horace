@@ -23,6 +23,14 @@ private:
 	/** The timestamp as a timespec. */
 	struct timespec _ts;
 public:
+	/** Construct POSIX timespec attribute for the current time. */
+	posix_timespec_attribute();
+
+	/** Construct POSIX timespec attribute from a timespec structure.
+	 * @param ts the required timespec
+	 */
+	explicit posix_timespec_attribute(const struct timespec& ts);
+
 	/** Construct POSIX timespec attribute from an octet reader.
 	 * It is presumed that the type and length fields have already been
 	 * read. This function must read exactly the specified number of
@@ -31,11 +39,6 @@ public:
 	 * @param length the length of the content, in octets
 	 */
 	posix_timespec_attribute(octet_reader& in, size_t length);
-
-	/** Construct POSIX timespec attribute.
-	 * @param ts the required timespec
-	 */
-	posix_timespec_attribute(const struct timespec& ts);
 
 	/** Get the timestamp as a timespec. */
 	const struct timespec& timestamp() {
@@ -49,6 +52,7 @@ public:
 	virtual size_t length() const;
 	virtual void write(std::ostream& out) const;
 	virtual void write(octet_writer& out) const;
+	virtual bool equals(const absolute_timestamp_attribute& that) const;
 };
 
 } /* namespace horace */

@@ -17,7 +17,15 @@ namespace horace {
  * absolute timestamps may be used but relative timestamps may not.
  */
 class absolute_timestamp_attribute:
-	public timestamp_attribute {};
+	public timestamp_attribute {
+public:
+	/** Test whether two attributes have the same absolute timestamp.
+	 * Implementations may allow conversion between different time
+	 * systems, but are not required to.
+	 * @return true if equal, otherwise false.
+	 */
+	virtual bool equals(const absolute_timestamp_attribute& that) const = 0;
+};
 
 } /* namespace horace */
 

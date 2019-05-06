@@ -47,4 +47,9 @@ session_start_record::session_start_record(record&& rec):
 	}
 }
 
+bool session_start_record::matches(const session_start_record& rec) const {
+	return (_source_attr->source_id() == rec._source_attr->source_id()) &&
+		(_timestamp_attr->equals(*rec._timestamp_attr));
+}
+
 } /* namespace horace */
