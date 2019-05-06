@@ -20,6 +20,7 @@ file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	_dst_ep(&dst_ep),
 	session_writer(source_id),
 	_pathname(dst_ep.pathname() + "/" + source_id),
+	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
 	_lockfile(_pathname + "/.wrlock") {
 
@@ -62,6 +63,7 @@ void file_session_writer::handle_event(const record& rec) {
 	if (!written) {
 		_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
 			_dst_ep->filesize());
+		_fd.fsync();
 		written = _sfw->write(rec);
 	}
 

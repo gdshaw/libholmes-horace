@@ -5,6 +5,8 @@
 
 #include <optional>
 
+#include <fcntl.h>
+
 #include "horace/query_string.h"
 
 #include "file_session_writer.h"
@@ -18,6 +20,7 @@ static size_t default_filesize = 0x1000000;
 file_endpoint::file_endpoint(const std::string& name):
 	endpoint(name),
 	_pathname(this->name().path()),
+	_fd(_pathname, O_RDONLY),
 	_filesize(default_filesize) {
 
 	if (std::optional<std::string> query = this->name().query()) {
@@ -29,7 +32,10 @@ file_endpoint::file_endpoint(const std::string& name):
 std::unique_ptr<session_writer> file_endpoint::make_session_writer(
 	const std::string& source_id) {
 
-	return std::make_unique<file_session_writer>(*this, source_id);
+	std::unique_ptr<session_writer> writer =
+		std::make_unique<file_session_writer>(*this, source_id);
+	_fd.fsync();
+	return writer;
 }
 
 } /* namespace horace */

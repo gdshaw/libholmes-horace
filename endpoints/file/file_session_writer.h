@@ -10,6 +10,7 @@
 
 #include "horace/session_writer.h"
 
+#include "directory_maker.h"
 #include "lockfile.h"
 #include "spoolfile_writer.h"
 
@@ -26,6 +27,9 @@ private:
 
 	/** The filestore subdirectory pathname. */
 	std::string _pathname;
+
+	/** A directory_maker instance for creating the subdirectory. */
+	directory_maker _dm;
 
 	/** A file descriptor for synchronising the subdirectory. */
 	file_descriptor _fd;

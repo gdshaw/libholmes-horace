@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "horace/file_descriptor.h"
 #include "horace/endpoint.h"
 #include "horace/session_writer_endpoint.h"
 
@@ -20,6 +21,9 @@ class file_endpoint:
 private:
 	/** The pathname for this endpoint. */
 	std::string _pathname;
+
+	/** A file descriptor for synchronising the directory. */
+	file_descriptor _fd;
 
 	/** The size to which spoolfiles are permitted to grow, in octets. */
 	size_t _filesize;
