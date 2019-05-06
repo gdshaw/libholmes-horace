@@ -9,12 +9,14 @@
 #include <string>
 
 #include "horace/endpoint.h"
+#include "horace/session_writer_endpoint.h"
 
 namespace horace {
 
 /** An endpoint class to represent a set of HORACE filestores. */
 class file_endpoint:
-	public endpoint {
+	public endpoint,
+	public session_writer_endpoint {
 private:
 	/** The pathname for this endpoint. */
 	std::string _pathname;
@@ -30,6 +32,9 @@ public:
 	const std::string& pathname() const {
 		return _pathname;
 	}
+
+	virtual std::unique_ptr<session_writer> make_session_writer(
+		const std::string& source_id);
 };
 
 } /* namespace horace */

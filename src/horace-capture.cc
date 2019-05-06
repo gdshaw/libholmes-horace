@@ -9,8 +9,11 @@
 #include <getopt.h>
 
 #include "horace/record.h"
+#include "horace/event_reader.h"
+#include "horace/session_writer.h"
 #include "horace/endpoint.h"
 #include "horace/event_reader_endpoint.h"
+#include "horace/session_writer_endpoint.h"
 
 /** Print help text.
  * @param out the ostream to which the help text should be written
@@ -51,7 +54,8 @@ int main(int argc, char* argv[]) {
 			<< std::endl;
 		exit(1);
 	}
-	std::unique_ptr<horace::event_reader> src_er = src_erep->make_event_reader();
+	std::unique_ptr<horace::event_reader> src_er =
+		src_erep->make_event_reader();
 
 	// Parse destination endpoint.
 	if (optind == argc) {
@@ -62,6 +66,17 @@ int main(int argc, char* argv[]) {
 	std::unique_ptr<horace::endpoint> dst_ep =
 		horace::endpoint::make(argv[optind++]);
 
+	// Make session writer for destination endpoint.
+	horace::session_writer_endpoint* dst_swep =
+		dynamic_cast<horace::session_writer_endpoint*>(dst_ep.get());
+	if (!dst_swep) {
+		std::cerr << "Destination endpoint is unable to receive sessions."
+			<< std::endl;
+		exit(1);
+	}
+	std::unique_ptr<horace::session_writer> dst_sw =
+		dst_swep->make_session_writer("foo");
+
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
 			<< std::endl;
@@ -69,6 +84,6 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 		const horace::record& rec = src_er->read();
-		std::cout << rec << std::endl;
+		dst_sw->write(rec);
 	}
 }
