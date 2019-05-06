@@ -14,7 +14,8 @@ void file_octet_writer::_write_direct(const void* buf, size_t nbyte) {
 }
 
 file_octet_writer::file_octet_writer(file_descriptor& fd):
-	octet_writer(_buffer, sizeof(_buffer)),
+	buffer(0x40),
+	octet_writer(buffer_ptr(), buffer_size()),
 	_fd(&fd) {}
 
 file_octet_writer::~file_octet_writer() {
