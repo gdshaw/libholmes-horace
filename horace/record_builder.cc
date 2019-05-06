@@ -28,7 +28,7 @@ record_builder::record_builder(octet_reader& in):
 		_attributes.push_back(std::move(attr));
 
 		size_t length = hdr_len + attr_len;
-		if (length > length) {
+		if (length > remaining) {
 			throw horace_error(
 				"attribute extends beyond length of record");
 		}
