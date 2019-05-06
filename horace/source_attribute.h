@@ -22,6 +22,11 @@ private:
 	/** The source identifier. */
 	std::string _source_id;
 public:
+	/** Construct source attribute.
+	 * @param source_id the source identifier
+	 */
+	explicit source_attribute(const std::string& source_id);
+
 	/** Construct source attribute from an octet reader.
 	 * The type and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
@@ -29,11 +34,6 @@ public:
 	 * @param length the length of the content, in octets
 	 */
 	source_attribute(octet_reader& in, size_t length);
-
-	/** Construct source attribute.
-	 * @param source_id the source identifier
-	 */
-	source_attribute(const std::string& source_id);
 
 	/** Get the source identifier.
 	 * @return the source identifier

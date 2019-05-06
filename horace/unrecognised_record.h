@@ -17,7 +17,7 @@ public:
 	/** Move-construct from generic record.
 	 * @param rec the record
 	 */
-	unrecognised_record(record&& rec):
+	explicit unrecognised_record(record&& rec):
 		record(rec) {}
 };
 

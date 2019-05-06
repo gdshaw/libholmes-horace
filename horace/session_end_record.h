@@ -21,7 +21,7 @@ public:
 	/** Move-construct from generic record.
 	 * @param rec the record
 	 */
-	session_end_record(record&& rec);
+	explicit session_end_record(record&& rec);
 
 	/** Get the timestamp attribute.
 	 * @return the timestamp attribute

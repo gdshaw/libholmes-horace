@@ -31,7 +31,7 @@ public:
 	/** Construct file endpoint.
 	 * @param name the name of this endpoint
 	 */
-	file_endpoint(const std::string& name);
+	explicit file_endpoint(const std::string& name);
 
 	/** Get the pathname.
 	 * @return the pathname

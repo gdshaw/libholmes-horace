@@ -24,7 +24,7 @@ public:
 	/** Open directory.
 	 * @param pathname the directory pathname
 	 */
-	directory(const std::string& pathname);
+	explicit directory(const std::string& pathname);
 
 	/** Close directory. */
 	~directory();

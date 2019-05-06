@@ -40,7 +40,7 @@ public:
 	/** Create lockfile.
 	 * @param pathname the lockfile pathname
 	 */
-	lockfile(const std::string& pathname);
+	explicit lockfile(const std::string& pathname);
 
 	/** Remove lockfile. */
 	~lockfile();

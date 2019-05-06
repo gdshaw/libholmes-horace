@@ -28,7 +28,7 @@ public:
 	/** Scan filestore.
 	 * @param pathname the filestore pathname
 	 */
-	filestore_scanner(const std::string& pathname);
+	explicit filestore_scanner(const std::string& pathname);
 
 	/** Get the first file number in the filestore.
 	 * @return the first file number, or 0 if filestore empty

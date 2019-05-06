@@ -17,7 +17,7 @@ public:
 	/** Construct null endpoint.
 	 * @param name the name of this endpoint
 	 */
-	null_endpoint(const std::string& name);
+	explicit null_endpoint(const std::string& name);
 };
 
 } /* namespace horace */

@@ -17,7 +17,7 @@ public:
 	/** Construct endpoint error.
 	 * @param message a message describing the error
 	 */
-	endpoint_error(const std::string& message):
+	explicit endpoint_error(const std::string& message):
 		std::runtime_error(message) {}
 };
 

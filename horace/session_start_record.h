@@ -25,7 +25,7 @@ public:
 	/** Move-construct from generic record.
 	 * @param rec the record
 	 */
-	session_start_record(record&& rec);
+	explicit session_start_record(record&& rec);
 
 	/** Get the source attribute.
 	 * @return the source attribute

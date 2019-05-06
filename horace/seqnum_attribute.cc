@@ -9,12 +9,12 @@
 
 namespace horace {
 
-seqnum_attribute::seqnum_attribute(octet_reader& in, size_t length):
-	_seqnum(in.read_unsigned(length)) {}
-
 seqnum_attribute::seqnum_attribute(uint64_t seqnum):
 	_seqnum(seqnum) {
 }
+
+seqnum_attribute::seqnum_attribute(octet_reader& in, size_t length):
+	_seqnum(in.read_unsigned(length)) {}
 
 size_t seqnum_attribute::length() const {
 	size_t len = 1;

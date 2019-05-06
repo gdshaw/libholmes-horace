@@ -30,7 +30,7 @@ public:
 	/** Construct network interface endpoint.
 	 * @param name the name of this endpoint
 	 */
-	netif_endpoint(const std::string& name);
+	explicit netif_endpoint(const std::string& name);
 
 	/** Get the interface.
 	 * @return the interface

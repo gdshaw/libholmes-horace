@@ -15,7 +15,7 @@ class horace_error:
 	public std::runtime_error {
 public:
 	/** Construct HORACE error. */
-	horace_error(const std::string& message):
+	explicit horace_error(const std::string& message):
 		std::runtime_error(message) {}
 };
 

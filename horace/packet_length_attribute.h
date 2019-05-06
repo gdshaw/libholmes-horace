@@ -27,6 +27,11 @@ private:
 	/** The original length of the packet, in octets. */
 	uint64_t _origlen;
 public:
+	/** Construct packet length attribute from length
+	 * @param origlen the original length of the packet, in octets
+	 */
+	explicit packet_length_attribute(uint64_t origlen);
+
 	/** Construct packet length attribute from an octet reader.
 	 * It is presumed that the type and length fields have already been
 	 * read. This function must read exactly the specified number of
@@ -35,11 +40,6 @@ public:
 	 * @param length the length of the content, in octets
 	 */
 	packet_length_attribute(octet_reader& in, size_t length);
-
-	/** Construct packet length attribute from length
-	 * @param origlen the original length of the packet, in octets
-	 */
-	packet_length_attribute(uint64_t origlen);
 
 	/** Get the original packet length.
 	 * This should not be confused with the length function, which

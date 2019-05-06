@@ -22,7 +22,7 @@ public:
 	/** Construct spoolfile from filename.
 	 * @param filename the filename
 	 */
-	spoolfile(const std::string& filename);
+	explicit spoolfile(const std::string& filename);
 
 	/** Construct spoolfile from filenum.
 	 * @param filenum the filenum

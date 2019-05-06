@@ -22,6 +22,11 @@ private:
 	/** The timestamp as a time_t. */
 	time_t _ts;
 public:
+	/** Construct POSIX timestamp attribute.
+	 * @param ts the required timestamp as a time_t
+	 */
+	explicit posix_timestamp_attribute(time_t ts);
+
 	/** Construct POSIX timestamp attribute from an octet reader.
 	 * It is presumed that the type and length fields have already been
 	 * read. This function must read exactly the specified number of
@@ -30,11 +35,6 @@ public:
 	 * @param length the length of the content, in octets
 	 */
 	posix_timestamp_attribute(octet_reader& in, size_t length);
-
-	/** Construct POSIX timestamp attribute.
-	 * @param ts the required timestamp as a time_t
-	 */
-	posix_timestamp_attribute(time_t ts);
 
 	/** Get the timestamp.
 	 * @return the timestamp as a time_t

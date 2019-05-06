@@ -47,7 +47,7 @@ public:
 	/** Open packet socket.
 	 * @param snaplen the required link layer snaplen, in octets
 	 */
-	packet_socket(size_t snaplen);
+	explicit packet_socket(size_t snaplen);
 
 	virtual const record& read();
 };

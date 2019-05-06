@@ -9,13 +9,12 @@
 
 namespace horace {
 
+packet_length_attribute::packet_length_attribute(uint64_t origlen):
+	_origlen(origlen) {}
+
 packet_length_attribute::packet_length_attribute(octet_reader& in,
 	size_t length):
 	_origlen(in.read_unsigned(length)) {}
-
-packet_length_attribute::packet_length_attribute(uint64_t origlen):
-	_origlen(origlen) {
-}
 
 size_t packet_length_attribute::length() const {
 	size_t len = 1;

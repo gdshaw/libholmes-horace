@@ -19,6 +19,11 @@ private:
 	/** The sequence number. */
 	uint64_t _seqnum;
 public:
+	/** Construct sequence number attribute.
+	 * @param seqnum the sequence number
+	 */
+	explicit seqnum_attribute(uint64_t seqnum);
+
 	/** Construct sequence number attribute from an octet reader.
 	 * It is presumed that the type and length fields have already been
 	 * read. This function must read exactly the specified number of
@@ -27,11 +32,6 @@ public:
 	 * @param length the length of the content, in octets
 	 */
 	seqnum_attribute(octet_reader& in, size_t length);
-
-	/** Construct sequence number attribute.
-	 * @param seqnum the sequence number
-	 */
-	seqnum_attribute(uint64_t seqnum);
 
 	/** Get the sequence number.
 	 * @return the sequence number

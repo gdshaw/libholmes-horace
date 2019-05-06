@@ -28,7 +28,7 @@ public:
 	/** Construct endpoint.
 	 * @param name the name of this endpoint
 	 */
-	endpoint(const std::string& name);
+	explicit endpoint(const std::string& name);
 
 	/** Destroy endpoint. */
 	virtual ~endpoint() = default;

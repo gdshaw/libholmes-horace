@@ -20,14 +20,14 @@ public:
 	/** Construct record builder with empty attribute list.
 	 * @param type the type of the record to be built.
 	 */
-	record_builder(int type);
+	explicit record_builder(int type);
 
 	/** Build record from octet reader.
 	 * It is presumed that the type and length fields have not already
 	 * been read.
 	 * @param in the octet reader
 	 */
-	record_builder(octet_reader& in);
+	explicit record_builder(octet_reader& in);
 
 	/** Append an attribute to this record.
 	 * @param attr the attribute to be appended

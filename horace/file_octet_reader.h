@@ -26,7 +26,7 @@ public:
 	/** Construct file octet reader.
 	 * @param fd the file descriptor to be read from
 	 */
-	file_octet_reader(file_descriptor& fd);
+	explicit file_octet_reader(file_descriptor& fd);
 };
 
 } /* namespace horace */

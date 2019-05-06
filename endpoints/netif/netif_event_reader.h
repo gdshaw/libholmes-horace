@@ -25,7 +25,7 @@ public:
 	/** Construct network interface event reader.
 	 * @param ep the endpoint to read from
 	 */
-	netif_event_reader(const netif_endpoint& ep);
+	explicit netif_event_reader(const netif_endpoint& ep);
 
 	virtual const record& read();
 };

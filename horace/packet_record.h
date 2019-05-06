@@ -29,7 +29,7 @@ public:
 	/** Move-construct from generic record.
 	 * @param rec the record
 	 */
-	packet_record(record&& rec);
+	explicit packet_record(record&& rec);
 
 	/** Get the packet attribute.
 	 * @return the packet attribute, or 0 if none

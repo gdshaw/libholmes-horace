@@ -28,7 +28,7 @@ private:
 	std::list<std::shared_ptr<attribute>> _attributes;
 protected:
 	/** Construct record with empty attribute list. */
-	record(int type):
+	explicit record(int type):
 		_type(type) {}
 public:
 	// Control record type codes.

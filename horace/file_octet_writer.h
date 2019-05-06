@@ -23,12 +23,12 @@ protected:
 	virtual void _write_direct(const void* buf, size_t nbyte);
 public:
 	/** Construct file octet writer without a file descriptor. */
-	file_octet_writer() {}
+	file_octet_writer() = default;
 
 	/** Construct file octet writer.
 	 * @param fd the file descriptor to be written to
 	 */
-	file_octet_writer(file_descriptor& fd);
+	explicit file_octet_writer(file_descriptor& fd);
 
 	file_octet_writer(const file_octet_writer& that) = delete;
 	file_octet_writer& operator=(const file_octet_writer& that) = delete;

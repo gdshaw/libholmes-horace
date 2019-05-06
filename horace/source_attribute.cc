@@ -7,11 +7,11 @@
 
 namespace horace {
 
-source_attribute::source_attribute(octet_reader& in, size_t length):
-	_source_id(in.read_string(length)) {}
-
 source_attribute::source_attribute(const std::string& source_id):
 	_source_id(source_id) {}
+
+source_attribute::source_attribute(octet_reader& in, size_t length):
+	_source_id(in.read_string(length)) {}
 
 int source_attribute::type() const {
 	return ATTR_SOURCE;

@@ -27,7 +27,7 @@ public:
 	/** Make directory
 	 * @param pathname the directory pathname
 	 */
-	directory_maker(const std::string& pathname);
+	explicit directory_maker(const std::string& pathname);
 };
 
 } /* namespace horace */

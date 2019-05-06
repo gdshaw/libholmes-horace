@@ -23,7 +23,7 @@ public:
 	/** Construct standard C library error for a specific error number.
 	 * @param errno_arg the required error number
 	 */
-	libc_error(int errno_arg);
+	explicit libc_error(int errno_arg);
 };
 
 } /* namespace horace */
