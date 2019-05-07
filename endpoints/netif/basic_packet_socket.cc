@@ -13,7 +13,10 @@
 namespace horace {
 
 basic_packet_socket::basic_packet_socket():
-	socket_descriptor(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL)) {}
+	socket_descriptor(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL)) {
+
+	interruptible(true);
+}
 
 void basic_packet_socket::bind(const interface& iface) {
 	struct sockaddr_ll addr = {0};

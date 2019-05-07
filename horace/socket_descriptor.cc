@@ -17,6 +17,7 @@ socket_descriptor::socket_descriptor(int domain, int type, int protocol):
 	if (*this == -1) {
 		throw libc_error();
 	}
+	interruptible(false);
 }
 
 void socket_descriptor::bind(const struct sockaddr* addr, socklen_t addrlen) {

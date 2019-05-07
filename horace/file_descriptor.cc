@@ -9,6 +9,8 @@
 #include <sys/file.h>
 
 #include "horace/libc_error.h"
+#include "horace/signal_set.h"
+#include "horace/terminate_flag.h"
 #include "horace/file_descriptor.h"
 
 namespace horace {
@@ -28,14 +30,36 @@ file_descriptor::~file_descriptor() {
 	}
 }
 
+bool file_descriptor::interruptible() const {
+	return ::fcntl(*this, F_GETFL, 0) & O_NONBLOCK;
+}
+
+void file_descriptor::interruptible(bool enable) {
+	int flags = ::fcntl(*this, F_GETFL, 0);
+	if (flags == -1) {
+		throw libc_error();
+	}
+	if (enable) {
+		flags |= O_NONBLOCK;
+	} else {
+		flags &= ~O_NONBLOCK;
+	}
+	if (::fcntl(*this, F_SETFL, flags) == -1) {
+		throw libc_error();
+	}
+}
+
 void file_descriptor::wait(int events) const {
 	struct pollfd fds[1] = {{0}};
 	fds[0].fd = _fd;
 	fds[0].events = events;
 
-	if (ppoll(fds, 1, 0, 0) == -1) {
+	if (ppoll(fds, 1, 0, terminating_signals) == -1) {
 		if (errno != EINTR) {
 			throw libc_error();
+		}
+		if (interruptible()) {
+			terminating.poll();
 		}
 	}
 }

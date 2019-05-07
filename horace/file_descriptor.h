@@ -68,6 +68,16 @@ public:
 		return *this;
 	}
 
+	/** Test whether this file descriptor is interruptible.
+	 * @return true if interruptible, otherwise false
+	 */
+	bool interruptible() const;
+
+	/** Set whether this file descriptor is interruptible.
+	 * @param enable true if interruptible, otherwise false
+	 */
+	void interruptible(bool enable);
+
 	/** Test whether file descriptor object is non-empty.
 	 * @return true if non-empty, otherwise false
 	 */
