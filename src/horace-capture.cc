@@ -54,6 +54,11 @@ void capture(const std::string& source_id, event_reader& src_er, session_writer&
 	} catch (std::exception& ex) {
 		std::cerr << ex.what() << std::endl;
 	}
+
+	record_builder erecb(record::REC_SESSION_END);
+	erecb.append(std::make_shared<posix_timespec_attribute>());
+	std::unique_ptr<record> erec = erecb.build();
+	dst_sw.write(*erec);
 }
 
 int main(int argc, char* argv[]) {

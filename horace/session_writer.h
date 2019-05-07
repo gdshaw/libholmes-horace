@@ -12,6 +12,7 @@ namespace horace {
 
 class record;
 class session_start_record;
+class session_end_record;
 
 /** A class for writing sessions to an endpoint. */
 class session_writer {
@@ -26,11 +27,21 @@ private:
 	 * @param srec the start of session record
 	 */
 	void _process_session_start(const session_start_record& srec);
+
+	/** Process an end of session record.
+	 * @param erec the end of session record
+	 */
+	void _process_session_end(const session_end_record& erec);
 protected:
 	/** Handle the start of a new session.
 	 * @param srec the start of session record
 	 */
 	virtual void handle_session_start(const session_start_record& srec) = 0;
+
+	/** Handle the end of a session.
+	 * @param erec the end of session record
+	 */
+	virtual void handle_session_end(const session_end_record& erec) = 0;
 
 	/** Handle an event.
 	 * @param rec the event record
