@@ -6,6 +6,7 @@
 #include "horace/endpoint_error.h"
 
 #include "packet_socket.h"
+#include "ring_buffer_v1.h"
 #include "netif_event_reader.h"
 #include "netif_endpoint.h"
 
@@ -14,10 +15,19 @@ namespace horace {
 class record;
 
 netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
-	_sock = std::make_unique<packet_socket>(ep.snaplen());
+	std::string method = ep.method();
+	if (method == "packet") {
+		_sock = std::make_unique<packet_socket>(ep.snaplen());
+	} else if (method == "ringv1") {
+		_sock = std::make_unique<ring_buffer_v1>(ep.snaplen(), ep.capacity());
+	} else {
+		throw endpoint_error("interface capture method not recognised");
+	}
+
 	if (ep.netif()) {
 		_sock->bind(ep.netif());
 	}
+
 	if (ep.promiscuous()) {
 		if (!ep.netif()) {
 			throw endpoint_error("cannot enable promiscuous "

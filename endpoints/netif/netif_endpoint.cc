@@ -12,7 +12,9 @@ namespace horace {
 
 netif_endpoint::netif_endpoint(const std::string& name):
 	endpoint(name),
+	_method("ringv1"),
 	_snaplen(0x40000),
+	_capacity(0x1000000),
 	_promiscuous(false) {
 
 	std::string path = this->name().path();
@@ -24,7 +26,9 @@ netif_endpoint::netif_endpoint(const std::string& name):
 
 	if (query) {
 		query_string params(*query);
+		_method = params.find<std::string>("capture").value_or(_method);
 		_snaplen = params.find<long>("snaplen").value_or(_snaplen);
+		_capacity = params.find<long long>("capacity").value_or(_capacity);
 		_promiscuous = params.find<bool>("promiscuous").
 			value_or(_promiscuous);
 	}

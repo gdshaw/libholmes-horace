@@ -88,6 +88,15 @@ std::optional<long> query_string::find<long>(const std::string& name) const {
 }
 
 template<>
+std::optional<long long> query_string::find<long long>(const std::string& name) const {
+	auto f = _parameters.find(name);
+	if (f == _parameters.end()) {
+		return std::nullopt;
+	}
+	return stoll(f->second);
+}
+
+template<>
 std::optional<bool> query_string::find<bool>(const std::string& name) const {
 	auto f = _parameters.find(name);
 	if (f == _parameters.end()) {

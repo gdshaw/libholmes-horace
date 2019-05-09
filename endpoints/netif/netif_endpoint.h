@@ -21,8 +21,14 @@ private:
 	/** The network interface referred to by this endpoint. */
 	interface _if;
 
+	/** The capture method. */
+	std::string _method;
+
 	/** The snaplen, in octets. */
 	long _snaplen;
+
+	/** The buffer capacity, in octets. */
+	size_t _capacity;
 
 	/** True if promiscuous mode requested, otherwise false. */
 	bool _promiscuous;
@@ -39,11 +45,25 @@ public:
 		return _if;
 	}
 
+	/** Get the capture method.
+	 * @return the capture method
+	 */
+	const std::string& method() const {
+		return _method;
+	}
+
 	/** Get the snaplen.
 	 * @return the snaplen, in octets
 	 */
 	long snaplen() const {
 		return _snaplen;
+	}
+
+	/** Get the buffer capacity.
+	 * @return the capacity, in octets
+	 */
+	size_t capacity() const {
+		return _capacity;
 	}
 
 	/** Check whether promiscuous mode requested.
