@@ -7,6 +7,7 @@
 
 #include "packet_socket.h"
 #include "ring_buffer_v1.h"
+#include "ring_buffer_v2.h"
 #include "netif_event_reader.h"
 #include "netif_endpoint.h"
 
@@ -20,6 +21,8 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
 		_sock = std::make_unique<packet_socket>(ep.snaplen());
 	} else if (method == "ringv1") {
 		_sock = std::make_unique<ring_buffer_v1>(ep.snaplen(), ep.capacity());
+	} else if (method == "ringv2") {
+		_sock = std::make_unique<ring_buffer_v2>(ep.snaplen(), ep.capacity());
 	} else {
 		throw endpoint_error("interface capture method not recognised");
 	}
