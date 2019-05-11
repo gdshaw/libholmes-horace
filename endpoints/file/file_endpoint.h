@@ -10,6 +10,7 @@
 
 #include "horace/file_descriptor.h"
 #include "horace/endpoint.h"
+#include "horace/session_listener_endpoint.h"
 #include "horace/session_writer_endpoint.h"
 
 namespace horace {
@@ -17,6 +18,7 @@ namespace horace {
 /** An endpoint class to represent a set of HORACE filestores. */
 class file_endpoint:
 	public endpoint,
+	public session_listener_endpoint,
 	public session_writer_endpoint {
 private:
 	/** The pathname for this endpoint. */
@@ -47,6 +49,7 @@ public:
 		return _filesize;
 	}
 
+	virtual std::unique_ptr<session_listener> make_session_listener();
 	virtual std::unique_ptr<session_writer> make_session_writer(
 		const std::string& source_id);
 };

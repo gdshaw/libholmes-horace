@@ -9,6 +9,7 @@
 
 #include "horace/query_string.h"
 
+#include "file_session_listener.h"
 #include "file_session_writer.h"
 #include "file_endpoint.h"
 
@@ -27,6 +28,13 @@ file_endpoint::file_endpoint(const std::string& name):
 		query_string params(*query);
 		_filesize = params.find<long>("filesize").value_or(_filesize);
 	}
+}
+
+std::unique_ptr<session_listener> file_endpoint::make_session_listener() {
+	std::unique_ptr<session_listener> listener =
+		std::make_unique<file_session_listener>(*this);
+	_fd.fsync();
+	return listener;
 }
 
 std::unique_ptr<session_writer> file_endpoint::make_session_writer(
