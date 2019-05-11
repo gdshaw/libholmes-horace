@@ -12,6 +12,8 @@
 
 namespace horace {
 
+class filter;
+
 /** A class to represent a socket descriptor. */
 class socket_descriptor:
 	public file_descriptor {
@@ -77,6 +79,10 @@ public:
 	void setsockopt(int level, int optname, const T& optval) {
 		setsockopt(level, optname, &optval, sizeof(optval));
 	}
+
+	/** Attach a BPF filter to this socket descriptor.
+	 */
+	void attach(const filter& filt);
 };
 
 } /* namespace horace */

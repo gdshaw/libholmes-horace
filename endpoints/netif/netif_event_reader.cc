@@ -47,4 +47,8 @@ const record& netif_event_reader::read() {
 	return _sock->read();
 };
 
+void netif_event_reader::attach(const filter& filt) {
+	_sock->attach(filt);
+}
+
 } /* namespace horace */

@@ -9,6 +9,7 @@
 namespace horace {
 
 class record;
+class filter;
 
 /** A class for reading events from an endpoint.
  * This class is intended for use by endpoints which act as a source of
@@ -33,6 +34,13 @@ public:
 	 * @return the resulting event record
 	 */
 	virtual const record& read() = 0;
+
+	/** Attach a BPF filter to this event reader.
+	 * Event readers which do not capture network packets should take no
+	 * action when this function is called. This is the default behaviour.
+	 * @param filt the filter to be attached
+	 */
+	virtual void attach(const filter& filt);
 };
 
 } /* namespace horace */

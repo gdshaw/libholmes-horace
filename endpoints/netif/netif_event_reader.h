@@ -28,6 +28,7 @@ public:
 	explicit netif_event_reader(const netif_endpoint& ep);
 
 	virtual const record& read();
+	virtual void attach(const filter& filt);
 };
 
 } /* namespace horace */

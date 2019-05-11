@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 
 #include "horace/libc_error.h"
+#include "horace/filter.h"
 #include "horace/socket_descriptor.h"
 
 namespace horace {
@@ -47,6 +48,11 @@ void socket_descriptor::setsockopt(int level, int optname,
 	if (::setsockopt(*this, level, optname, optval, optlen) == -1) {
 		throw libc_error();
 	}
+}
+
+void socket_descriptor::attach(const filter& filt) {
+	const struct sock_fprog* fprog = filt.compile();
+	setsockopt(SOL_SOCKET, SO_ATTACH_FILTER, *fprog);
 }
 
 } /* namespace horace */

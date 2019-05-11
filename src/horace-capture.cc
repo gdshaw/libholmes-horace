@@ -14,6 +14,7 @@
 #include "horace/empty_signal_handler.h"
 #include "horace/terminate_flag.h"
 #include "horace/hostname.h"
+#include "horace/address_filter.h"
 #include "horace/source_attribute.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/record.h"
@@ -35,6 +36,7 @@ void write_help(std::ostream& out) {
 	out << "Options:" << std::endl;
 	out << std::endl;
 	out << "  -h  display this help text then exit" << std::endl;
+	out << "  -x  exclude address or netblock" << std::endl;
 }
 
 void capture(const std::string& source_id, event_reader& src_er, session_writer& dst_sw) {
@@ -74,13 +76,20 @@ int main(int argc, char* argv[]) {
 	// Get hostname for use as source ID.
 	hostname source_id;
 
+	// Initialise using default options.
+	address_filter addrfilt;
+
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+hV")) != -1) {
+	while ((opt = getopt(argc, argv, "+hx:")) != -1) {
 		switch (opt) {
 		case 'h':
 			write_help(std::cout);
 			return 0;
+		case 'x':
+			inet4_netblock nb(optarg);
+			addrfilt.add(nb);
+			break;
 		}
 	}
 
@@ -127,6 +136,11 @@ int main(int argc, char* argv[]) {
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
 			<< std::endl;
+	}
+
+	// Attach address filter to event reader, but only if it is non-empty.
+	if (!addrfilt.empty()) {
+		src_er->attach(addrfilt);
 	}
 
 	// Capture events.
