@@ -7,17 +7,22 @@
 #define LIBHOLMES_HORACE_MONGODB_ENDPOINT
 
 #include "horace/endpoint.h"
+#include "horace/session_writer_endpoint.h"
 
 namespace horace {
 
 /** An endpoint class to represent a MongoDB database. */
 class mongodb_endpoint:
-	public endpoint {
+	public endpoint,
+	public session_writer_endpoint {
 public:
 	/** Construct MongoDB endpoint.
 	 * @param name the name of this endpoint
 	 */
 	mongodb_endpoint(const std::string& name);
+
+	virtual std::unique_ptr<session_writer> make_session_writer(
+		const std::string& source_id);
 };
 
 } /* namespace horace */
