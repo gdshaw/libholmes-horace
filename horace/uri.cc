@@ -65,4 +65,26 @@ uri::uri(const std::string& uri_string) {
 	}
 }
 
+uri::operator std::string() const {
+	std::string result;
+	if (_scheme) {
+		result.append(*_scheme);
+		result.append(":");
+	}
+	if (_authority) {
+		result.append("//");
+		result.append(*_authority);
+	}
+	result.append(_path);
+	if (_query) {
+		result.append("?");
+		result.append(*_query);
+	}
+	if (_fragment) {
+		result.append("#");
+		result.append(*_fragment);
+	}
+	return result;
+}
+
 } /* namespace horace */

@@ -34,6 +34,11 @@ public:
 	 */
 	explicit uri(const std::string& uri_string);
 
+	/** Convert URI back to string.
+	 * @return the URI as a string
+	 */
+	operator std::string() const;
+
 	/** Get the scheme component for this URI.
 	 * @return the scheme component
 	 */
