@@ -51,6 +51,21 @@ public:
 			sizeof(addr));
 	}
 
+	/** Connect this socket descriptor to an address.
+	 * @param addr the address
+	 * @param addrlen the length of the address
+	 */
+	void connect(const struct sockaddr* addr, socklen_t addrlen);
+
+	/** Connect this socket descriptor to an address.
+	 * @param addr the address
+	 */
+	template<class T>
+	void connect(const T& addr) {
+		bind(reinterpret_cast<const struct sockaddr*>(&addr),
+			sizeof(addr));
+	}
+
 	/** Receive a message from this socket.
 	 * This function will block if a message is not immediately
 	 * available, unless there is no prospect of any further messages

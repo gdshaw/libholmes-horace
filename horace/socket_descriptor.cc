@@ -18,12 +18,21 @@ socket_descriptor::socket_descriptor(int domain, int type, int protocol):
 	if (*this == -1) {
 		throw libc_error();
 	}
-	interruptible(false);
 }
 
 void socket_descriptor::bind(const struct sockaddr* addr, socklen_t addrlen) {
 	if (::bind(*this, addr, addrlen) == -1) {
 		throw horace::libc_error();
+	}
+}
+
+void socket_descriptor::connect(const struct sockaddr* addr, socklen_t addrlen) {
+	if (::connect(*this, addr, addrlen) == -1) {
+		if (errno == EINPROGRESS) {
+			wait(POLLOUT);
+		} else {
+			throw horace::libc_error();
+		}
 	}
 }
 
