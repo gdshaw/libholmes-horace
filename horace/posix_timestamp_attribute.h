@@ -50,6 +50,7 @@ public:
 	virtual size_t length() const;
 	virtual void write(std::ostream& out) const;
 	virtual void write(octet_writer& out) const;
+	virtual operator struct timespec() const;
 	virtual bool equals(const absolute_timestamp_attribute& that) const;
 };
 

@@ -37,6 +37,13 @@ void posix_timestamp_attribute::write(octet_writer& out) const {
 	out.write_unsigned(_ts, len);
 }
 
+posix_timestamp_attribute::operator struct timespec() const {
+	struct timespec t;
+	t.tv_sec = _ts;
+	t.tv_nsec = 0;
+	return t;
+}
+
 bool posix_timestamp_attribute::equals(const absolute_timestamp_attribute& that) const {
 	const posix_timestamp_attribute* _that =
 		dynamic_cast<const posix_timestamp_attribute*>(&that);

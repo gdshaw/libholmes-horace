@@ -25,6 +25,12 @@ public:
 	 * @return true if equal, otherwise false.
 	 */
 	virtual bool equals(const absolute_timestamp_attribute& that) const = 0;
+
+	/** Convert this attribute to a POSIX timespec.
+	 * @return the resulting timespec
+	 */
+	virtual operator struct timespec() const = 0;
+
 };
 
 } /* namespace horace */
