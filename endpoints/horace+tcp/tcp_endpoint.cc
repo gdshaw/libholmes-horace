@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "tcp_session_listener.h"
 #include "tcp_session_writer.h"
 #include "tcp_endpoint.h"
 
@@ -21,6 +22,10 @@ tcp_endpoint::tcp_endpoint(const std::string& name):
 		_portname = hostportname.substr(
 			index + 1, std::string::npos);
 	}
+}
+
+std::unique_ptr<session_listener> tcp_endpoint::make_session_listener() {
+	return std::make_unique<tcp_session_listener>(*this);
 }
 
 std::unique_ptr<session_writer> tcp_endpoint::make_session_writer(

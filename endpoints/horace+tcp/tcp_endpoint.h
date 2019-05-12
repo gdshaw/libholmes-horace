@@ -9,6 +9,7 @@
 #include <string>
 
 #include "horace/endpoint.h"
+#include "horace/session_listener_endpoint.h"
 #include "horace/session_writer_endpoint.h"
 
 namespace horace {
@@ -16,6 +17,7 @@ namespace horace {
 /** An endpoint class for making and receiving connections via TCP. */
 class tcp_endpoint:
 	public endpoint,
+	public session_listener_endpoint,
 	public session_writer_endpoint {
 private:
 	/** The hostname. */
@@ -43,6 +45,7 @@ public:
 		return _portname;
 	}
 
+	virtual std::unique_ptr<session_listener> make_session_listener();
 	virtual std::unique_ptr<session_writer> make_session_writer(
 		const std::string& source_id);
 };

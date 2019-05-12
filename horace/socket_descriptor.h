@@ -51,6 +51,22 @@ public:
 			sizeof(addr));
 	}
 
+	/** Listen on this socket.
+	 * @param the required queue length
+	 */
+	void listen(int backlog = SOMAXCONN);
+
+	/** Accept a connection.
+	 * If a connection is not immediately available then this
+	 * function will block, even if the socket is non-blocking.
+	 * If it detects a request to terminate then it will throw
+	 * a terminate_exception.
+	 * @param addr a buffer to receive the remote address
+	 * @param addrlen the size of the buffer
+	 * @return a socket descriptor for the accepted connection
+	 */
+	socket_descriptor accept(struct sockaddr* addr, socklen_t addrlen);
+
 	/** Connect this socket descriptor to an address.
 	 * @param addr the address
 	 * @param addrlen the length of the address

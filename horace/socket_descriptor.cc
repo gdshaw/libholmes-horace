@@ -26,6 +26,27 @@ void socket_descriptor::bind(const struct sockaddr* addr, socklen_t addrlen) {
 	}
 }
 
+void socket_descriptor::listen(int backlog) {
+	if (::listen(*this, backlog) == -1) {
+		throw libc_error();
+	}
+}
+
+socket_descriptor socket_descriptor::accept(struct sockaddr* addr, socklen_t addrlen) {
+	int fd = -1;
+	while (fd == -1) {
+		fd = ::accept(*this, 0, 0);
+		if (fd == -1) {
+			if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+				wait(POLLIN);
+			} else {
+				throw libc_error();
+			}
+		}
+	}
+	return socket_descriptor(fd);
+}
+
 void socket_descriptor::connect(const struct sockaddr* addr, socklen_t addrlen) {
 	if (::connect(*this, addr, addrlen) == -1) {
 		if (errno == EINPROGRESS) {
