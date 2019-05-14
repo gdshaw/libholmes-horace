@@ -34,6 +34,8 @@ public:
 	// Control record type codes.
 	static const int REC_SESSION_START = 0x00;
 	static const int REC_SESSION_END = 0x01;
+	static const int REC_SYNC = 0x02;
+	static const int REC_ACK = 0x03;
 
 	// Event record type codes.
 	static const int REC_EVENT_MIN = 0x20;
