@@ -7,22 +7,24 @@
 #define LIBHOLMES_HORACE_FILE_OCTET_READER
 
 #include "horace/file_descriptor.h"
+#include "horace/buffer.h"
 #include "horace/octet_reader.h"
 
 namespace horace {
 
 /** An octet reader class for reading from a file descriptor. */
 class file_octet_reader:
+	public buffer,
 	public octet_reader {
 private:
-	/** A buffer for the octet reader. */
-	char buffer[0x40];
-
 	/** The file descriptor to be read from. */
 	file_descriptor* _fd;
 protected:
 	virtual size_t _read_direct(void* buf, size_t nbyte);
 public:
+	/** Construct file octet reader without a file descriptor. */
+	file_octet_reader() = default;
+
 	/** Construct file octet reader.
 	 * @param fd the file descriptor to be read from
 	 */

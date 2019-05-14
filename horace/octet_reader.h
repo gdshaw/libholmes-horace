@@ -92,6 +92,42 @@ public:
 	octet_reader(const octet_reader&) = delete;
 	octet_reader& operator=(const octet_reader&) = delete;
 
+	/** Move-construct octet reader.
+	 * @param that the octet reader to be moved
+	 */
+	octet_reader(octet_reader&& that):
+		// Copy from old object to new.
+		_buffer(that._buffer),
+		_limit(that._limit),
+		_ptr(that._ptr),
+		_end(that._end) {
+
+		// Null the old object for safety.
+		that._buffer = 0;
+		that._limit = 0;
+		that._ptr = 0;
+		that._end = 0;
+	}
+
+	/** Move-assign octet reader.
+	 * @param that the octet reader to be moved
+	 * @return a reference to this
+	 */
+	octet_reader& operator=(octet_reader&& that) {
+		// Copy from old object to new.
+		_buffer = that._buffer;
+		_limit = that._limit;
+		_ptr = that._ptr;
+		_end = that._end;
+
+		// Null the old object for safety.
+		that._buffer = 0;
+		that._limit = 0;
+		that._ptr = 0;
+		that._end = 0;
+		return *this;
+	}
+
 	/** Read a single octet from the stream.
 	 * @return the octet
 	 */

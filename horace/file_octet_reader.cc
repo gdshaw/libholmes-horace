@@ -16,7 +16,8 @@ size_t file_octet_reader::_read_direct(void* buf, size_t nbyte) {
 }
 
 file_octet_reader::file_octet_reader(file_descriptor& fd):
-	octet_reader(buffer, sizeof(buffer), 0),
+	buffer(0x40),
+	octet_reader(buffer_ptr(), buffer_size(), 0),
 	_fd(&fd) {}
 
 } /* namespace horace */
