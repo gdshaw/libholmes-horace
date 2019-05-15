@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "horace/session_writer.h"
+#include "horace/simple_session_writer.h"
 
 #include "directory_maker.h"
 #include "lockfile.h"
@@ -20,7 +20,7 @@ class file_endpoint;
 
 /** A class for writing sessions to a filestore. */
 class file_session_writer:
-	public session_writer {
+	public simple_session_writer {
 private:
 	/** The destination endpoint. */
 	file_endpoint* _dst_ep;
@@ -55,6 +55,7 @@ private:
 protected:
 	virtual void handle_session_start(const session_start_record& srec);
 	virtual void handle_session_end(const session_end_record& erec);
+	virtual void handle_sync(const sync_record& crec);
 	virtual void handle_event(const record& rec);
 public:
 	/** Construct filestore session writer.

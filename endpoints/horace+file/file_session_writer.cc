@@ -19,8 +19,8 @@ namespace horace {
 
 file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	const std::string& source_id):
+	simple_session_writer(source_id),
 	_dst_ep(&dst_ep),
-	session_writer(source_id),
 	_pathname(dst_ep.pathname() + "/" + source_id),
 	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
@@ -64,6 +64,10 @@ void file_session_writer::handle_session_end(const session_end_record& erec) {
 	_sfw->write(erec);
 	_sfw->sync();
 	_sfw = 0;
+}
+
+void file_session_writer::handle_sync(const sync_record& crec) {
+	_sfw->sync();
 }
 
 void file_session_writer::handle_event(const record& rec) {

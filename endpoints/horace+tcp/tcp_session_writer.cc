@@ -3,10 +3,14 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/horace_error.h"
 #include "horace/address_info.h"
 #include "horace/record.h"
+#include "horace/record_builder.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
+#include "horace/sync_record.h"
+#include "horace/ack_record.h"
 
 #include "tcp_endpoint.h"
 #include "tcp_session_writer.h"
@@ -27,27 +31,20 @@ void tcp_session_writer::_open() {
 	_fd = ai.make_socket();
 	ai.connect(_fd);
 	_fdow = file_octet_writer(_fd);
+	_fdor = file_octet_reader(_fd);
 }
 
-void tcp_session_writer::handle_session_start(const session_start_record& srec) {
-	if (!_fd) {
-		_open();
-	}
-	srec.write(_fdow);
-}
-
-void tcp_session_writer::handle_session_end(const session_end_record& erec) {
-	if (!_fd) {
-		_open();
-	}
-	erec.write(_fdow);
-}
-
-void tcp_session_writer::handle_event(const record& rec) {
+void tcp_session_writer::write(const record& rec) {
 	if (!_fd) {
 		_open();
 	}
 	rec.write(_fdow);
+}
+
+std::unique_ptr<record> tcp_session_writer::read() {
+	_fdow.flush();
+	record_builder builder(_fdor);
+	return builder.build();
 }
 
 } /* namespace horace */

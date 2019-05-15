@@ -18,13 +18,18 @@ class session_reader {
 public:
 	virtual ~session_reader() = default;
 
-	/** Read a record.
+	/** Read a record from the endpoint.
 	 * If there is no record immediately available then this function
 	 * will block until one can be read, or until there is no further
 	 * prospect of that happening.
 	 * @return the resulting record
 	 */
 	virtual std::unique_ptr<record> read() = 0;
+
+	/** Write a record to the endpoint.
+	 * @param rec the record to be written
+	 */
+	virtual void write(const record& rec) = 0;
 };
 
 } /* namespace horace */

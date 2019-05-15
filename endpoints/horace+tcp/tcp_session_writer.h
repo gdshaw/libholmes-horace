@@ -8,6 +8,7 @@
 
 #include "horace/socket_descriptor.h"
 #include "horace/file_octet_writer.h"
+#include "horace/file_octet_reader.h"
 #include "horace/session_writer.h"
 
 namespace horace {
@@ -27,12 +28,11 @@ private:
 	/** An octet writer for the connection. */
 	file_octet_writer _fdow;
 
+	/** An octet reader for the connection. */
+	file_octet_reader _fdor;
+
 	/** Open a connection. */
 	void _open();
-protected:
-	virtual void handle_session_start(const session_start_record& srec);
-	virtual void handle_session_end(const session_end_record& erec);
-	virtual void handle_event(const record& rec);
 public:
 	/** Construct TCP session writer.
 	 * @param dst_ep the destination endpoint
@@ -40,6 +40,9 @@ public:
 	 */
 	tcp_session_writer(tcp_endpoint& dst_ep,
 		const std::string& source_id);
+
+	virtual void write(const record& rec);
+	virtual std::unique_ptr<record> read();
 };
 
 } /* namespace horace */

@@ -25,6 +25,7 @@ void mongodb_session_writer::_sync() {
 	if (mongoc_bulk_operation_execute(_bulk, &reply, &error) == 0) {
 		throw mongodb_error(error);
 	}
+
 	bson_destroy(&reply);
 	mongoc_bulk_operation_destroy(_bulk);
 	_bulk = 0;
@@ -131,6 +132,10 @@ void mongodb_session_writer::handle_session_end(const session_end_record& erec) 
 	}
 }
 
+void mongodb_session_writer::handle_sync(const sync_record& crec) {
+	_sync();
+}
+
 void mongodb_session_writer::handle_event(const record& rec) {
 	if (const packet_record* prec =
 		dynamic_cast<const packet_record*>(&rec)) {
@@ -143,7 +148,7 @@ void mongodb_session_writer::handle_event(const record& rec) {
 
 mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
 	const std::string& source_id):
-	session_writer(source_id),
+	simple_session_writer(source_id),
 	_database(dst_ep.name()),
 	_sessions(_database.collection("sessions")),
 	_packets(_database.collection("packets")),

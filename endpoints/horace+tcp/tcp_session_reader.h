@@ -8,6 +8,7 @@
 
 #include "horace/socket_descriptor.h"
 #include "horace/file_octet_reader.h"
+#include "horace/file_octet_writer.h"
 #include "horace/record.h"
 #include "horace/session_reader.h"
 
@@ -27,6 +28,9 @@ public:
 
 	/** An octet reader for the socket descriptor. */
 	file_octet_reader _fdor;
+
+	/** An octet writer for the socket descriptor. */
+	file_octet_writer _fdow;
 public:
 	/** Construct TCP session reader.
 	 * @param src_ep the source endpoint
@@ -36,6 +40,7 @@ public:
 		socket_descriptor&& fd);
 
 	virtual std::unique_ptr<record> read();
+	virtual void write(const record& rec);
 };
 
 } /* namespace horace */

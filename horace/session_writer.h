@@ -8,45 +8,15 @@
 
 #include <string>
 
-namespace horace {
+#include "record.h"
 
-class record;
-class session_start_record;
-class session_end_record;
+namespace horace {
 
 /** A class for writing sessions to an endpoint. */
 class session_writer {
 private:
 	/** The source ID. */
 	std::string _source_id;
-
-	/** The current start of session record, or null if none. */
-	const session_start_record* _srec;
-private:
-	/** Process a start of session record.
-	 * @param srec the start of session record
-	 */
-	void _process_session_start(const session_start_record& srec);
-
-	/** Process an end of session record.
-	 * @param erec the end of session record
-	 */
-	void _process_session_end(const session_end_record& erec);
-protected:
-	/** Handle the start of a new session.
-	 * @param srec the start of session record
-	 */
-	virtual void handle_session_start(const session_start_record& srec) = 0;
-
-	/** Handle the end of a session.
-	 * @param erec the end of session record
-	 */
-	virtual void handle_session_end(const session_end_record& erec) = 0;
-
-	/** Handle an event.
-	 * @param rec the event record
-	 */
-	virtual void handle_event(const record& rec) = 0;
 public:
 	/** Construct session writer.
 	 * @param source_id the required source ID
@@ -60,14 +30,18 @@ public:
 		return _source_id;
 	}
 
-	/** Get the current session start record.
-	 * If there is no active start record then an exception is thrown.
-	 * @return the start record
+	/** Write a record to the endpoint.
+	 * @param rec the record to be written
 	 */
-	const session_start_record& start_record() const;
+	virtual void write(const record& rec) = 0;
 
-	/** Write a record to the endpoint. */
-	void write(const record& rec);
+	/** Read a record from the endpoint.
+	 * If there is no record immediately available then this function
+	 * will block until one can be read, or until there is no further
+	 * prospect of that happening.
+	 * @return the resulting record
+	 */
+	virtual std::unique_ptr<record> read() = 0;
 };
 
 } /* namespace horace */

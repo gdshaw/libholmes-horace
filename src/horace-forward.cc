@@ -60,13 +60,22 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 		dst_sw->write(*srec);
 
 		// Copy records from source to destination. Watch for
-		// start of session records, keeping a copy of the most
-		// recent one.
+		// start of session records and sync records, which
+		// require special handling.
 		while (true) {
 			std::unique_ptr<record> rec = src_sr->read();
 			dst_sw->write(*rec);
-			if (rec->type() == record::REC_SESSION_START) {
+			switch (rec->type()) {
+			case record::REC_SESSION_START:
+				// Keep a copy of the most recent start of
+				// session record.
 				srec = std::move(rec);
+				break;
+			case record::REC_SYNC:
+				// Sync records must be acknowledged.
+				std::unique_ptr<record> arec = dst_sw->read();
+				src_sr->write(*arec);
+				break;
 			}
 		}
 	} catch (terminate_exception&) {

@@ -49,6 +49,15 @@ public:
 	/** A reader for the current spoolfile. */
 	std::unique_ptr<spoolfile_reader> _sfr;
 
+	/** The current session timestamp. */
+	struct timespec _session_ts;
+
+	/** The current sequence number. */
+	uint64_t _seqnum;
+
+	/** True if waiting for a sync record to be acknowledged, otherwise false. */
+	bool _syncing;
+
 	/** Get the pathname at which to look for the next spoolfile.
 	 * This function has the side effect of incrementing the filenum
 	 * each time it is called.
@@ -63,6 +72,7 @@ public:
 		const std::string& source_id);
 
 	virtual std::unique_ptr<record> read();
+	virtual void write(const record& rec);
 
 	/** Wait for a change to the repository.
 	 * This could be a change to an existing file or the creation

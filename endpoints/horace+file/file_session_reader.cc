@@ -6,7 +6,14 @@
 #include <fcntl.h>
 
 #include "horace/eof_error.h"
+#include "horace/horace_error.h"
 #include "horace/endpoint_error.h"
+#include "horace/posix_timespec_attribute.h"
+#include "horace/seqnum_attribute.h"
+#include "horace/record.h"
+#include "horace/record_builder.h"
+#include "horace/session_start_record.h"
+#include "horace/ack_record.h"
 
 #include "filestore_scanner.h"
 #include "spoolfile.h"
@@ -24,7 +31,10 @@ file_session_reader::file_session_reader(file_endpoint& src_ep,
 	_watcher(_pathname),
 	_lockfile(_pathname + "/.rdlock"),
 	_next_filenum(0),
-	_minwidth(0) {}
+	_minwidth(0),
+	_session_ts({0}),
+	_seqnum(0),
+	_syncing(false) {}
 
 std::string file_session_reader::_next_pathname() {
 	// Construct the filename for the new spoolfile, incrementing the
@@ -43,18 +53,8 @@ std::string file_session_reader::_next_pathname() {
 }
 
 std::unique_ptr<record> file_session_reader::read() {
-	while (true) {
-		// If there is an open spoolfile then attempt to read a record from it.
-		if (_sfr) {
-			try {
-				return _sfr->read();
-			} catch (eof_error& ex) {
-				// No action required.
-			}
-		}
-
-		// If the above fails then attempt to open a new spoolfile.
-		//
+	// If no spoolfile has been opened yet then attempt to open one.
+	if (!_sfr) {
 		// First scan to find first filenum. If the filestore is
 		// empty then wait until at least one spoolfile is available.
 		while (_minwidth == 0) {
@@ -68,12 +68,72 @@ std::unique_ptr<record> file_session_reader::read() {
 		}
 
 		// Now open the spoolfile.
-		std::string next_pathname = (_sfr) ?
-			_sfr->next_pathname() :
-			_next_pathname();
-		_sfr = std::make_unique<spoolfile_reader>(
-			*this, next_pathname, _next_pathname());
+		std::string init_pathname = _next_pathname();
+		_sfr = std::make_unique<spoolfile_reader>(*this,
+			init_pathname, _next_pathname());
 	}
+
+	// If a sync record has already been returned for the current
+	// spoolfile then it is an error to read any more records until
+	// it has been acknowledged.
+	if (_syncing) {
+		throw horace_error("ack record expected");
+	}
+
+	// Attempt to read a record, but be prepared for a possible
+	// end of file error.
+	try {
+		std::unique_ptr<record> rec = _sfr->read();
+		if (session_start_record* srec = dynamic_cast<session_start_record*>(rec.get())) {
+			_session_ts = srec->timestamp();
+			_seqnum = 0;
+		} else {
+			_seqnum += 1;
+		}
+		return rec;
+	} catch (eof_error& ex) {
+		// If there is no prospect of further data being read from
+		// the current spoolfile (because the end has been reached
+		// and a subsequent spoolfile has been detected) then
+		// return a sync record.
+		_syncing = true;
+		record_builder builder(record::REC_SYNC);
+		builder.append(std::make_shared<posix_timespec_attribute>(_session_ts));
+		builder.append(std::make_shared<seqnum_attribute>(_seqnum));
+		return builder.build();
+	}
+}
+
+void file_session_reader::write(const record& rec) {
+	// The only type of record which should be written is an
+	// acknowledgement record.
+	if (rec.type() != record::REC_ACK) {
+		throw horace_error("unexpected record type sent to session reader");
+	}
+
+	// Furthermore, acknowledgement records should only be written
+	// in response to a sync record.
+	if (!_syncing) {
+		throw horace_error("unexpected ack record sent to session reader");
+	}
+
+	// Check that the acknowledgement record matches the outstanding
+	// sync record.
+	const ack_record& crec = dynamic_cast<const ack_record&>(rec);
+	struct timespec crec_ts = crec.timestamp();
+	uint64_t crec_seqnum = crec.seqnum().seqnum();
+	if ((crec_ts.tv_sec != _session_ts.tv_sec) ||
+		(crec_ts.tv_nsec != _session_ts.tv_nsec) ||
+		(crec_seqnum != _seqnum)) {
+
+		throw horace_error("acknowledgement record does not match sync record");
+	}
+
+	// Proceed to the next spoolfile.
+	_sfr = std::make_unique<spoolfile_reader>(*this,
+		_sfr->next_pathname(), _next_pathname());
+	_seqnum = 0;
+	_syncing = false;
 }
 
 void file_session_reader::wait() {
