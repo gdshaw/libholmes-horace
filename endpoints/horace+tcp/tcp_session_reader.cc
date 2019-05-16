@@ -15,7 +15,10 @@ tcp_session_reader::tcp_session_reader(tcp_endpoint& src_ep,
 	_src_ep(&src_ep),
 	_fd(std::move(fd)),
 	_fdor(_fd),
-	_fdow(_fd) {}
+	_fdow(_fd) {
+
+	_fd.interruptible(true);
+}
 
 std::unique_ptr<record> tcp_session_reader::read() {
 	record_builder builder(_fdor);
