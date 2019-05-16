@@ -38,6 +38,7 @@ spoolfile_reader::spoolfile_reader(file_session_reader& fsr,
 	octet_reader(buffer_ptr(), buffer_size(), 0),
 	_fsr(&fsr),
 	_fd(pathname, O_RDONLY),
+	_pathname(pathname),
 	_next_pathname(next_pathname) {}
 
 std::unique_ptr<record> spoolfile_reader::read() {

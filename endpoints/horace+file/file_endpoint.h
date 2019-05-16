@@ -29,6 +29,9 @@ private:
 
 	/** The size to which spoolfiles are permitted to grow, in octets. */
 	size_t _filesize;
+
+	/** True if deletion of spoolfiles should be suppressed, otherwise false. */
+	bool _nodelete;
 public:
 	/** Construct file endpoint.
 	 * @param name the name of this endpoint
@@ -47,6 +50,13 @@ public:
 	 */
 	size_t filesize() const {
 		return _filesize;
+	}
+
+	/** Check whether deletion of spoolfiles should be suppressed
+	 * @return true to suppress, otherwise false
+	 */
+	bool nodelete() const {
+		return _nodelete;
 	}
 
 	virtual std::unique_ptr<session_listener> make_session_listener();

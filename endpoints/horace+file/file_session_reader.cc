@@ -3,8 +3,10 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <unistd.h>
 #include <fcntl.h>
 
+#include "horace/libc_error.h"
 #include "horace/eof_error.h"
 #include "horace/horace_error.h"
 #include "horace/endpoint_error.h"
@@ -127,6 +129,14 @@ void file_session_reader::write(const record& rec) {
 		(crec_seqnum != _seqnum)) {
 
 		throw horace_error("acknowledgement record does not match sync record");
+	}
+
+	// Delete the current spoolfile, unless deletion suppressed.
+	if (!_src_ep->nodelete()) {
+		if (unlink(_sfr->pathname().c_str()) == -1) {
+			throw libc_error();
+		}
+		_fd.fsync();
 	}
 
 	// Proceed to the next spoolfile.

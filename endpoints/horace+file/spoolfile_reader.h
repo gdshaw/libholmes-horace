@@ -26,6 +26,9 @@ private:
 	/** The file descriptor to be read from. */
 	file_descriptor _fd;
 
+	/** The pathname of this spoolfile. */
+	std::string _pathname;
+
 	/** The pathname of the following spoolfile. */
 	std::string _next_pathname;
 protected:
@@ -47,6 +50,13 @@ public:
 	 * @return the record
 	 */
 	std::unique_ptr<record> read();
+
+	/** Get the pathname of this spoolfile.
+	 * @return the pathname
+	 */
+	const std::string& pathname() {
+		return _pathname;
+	}
 
 	/** Get the pathname of the following spoolfile.
 	 * @return the pathname

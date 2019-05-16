@@ -22,11 +22,13 @@ file_endpoint::file_endpoint(const std::string& name):
 	endpoint(name),
 	_pathname(this->name().path()),
 	_fd(_pathname, O_RDONLY),
-	_filesize(default_filesize) {
+	_filesize(default_filesize),
+	_nodelete(false) {
 
 	if (std::optional<std::string> query = this->name().query()) {
 		query_string params(*query);
 		_filesize = params.find<long>("filesize").value_or(_filesize);
+		_nodelete = params.find<bool>("nodelete").value_or(_nodelete);
 	}
 }
 
