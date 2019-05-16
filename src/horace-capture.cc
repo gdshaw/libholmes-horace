@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <cctype>
 #include <cstring>
 #include <memory>
 #include <iostream>
@@ -36,6 +37,7 @@ void write_help(std::ostream& out) {
 	out << "Options:" << std::endl;
 	out << std::endl;
 	out << "  -h  display this help text then exit" << std::endl;
+	out << "  -S  set source identifier" << std::endl;
 	out << "  -x  exclude address or netblock" << std::endl;
 }
 
@@ -74,22 +76,33 @@ int main(int argc, char* argv[]) {
 	empty_signal_handler sigalrm_handler(SIGALRM);
 
 	// Get hostname for use as source ID.
-	hostname source_id;
+	std::string source_id = hostname();
 
 	// Initialise using default options.
 	address_filter addrfilt;
 
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+hx:")) != -1) {
+	while ((opt = getopt(argc, argv, "+hS:x:")) != -1) {
 		switch (opt) {
 		case 'h':
 			write_help(std::cout);
 			return 0;
+		case 'S':
+			source_id = std::string(optarg);
+			break;
 		case 'x':
 			inet4_netblock nb(optarg);
 			addrfilt.add(nb);
 			break;
+		}
+	}
+
+	// Validate source ID.
+	for (char c : source_id) {
+		if (!isalnum(c) && (c != '-') && (c != '.')) {
+			std::cerr << "Invalid source ID" << std::endl;
+			exit(1);
 		}
 	}
 
