@@ -3,6 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/record.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
@@ -33,6 +35,12 @@ packet_socket::packet_socket(size_t snaplen):
 	_message.msg_iovlen = 1;
 	_message.msg_control = _control.get();
 	_message.msg_controllen = control_size;
+
+	if (log->enabled(logger::log_info)) {
+		log_message msg(*log, logger::log_info);
+		msg << "opened packet socket (" <<
+			"snaplen=" << snaplen << ")";
+	}
 }
 
 const record& packet_socket::read() {

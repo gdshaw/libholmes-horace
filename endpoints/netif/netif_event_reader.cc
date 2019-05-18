@@ -3,6 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/endpoint_error.h"
 
 #include "packet_socket.h"
@@ -34,12 +36,28 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
 		_sock->bind(ep.netif());
 	}
 
+	if (log->enabled(logger::log_notice)) {
+		log_message msg(*log, logger::log_notice);
+		msg << "capturing on ";
+		if (ep.netif()) {
+			msg << "interface " << ep.netifname();
+		} else {
+			msg << "all interfaces";
+		}
+	}
+
 	if (ep.promiscuous()) {
 		if (!ep.netif()) {
 			throw endpoint_error("cannot enable promiscuous "
 				"mode for all interfaces.");
 		}
 		_sock->set_promiscuous(ep.netif());
+
+		if (log->enabled(logger::log_notice)) {
+			log_message msg(*log, logger::log_notice);
+			msg << "enabled promiscuous mode on interface "
+				<< ep.netifname();
+		}
 	}
 }
 

@@ -17,13 +17,12 @@ netif_endpoint::netif_endpoint(const std::string& name):
 	_capacity(0x1000000),
 	_promiscuous(false) {
 
-	std::string path = this->name().path();
-	std::optional<std::string> query = this->name().query();
-
-	if (!path.empty()) {
-		_if = interface(path);
+	std::string ifname = netifname();
+	if (!ifname.empty()) {
+		_if = interface(ifname);
 	}
 
+	std::optional<std::string> query = this->name().query();
 	if (query) {
 		query_string params(*query);
 		_method = params.find<std::string>("capture").value_or(_method);

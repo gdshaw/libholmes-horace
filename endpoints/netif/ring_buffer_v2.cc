@@ -8,6 +8,8 @@
 #include <sys/mman.h>
 #include <sys/socket.h>
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/record.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
@@ -39,6 +41,20 @@ ring_buffer_v2::ring_buffer_v2(size_t snaplen, size_t buffer_size):
 
 	size_t rx_ring_size = _tpreq.tp_block_nr * _tpreq.tp_block_size;
 	_rx_ring = (char*)mmap(0, rx_ring_size, PROT_READ|PROT_WRITE, MAP_SHARED, *this, 0);
+
+	if (log->enabled(logger::log_info)) {
+		log_message msg1(*log, logger::log_info);
+		msg1 << "opened packet socket (" <<
+			"snaplen=" << snaplen << ")";
+	}
+	if (log->enabled(logger::log_info)) {
+		log_message msg2(*log, logger::log_info);
+		msg2 << "ring buffer v2 (" <<
+			"bs=" << _tpreq.tp_block_size << ", " <<
+			"fs=" << _tpreq.tp_frame_size << ", " <<
+			"nb=" << _tpreq.tp_block_nr << ", " <<
+			"nf=" << _tpreq.tp_frame_nr << ")";
+	}
 }
 
 const record& ring_buffer_v2::read() {

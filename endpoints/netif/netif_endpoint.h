@@ -45,6 +45,13 @@ public:
 		return _if;
 	}
 
+	/** Get the interface name.
+	 * @return the interface name
+	 */
+	std::string netifname() const {
+		return name().path();
+	}
+
 	/** Get the capture method.
 	 * @return the capture method
 	 */
