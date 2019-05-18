@@ -4,7 +4,10 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include <sstream>
+#include <iomanip>
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -31,6 +34,15 @@ void record::write(octet_writer& out) const {
 	out.write_base128(length());
 	for (auto&& attr : _attributes) {
 		attr->write(out);
+	}
+}
+
+void record::log(logger& log) const {
+	if (log.enabled(logger::log_info)) {
+		log_message msg(log, logger::log_info);
+		msg << "unrecognised message type 0x" <<
+			std::hex << std::setfill('0') <<
+			std::setw(2) << type();
 	}
 }
 

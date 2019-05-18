@@ -47,6 +47,8 @@ public:
 		return "ack";
 	}
 
+	virtual void log(logger& log) const;
+
 	/** Compare with a sync record.
 	 * @return true if timestamp and seqnum match
 	 */

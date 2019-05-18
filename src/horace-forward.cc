@@ -55,6 +55,7 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 		if (srec->type() != record::REC_SESSION_START) {
 			throw horace_error("start of session record expected");
 		}
+		srec->log(*log);
 
 		// Create a session writer using the source ID from the
 		// start of session record.
@@ -68,6 +69,7 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 		// require special handling.
 		while (true) {
 			std::unique_ptr<record> rec = src_sr->read();
+			rec->log(*log);
 			dst_sw->write(*rec);
 			switch (rec->type()) {
 			case record::REC_SESSION_START:
@@ -79,6 +81,7 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 				// Sync records must be acknowledged.
 				std::unique_ptr<record> arec = dst_sw->read();
 				src_sr->write(*arec);
+				arec->log(*log);
 				break;
 			}
 		}

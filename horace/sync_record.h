@@ -46,6 +46,8 @@ public:
 	virtual std::string type_name() const {
 		return "sync";
 	}
+
+	virtual void log(logger& log) const;
 };
 
 } /* namespace horace */

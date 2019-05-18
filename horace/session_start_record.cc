@@ -3,7 +3,11 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <iomanip>
+
 #include "horace/horace_error.h"
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/session_start_record.h"
 
 namespace horace {
@@ -44,6 +48,17 @@ session_start_record::session_start_record(record&& rec):
 	if (!_timestamp_attr) {
 		throw horace_error(
 			"missing timestamp attribute in start of session record");
+	}
+}
+
+void session_start_record::log(logger& log) const {
+	if (log.enabled(logger::log_notice)) {
+		log_message msg(log, logger::log_notice);
+		struct timespec ts = *_timestamp_attr;
+		msg << "start of session (source=" <<
+			_source_attr->source_id() << ", ts=" <<
+			ts.tv_sec << "." << std::setfill('0') <<
+			std::setw(9) << ts.tv_nsec << ")";
 	}
 }
 

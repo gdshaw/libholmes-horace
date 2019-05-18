@@ -45,6 +45,8 @@ public:
 		return "session-start";
 	}
 
+	virtual void log(logger& log) const;
+
 	/** Compare with another start of session record.
 	 * @return true if source and timestamp match
 	 */

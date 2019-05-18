@@ -15,6 +15,7 @@
 
 namespace horace {
 
+class logger;
 class record_builder;
 
 /** An abstract base class to represent a HORACE record. */
@@ -54,6 +55,11 @@ public:
 	 * @return type the type name
 	 */
 	virtual std::string type_name() const;
+
+	/** Log this record.
+	 * @param log the logger
+	 */
+	virtual void log(logger& log) const;
 
 	/** Get the length of the content of this record.
 	 * @return the content length, in octets

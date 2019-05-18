@@ -4,6 +4,8 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/horace_error.h"
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/session_end_record.h"
 
 namespace horace {
@@ -31,6 +33,13 @@ session_end_record::session_end_record(record&& rec):
 	if (!_timestamp_attr) {
 		throw horace_error(
 			"missing timestamp attribute in end of session record");
+	}
+}
+
+void session_end_record::log(logger& log) const {
+	if (log.enabled(logger::log_notice)) {
+		log_message msg(log, logger::log_notice);
+		msg << "end of session";
 	}
 }
 

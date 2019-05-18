@@ -3,7 +3,11 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <iomanip>
+
 #include "horace/horace_error.h"
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/sync_record.h"
 #include "horace/ack_record.h"
 
@@ -45,6 +49,17 @@ ack_record::ack_record(record&& rec):
 	if (!_seqnum_attr) {
 		throw horace_error(
 			"missing sequence number attribute in ack record");
+	}
+}
+
+void ack_record::log(logger& log) const {
+	if (log.enabled(logger::log_info)) {
+		log_message msg(log, logger::log_info);
+		struct timespec ts = *_timestamp_attr;
+		msg << "sync request (ts=" <<
+			ts.tv_sec << "." << std::setfill('0') <<
+			std::setw(9) << ts.tv_nsec <<
+			" seqnum=" << _seqnum_attr->seqnum() << ")";
 	}
 }
 

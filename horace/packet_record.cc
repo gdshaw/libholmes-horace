@@ -4,6 +4,8 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/horace_error.h"
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/packet_record.h"
 
 namespace horace {
@@ -43,6 +45,17 @@ packet_record::packet_record(record&& rec):
 			}
 			_timestamp_attr = timestamp_attr;
 		}
+	}
+}
+
+void packet_record::log(logger& log) const {
+	if (log.enabled(logger::log_debug)) {
+		log_message msg(log, logger::log_debug);
+		size_t length = _packet_attr->length();
+		if (_origlen_attr) {
+			length = _origlen_attr->length();
+		}
+		msg << "packet (length=" << length << ")";
 	}
 }
 

@@ -33,6 +33,8 @@ public:
 	virtual std::string type_name() const {
 		return "session-end";
 	}
+
+	virtual void log(logger& log) const;
 };
 
 } /* namespace horace */
