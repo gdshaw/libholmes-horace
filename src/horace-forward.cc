@@ -10,6 +10,9 @@
 
 #include <getopt.h>
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
+#include "horace/stderr_logger.h"
 #include "horace/horace_error.h"
 #include "horace/signal_set.h"
 #include "horace/empty_signal_handler.h"
@@ -36,6 +39,7 @@ void write_help(std::ostream& out) {
 	out << "Options:" << std::endl;
 	out << std::endl;
 	out << "  -h  display this help text then exit" << std::endl;
+	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
 /** Forward records for a single source ID.
@@ -123,15 +127,27 @@ int main(int argc, char* argv[]) {
 	empty_signal_handler sigterm_handler(SIGTERM);
 	empty_signal_handler sigalrm_handler(SIGALRM);
 
+	// Initialise default options.
+	int severity = logger::log_warning;
+
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+h")) != -1) {
+	while ((opt = getopt(argc, argv, "+hv")) != -1) {
 		switch (opt) {
 		case 'h':
 			write_help(std::cout);
 			return 0;
+		case 'v':
+			if (severity < logger::log_debug) {
+				severity += 1;
+			}
+			break;
 		}
 	}
+
+	// Initialise logger.
+	log = std::make_unique<stderr_logger>();
+	log->severity(severity);
 
 	// Parse source endpoint.
 	if (optind == argc) {

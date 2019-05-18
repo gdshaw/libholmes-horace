@@ -11,6 +11,9 @@
 
 #include <getopt.h>
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
+#include "horace/stderr_logger.h"
 #include "horace/signal_set.h"
 #include "horace/empty_signal_handler.h"
 #include "horace/terminate_flag.h"
@@ -39,6 +42,7 @@ void write_help(std::ostream& out) {
 	out << "  -h  display this help text then exit" << std::endl;
 	out << "  -S  set source identifier" << std::endl;
 	out << "  -x  exclude address or netblock" << std::endl;
+	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
 void capture(const std::string& source_id, event_reader& src_er, session_writer& dst_sw) {
@@ -78,12 +82,13 @@ int main(int argc, char* argv[]) {
 	// Get hostname for use as source ID.
 	std::string source_id = hostname();
 
-	// Initialise using default options.
+	// Initialise default options.
 	address_filter addrfilt;
+	int severity = logger::log_warning;
 
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+hS:x:")) != -1) {
+	while ((opt = getopt(argc, argv, "+hS:vx:")) != -1) {
 		switch (opt) {
 		case 'h':
 			write_help(std::cout);
@@ -91,12 +96,21 @@ int main(int argc, char* argv[]) {
 		case 'S':
 			source_id = std::string(optarg);
 			break;
+		case 'v':
+			if (severity < logger::log_debug) {
+				severity += 1;
+			}
+			break;
 		case 'x':
 			inet4_netblock nb(optarg);
 			addrfilt.add(nb);
 			break;
 		}
 	}
+
+	// Initialise logger.
+	log = std::make_unique<stderr_logger>();
+	log->severity(severity);
 
 	// Validate source ID.
 	for (char c : source_id) {
