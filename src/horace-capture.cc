@@ -18,6 +18,8 @@
 #include "horace/empty_signal_handler.h"
 #include "horace/terminate_flag.h"
 #include "horace/hostname.h"
+#include "horace/inet4_netblock.h"
+#include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
 #include "horace/source_attribute.h"
 #include "horace/posix_timespec_attribute.h"
@@ -104,8 +106,13 @@ int main(int argc, char* argv[]) {
 			}
 			break;
 		case 'x':
-			inet4_netblock nb(optarg);
-			addrfilt.add(nb);
+			if (strchr(optarg, ':') != 0) {
+				inet6_netblock nb(optarg);
+				addrfilt.add(nb);
+			} else {
+				inet4_netblock nb(optarg);
+				addrfilt.add(nb);
+			}
 			break;
 		}
 	}

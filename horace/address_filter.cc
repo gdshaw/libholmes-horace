@@ -9,6 +9,16 @@
 
 namespace horace {
 
+static uint32_t ipv6_mask(unsigned int index, unsigned int prefix_length) {
+	if (index >= prefix_length) {
+		return 0;
+	}
+	if (index + 32 <= prefix_length) {
+		return -1;
+	}
+	return -(1UL << (index + 32 - prefix_length));
+}
+
 void address_filter::_compile() const {
 	// Currently each netblock is tested in isolation. This is tolerable,
 	// because it is expected that there will typically only be one
@@ -24,43 +34,77 @@ void address_filter::_compile() const {
 	// destination address. In addition to this, 3 instructions are
 	// needed for initially testing the EtherType, and 1 instruction
 	// to return if none of the netblocks match.
-	unsigned int count = 4 + _inet4_netblocks.size() * 8;
+	uint32_t inet4_count = 1;
+	for (auto&& nb : _inet4_netblocks) {
+		inet4_count += 6;
+		if (nb.prefix_length() != 32) {
+			inet4_count += 2;
+		}
+	}
+	uint32_t inet6_count = _inet6_netblocks.size() * 26 + 1;
+	uint32_t count = 4 + inet4_count + inet6_count;
+	if (1 + inet4_count > 0xff) {
+		throw std::invalid_argument("too many addresses in filter");
+	}
+
 	_filter = std::make_unique<sock_filter[]>(count);
 	unsigned int idx = 0;
 
 	// If ethertype != 0x0800 then accept frame.
 	_filter[idx++] = { BPF_LD | BPF_H | BPF_ABS, 0, 0, 12 };
-	_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 1, 0, 0x0800 };
+	_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 2, 0, 0x0800 };
+	_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, static_cast<uint8_t>(1 + inet4_count), 0, 0x86dd };
 	_filter[idx++] = { BPF_RET, 0, 0, 0xffffffff };
 
-	for (std::list<inet4_netblock>::const_iterator it = _inet4_netblocks.begin();
-		it != _inet4_netblocks.end(); ++it) {
-
-		// If source address matches prefix then reject frame.
-		uint32_t prefix = *reinterpret_cast<const uint32_t*>(it->prefix());
+	for (auto&& nb : _inet4_netblocks) {
+		// If IPv4 source address matches prefix then reject frame.
+		uint32_t prefix = *reinterpret_cast<const uint32_t*>(nb.prefix());
 		_filter[idx++] = { BPF_LD | BPF_W | BPF_ABS, 0, 0, 26 };
-		if (it->prefix_length() != 32) {
-			uint32_t mask = -(1UL << (32 - it->prefix_length()));
+		if (nb.prefix_length() != 32) {
+			uint32_t mask = -(1UL << (32 - nb.prefix_length()));
 			_filter[idx++] = { BPF_ALU | BPF_AND | BPF_K, 0, 0, mask };
 		}
 		_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 0, 1, htonl(prefix) };
 		_filter[idx++] = { BPF_RET, 0, 0, 0 };
 	}
-	for (std::list<inet4_netblock>::const_iterator it = _inet4_netblocks.begin();
-		it != _inet4_netblocks.end(); ++it) {
-
-		// If destination address matches prefix then reject frame.
-		uint32_t prefix = *reinterpret_cast<const uint32_t*>(it->prefix());
+	for (auto&& nb : _inet4_netblocks) {
+		// If IPv4 destination address matches prefix then reject frame.
+		uint32_t prefix = *reinterpret_cast<const uint32_t*>(nb.prefix());
 		_filter[idx++] = { BPF_LD | BPF_W | BPF_ABS, 0, 0, 30 };
-		if (it->prefix_length() != 32) {
-			uint32_t mask = -(1UL << (32 - it->prefix_length()));
+		if (nb.prefix_length() != 32) {
+			uint32_t mask = -(1UL << (32 - nb.prefix_length()));
 			_filter[idx++] = { BPF_ALU | BPF_AND | BPF_K, 0, 0, mask };
 		}
 		_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 0, 1, htonl(prefix) };
 		_filter[idx++] = { BPF_RET, 0, 0, 0 };
 	}
 
-	// If frame not already rejected then accept it.
+	// If IPv4 frame not already rejected then accept it.
+	_filter[idx++] = { BPF_RET, 0, 0, 0xffffffff };
+
+	for (auto&& nb : _inet6_netblocks) {
+		// If IPv6 source address matches prefix then reject frame.
+		const uint32_t* prefix = reinterpret_cast<const uint32_t*>(nb.prefix());
+		for (uint32_t i = 0; i != 4; ++i) {
+			_filter[idx++] = { BPF_LD | BPF_W | BPF_ABS, 0, 0, 22 + i * 4 };
+			_filter[idx++] = { BPF_ALU | BPF_AND | BPF_K, 0, 0, ipv6_mask(i * 32, nb.prefix_length()) };
+			_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 0, static_cast<uint8_t>(10 - 3 * i), htonl(prefix[i]) };
+		}
+		_filter[idx++] = { BPF_RET, 0, 0, 0 };
+	}
+
+	for (auto&& nb : _inet6_netblocks) {
+		// If IPv6 destination address matches prefix then reject frame.
+		const uint32_t* prefix = reinterpret_cast<const uint32_t*>(nb.prefix());
+		for (uint32_t i = 0; i != 4; ++i) {
+			_filter[idx++] = { BPF_LD | BPF_W | BPF_ABS, 0, 0, 38 + i * 4 };
+			_filter[idx++] = { BPF_ALU | BPF_AND | BPF_K, 0, 0, ipv6_mask(i * 32, nb.prefix_length()) };
+			_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 0, static_cast<uint8_t>(10 - 3 * i), htonl(prefix[i]) };
+		}
+		_filter[idx++] = { BPF_RET, 0, 0, 0 };
+	}
+
+	// If IPv4 frame not already rejected then accept it.
 	_filter[idx++] = { BPF_RET, 0, 0, 0xffffffff };
 
 	_fprog.len = idx;
@@ -73,6 +117,10 @@ address_filter::address_filter():
 
 void address_filter::add(const inet4_netblock& nb) {
 	_inet4_netblocks.push_back(nb);
+}
+
+void address_filter::add(const inet6_netblock& nb) {
+	_inet6_netblocks.push_back(nb);
 }
 
 bool address_filter::empty() const {

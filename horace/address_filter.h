@@ -10,6 +10,7 @@
 #include <list>
 
 #include "horace/inet4_netblock.h"
+#include "horace/inet6_netblock.h"
 #include "horace/filter.h"
 
 namespace horace {
@@ -25,6 +26,9 @@ class address_filter:
 private:
 	/** The list of IPv4 netblocks to exclude. */
 	std::list<inet4_netblock> _inet4_netblocks;
+
+	/** The list of IPv6 netblocks to exclude. */
+	std::list<inet6_netblock> _inet6_netblocks;
 
 	/** True if the address list has been modified since the filter
 	 * was last compiled, otherwise false.
@@ -52,6 +56,11 @@ public:
 	 * @param nb the netblock to be added
 	 */
 	void add(const inet4_netblock& nb);
+
+	/** Add an IPv6 netblock to this filter.
+	 * @param nb the netblock to be added
+	 */
+	void add(const inet6_netblock& nb);
 
 	virtual bool empty() const;
 	virtual const struct sock_fprog* compile() const;
