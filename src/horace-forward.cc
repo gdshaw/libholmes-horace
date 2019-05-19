@@ -47,6 +47,9 @@ void write_help(std::ostream& out) {
  * @param dst_swep the destination
  */
 void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint& dst_swep) {
+	uint64_t current_seqnum = 0;
+	uint64_t expected_seqnum = 0;
+	bool initial_seqnum = true;
 	try {
 		// Read the start of session record. Keep a copy of it,
 		// unless/until it is superseded by another start of
@@ -59,7 +62,7 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 
 		// Create a session writer using the source ID from the
 		// start of session record.
-		std::string source_id = dynamic_cast<session_start_record&>(*srec.get())
+		std::string source_id = dynamic_cast<session_start_record&>(*srec)
 			.source_attr().source_id();
 		std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(source_id);
 		dst_sw->write(*srec);
@@ -68,21 +71,56 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 		// start of session records and sync records, which
 		// require special handling.
 		while (true) {
+			// Read record from source endpoint.
 			std::unique_ptr<record> rec = src_sr->read();
+
+			// Log the record.
 			rec->log(*log);
+
+			// Update sequence number, log any discontinuties.
+			current_seqnum = rec->update_seqnum(current_seqnum);
+			if (initial_seqnum) {
+				if (log->enabled(logger::log_notice)) {
+					log_message msg(*log, logger::log_notice);
+					msg << "forwarding from seqnum=" << current_seqnum;
+				}
+				initial_seqnum = false;
+			} else if (current_seqnum != expected_seqnum) {
+				if (log->enabled(logger::log_warning)) {
+					log_message msg(*log, logger::log_warning);
+					msg << "seqnum discontinuity (" <<
+						"expected=" << expected_seqnum << ", " <<
+						"observed=" << current_seqnum << ")";
+				}
+			}
+
+			// Write record to destination endpoint.
 			dst_sw->write(*rec);
+
+			// Perform any special handling required by specific
+			// record types.
 			switch (rec->type()) {
 			case record::REC_SESSION_START:
 				// Keep a copy of the most recent start of
 				// session record.
+				// Note: must not make any further reference to rec
+				// following this statement.
 				srec = std::move(rec);
+				current_seqnum = 0;
 				break;
 			case record::REC_SYNC:
 				// Sync records must be acknowledged.
-				std::unique_ptr<record> arec = dst_sw->read();
-				src_sr->write(*arec);
-				arec->log(*log);
-				break;
+				{
+					std::unique_ptr<record> arec = dst_sw->read();
+					src_sr->write(*arec);
+					arec->log(*log);
+					break;
+				}
+			default:
+				if (rec->type() >= record::REC_EVENT_MIN) {
+					current_seqnum += 1;
+					expected_seqnum = current_seqnum;
+				}
 			}
 		}
 	} catch (terminate_exception&) {

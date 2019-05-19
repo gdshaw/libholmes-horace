@@ -8,6 +8,7 @@
 
 #include "horace/logger.h"
 #include "horace/log_message.h"
+#include "horace/seqnum_attribute.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -27,6 +28,18 @@ size_t record::length() const {
 		len += attr_len;
 	}
 	return len;
+}
+
+uint64_t record::update_seqnum(uint64_t seqnum) const {
+	if (_type < REC_EVENT_MIN) {
+		return seqnum;
+	}
+	for (auto&& attr : _attributes) {
+		if (attr->type() == attribute::ATTR_SEQNUM) {
+			return dynamic_cast<seqnum_attribute&>(*attr).seqnum();
+		}
+	}
+	return seqnum;
 }
 
 void record::write(octet_writer& out) const {

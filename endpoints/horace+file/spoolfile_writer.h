@@ -31,6 +31,12 @@ private:
 	/** The capacity of this spoolfile, in octets. */
 	size_t _capacity;
 
+	/** The sequence number.
+	 * This is the sequence number that would be presumed for the next
+	 * event record in the absence of a seqnum attribute.
+	 */
+	uint64_t _seqnum;
+
 	/** True if no event records have been written, otherwise false. */
 	bool _first;
 public:
@@ -46,6 +52,15 @@ public:
 	spoolfile_writer(spoolfile_writer&& that) = delete;
 	spoolfile_writer& operator=(spoolfile_writer&& that) = delete;
 
+	/** Get the current sequence number.
+	 * This is the sequence number that would be presumed for the next
+	 * event record in the absence of a seqnum attribute.
+	 * @return the sequence number
+	 */
+	uint64_t seqnum() const {
+		return _seqnum;
+	}
+
 	/** Ensure that the spoolfile content has been written durably.
 	 * Note that this function does not ensure the durability of the
 	 * spoolfile directory entry, nor of any entries further up the
@@ -60,6 +75,15 @@ public:
 	 * @return true if successful, otherwise false
 	 */
 	bool write(const record& rec);
+
+	/** Attempt to write record to spoolfile with given sequence number.
+	 * This operation will fail if the spoolfile has insufficient
+	 * capacity remaining.
+	 * @param seqnum the required sequence number
+	 * @param rec the record to be written
+	 * @return true if successful, otherwise false
+	 */
+	bool write(uint64_t seqnum, const record& rec);
 };
 
 } /* namespace horace */

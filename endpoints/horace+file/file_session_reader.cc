@@ -86,10 +86,16 @@ std::unique_ptr<record> file_session_reader::read() {
 	// end of file error.
 	try {
 		std::unique_ptr<record> rec = _sfr->read();
-		if (session_start_record* srec = dynamic_cast<session_start_record*>(rec.get())) {
-			_session_ts = srec->timestamp();
-			_seqnum = 0;
-		} else {
+		if (rec->type() == record::REC_SESSION_START) {
+			session_start_record& srec = dynamic_cast<session_start_record&>(*rec);
+			struct timespec new_ts = srec.timestamp();
+			if ((new_ts.tv_sec != _session_ts.tv_sec) ||
+				(new_ts.tv_nsec != _session_ts.tv_nsec)) {
+
+				_session_ts = new_ts;
+				_seqnum = 0;
+			}
+		} else if (rec->type() >= record::REC_EVENT_MIN) {
 			_seqnum += 1;
 		}
 		return rec;
@@ -140,7 +146,6 @@ void file_session_reader::write(const record& rec) {
 	// Proceed to the next spoolfile.
 	_sfr = std::make_unique<spoolfile_reader>(*this,
 		_sfr->next_pathname(), _next_pathname());
-	_seqnum = 0;
 	_syncing = false;
 }
 

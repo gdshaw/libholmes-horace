@@ -7,7 +7,9 @@
 
 #include "horace/logger.h"
 #include "horace/log_message.h"
+#include "horace/seqnum_attribute.h"
 #include "horace/record.h"
+#include "horace/record_builder.h"
 
 #include "spoolfile_writer.h"
 
@@ -20,7 +22,7 @@ spoolfile_writer::spoolfile_writer(const std::string& pathname,
 	_ow(_fd),
 	_size(0),
 	_capacity(capacity),
-	_first(true) {
+	_seqnum(0) {
 
 	if (log->enabled(logger::log_info)) {
 		log_message msg(*log, logger::log_info);
@@ -47,16 +49,31 @@ bool spoolfile_writer::write(const record& rec) {
 	// Return false if this record would cause the spoolfile capacity
 	// to be exceeded, except that it is always permissible to write
 	// at least one event record to each spoolfile.
-	if ((_size + full_len > _capacity) && !_first) {
+	if ((_size + full_len > _capacity) && (_seqnum != 0)) {
 		return false;
 	}
 
-	// Write the record, updating the spoolfile size and first event
-	// record flag.
+	// Write the record, updating the spoolfile size and seqnum.
 	rec.write(_ow);
 	_size += full_len;
-	_first = false;
+	_seqnum = rec.update_seqnum(_seqnum) + 1;
 	return true;
+}
+
+bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
+	if (seqnum != _seqnum) {
+		record_builder builder(rec.type());
+		for (auto&& attr : rec.attributes()) {
+			builder.append(attr);
+		}
+		std::shared_ptr<seqnum_attribute> seqnum_attr =
+			std::make_shared<seqnum_attribute>(seqnum);
+		builder.append(seqnum_attr);
+		std::unique_ptr<record> nrec = builder.build();
+		return write(*nrec);
+	} else {
+		return write(rec);
+	}
 }
 
 } /* namespace horace */

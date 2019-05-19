@@ -46,6 +46,9 @@ private:
 	/** A writer for the spoolfile. */
 	std::unique_ptr<spoolfile_writer> _sfw;
 
+	/** The current sequence number. */
+	uint64_t _seqnum;
+
 	/** Get the pathname to use for the next spoolfile when it is
 	 * created.
 	 * This function has the side effect of incrementing the filenum

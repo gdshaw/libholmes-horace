@@ -52,6 +52,8 @@ void mongodb_session_writer::_write_bulk(const bson_t& doc) {
 }
 
 void mongodb_session_writer::handle_packet(const packet_record& prec) {
+	_seqnum = prec.update_seqnum(_seqnum);
+
 	struct timespec pts =
 		dynamic_cast<const absolute_timestamp_attribute&>(*prec.timestamp());
 	uint64_t pts64 = (pts.tv_sec * 1000000000L) + pts.tv_nsec;
