@@ -133,9 +133,7 @@ void file_session_reader::write(const record& rec) {
 
 	// Delete the current spoolfile, unless deletion suppressed.
 	if (!_src_ep->nodelete()) {
-		if (unlink(_sfr->pathname().c_str()) == -1) {
-			throw libc_error();
-		}
+		_sfr->unlink();
 		_fd.fsync();
 	}
 

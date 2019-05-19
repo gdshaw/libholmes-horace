@@ -5,6 +5,8 @@
 
 #include <fcntl.h>
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/record.h"
 
 #include "spoolfile_writer.h"
@@ -13,14 +15,26 @@ namespace horace {
 
 spoolfile_writer::spoolfile_writer(const std::string& pathname,
 	size_t capacity):
+	_pathname(pathname),
 	_fd(pathname, O_RDWR|O_CREAT|O_EXCL, 0644),
 	_ow(_fd),
 	_size(0),
 	_capacity(capacity),
-	_first(true) {}
+	_first(true) {
+
+	if (log->enabled(logger::log_info)) {
+		log_message msg(*log, logger::log_info);
+		msg << "created spoolfile " << _pathname;
+	}
+}
 
 void spoolfile_writer::sync() const {
 	_fd.fsync();
+
+	if (log->enabled(logger::log_info)) {
+		log_message msg(*log, logger::log_info);
+		msg << "synced spoolfile " << _pathname;
+	}
 }
 
 bool spoolfile_writer::write(const record& rec) {

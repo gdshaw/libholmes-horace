@@ -16,6 +16,9 @@ namespace horace {
 /** A class for writing records to a spoolfile. */
 class spoolfile_writer {
 private:
+	/** The pathname of this spoolfile. */
+	std::string _pathname;
+
 	/** A file descriptor for writing to the spoolfile. */
 	file_descriptor _fd;
 

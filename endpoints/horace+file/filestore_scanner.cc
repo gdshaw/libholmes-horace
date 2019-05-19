@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <climits>
 
+#include "horace/logger.h"
+#include "horace/log_message.h"
+
 #include "directory.h"
 #include "spoolfile.h"
 #include "filestore_scanner.h"
@@ -16,6 +19,11 @@ filestore_scanner::filestore_scanner(const std::string& pathname):
 	_first_filenum(ULONG_MAX),
 	_next_filenum(0),
 	_minwidth(UINT_MAX) {
+
+	if (log->enabled(logger::log_debug)) {
+		log_message msg(*log, logger::log_debug);
+		msg << "scanning filestore " << pathname;
+	}
 
 	bool minwidth_fixed = false;
 	directory dir(pathname);
@@ -76,6 +84,18 @@ filestore_scanner::filestore_scanner(const std::string& pathname):
 	}
 	if (_minwidth == UINT_MAX) {
 		_minwidth = 0;
+	}
+
+	if (log->enabled(logger::log_debug)) {
+		log_message msg(*log, logger::log_debug);
+		if (_minwidth == 0) {
+			msg << "filestore is empty";
+		} else {
+			msg << "scanned filestore (" <<
+				"first=" << _first_filenum << ", "
+				"next=" << _next_filenum << ", "
+				"minwidth=" << _minwidth << ")";
+		}
 	}
 }
 

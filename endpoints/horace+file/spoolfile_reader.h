@@ -64,6 +64,12 @@ public:
 	const std::string& next_pathname() {
 		return _next_pathname;
 	}
+
+	/** Unlink this spoolfile.
+	 * Note that this function does not sync the containing directory,
+	 * which must be done separately.
+	 */
+	void unlink();
 };
 
 } /* namespace horace */
