@@ -57,7 +57,14 @@ void capture(const std::string& source_id, event_reader& src_er, session_writer&
 		srec->log(*log);
 
 		while (true) {
+                        // Ensure that termination is picked up, even if
+                        // the thread never blocks.
+                        terminating.poll();
+
+			// Read record from source.
 			const record& rec = src_er.read();
+
+			// Write record to destination.
 			dst_sw.write(rec);
 		}
 	} catch (terminate_exception&) {

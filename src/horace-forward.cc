@@ -71,6 +71,10 @@ void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint
 		// start of session records and sync records, which
 		// require special handling.
 		while (true) {
+			// Ensure that termination is picked up, even if
+			// the thread never blocks.
+			terminating.poll();
+
 			// Read record from source endpoint.
 			std::unique_ptr<record> rec = src_sr->read();
 
@@ -145,6 +149,12 @@ void forward_all(session_listener_endpoint& src_slep,
 		// Repeatedly accept connections from the listener,
 		// creating a new forwarding thread for each one.
 		while (true) {
+			// Ensure that termination is picked up, even if
+			// the thread never blocks (which is very unlikely
+			// to be a problem in this instance, but there is
+			// little harm in making sure).
+			terminating.poll();
+
 			std::unique_ptr<session_reader> src_sr =
 				src_sl->accept();
 			std::thread* th = new std::thread(forward_one,

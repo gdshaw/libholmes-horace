@@ -30,6 +30,7 @@ void tcp_session_writer::_open() {
 	address_info ai(_dst_ep->hostname(), _dst_ep->portname(), false);
 	_fd = ai.make_socket();
 	ai.connect(_fd);
+	_fd.interruptible(true);
 	_fdow = file_octet_writer(_fd);
 	_fdor = file_octet_reader(_fd);
 }
