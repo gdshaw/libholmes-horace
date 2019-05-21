@@ -27,6 +27,7 @@ public:
 	static const unsigned int ATTR_TIMESTAMP_NS = 0x07;
 	static const unsigned int ATTR_POSIX_TIMESTAMP = 0x08;
 	static const unsigned int ATTR_POSIX_TIMESPEC = 0x09;
+	static const unsigned int ATTR_REPEAT = 0x0a;
 
 	virtual ~attribute() = default;
 

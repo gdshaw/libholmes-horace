@@ -9,6 +9,7 @@
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
 #include "horace/packet_length_attribute.h"
+#include "horace/repeat_attribute.h"
 
 #include "packet_socket.h"
 
@@ -44,6 +45,14 @@ packet_socket::packet_socket(size_t snaplen):
 }
 
 const record& packet_socket::read() {
+	// If any packets
+	if (unsigned int count = drops()) {
+		_builder.reset();
+		_builder.append(std::make_shared<posix_timespec_attribute>());
+		_builder.append(std::make_shared<repeat_attribute>(count));
+		return _builder;
+	}
+
 	// Read a packet from the packet socket, with the MSG_TRUNC flag set
 	// in order to return the original length of the packet as opposed to
 	// the (potentially truncated) captured length.

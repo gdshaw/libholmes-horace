@@ -92,6 +92,15 @@ public:
 	 */
 	size_t recvmsg(struct msghdr* message, int flags);
 
+	/** Get socket option.
+	 * @param level the socket option level
+	 * @param optname the socket option name
+	 * @param optval a buffer for the returned value
+	 * @param optlen a buffer for the size of the returned value
+	 */
+	void getsockopt(int level, int optname, void* optval,
+		socklen_t *optlen) const;
+
 	/** Set socket option.
 	 * @param level the socket option level
 	 * @param optname the socket option name
@@ -99,7 +108,20 @@ public:
 	 * @param optlen the size of the value
 	 */
 	void setsockopt(int level, int optname, const void* optval,
-		socklen_t optlen);
+		socklen_t optlen) const;
+
+	/** Get socket option.
+	 * @param level the socket option level
+	 * @param optname the socket option name
+	 * @param optval a buffer for the returned value
+	 * @return the size of the value returned
+	 */
+	template<class T>
+	socklen_t getsockopt(int level, int optname, T& optval) const {
+		socklen_t optlen = sizeof(optval);
+		getsockopt(level, optname, &optval, &optlen);
+		return optlen;
+	}
 
 	/** Set socket option.
 	 * @param level the socket option level
@@ -107,7 +129,7 @@ public:
 	 * @param optval the required value
 	 */
 	template<class T>
-	void setsockopt(int level, int optname, const T& optval) {
+	void setsockopt(int level, int optname, const T& optval) const {
 		setsockopt(level, optname, &optval, sizeof(optval));
 	}
 

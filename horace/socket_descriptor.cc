@@ -72,8 +72,16 @@ size_t socket_descriptor::recvmsg(struct msghdr* message, int flags) {
 	return count;
 }
 
+void socket_descriptor::getsockopt(int level, int optname,
+	void* optval, socklen_t *optlen) const {
+
+	if (::getsockopt(*this, level, optname, optval, optlen) == -1) {
+		throw libc_error();
+	}
+}
+
 void socket_descriptor::setsockopt(int level, int optname,
-	const void* optval, socklen_t optlen) {
+	const void* optval, socklen_t optlen) const {
 
 	if (::setsockopt(*this, level, optname, optval, optlen) == -1) {
 		throw libc_error();

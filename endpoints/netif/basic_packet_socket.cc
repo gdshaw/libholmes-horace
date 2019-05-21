@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <sys/socket.h>
-#include <netpacket/packet.h>
+#include "linux/if_packet.h"
 
 #include "basic_packet_socket.h"
 
@@ -31,6 +31,12 @@ void basic_packet_socket::set_promiscuous(const interface& iface) {
 	mreq.mr_ifindex = iface;
 	mreq.mr_type = PACKET_MR_PROMISC;
 	setsockopt(SOL_PACKET, PACKET_ADD_MEMBERSHIP, mreq);
+}
+
+unsigned int basic_packet_socket::drops() const {
+	struct tpacket_stats stats;
+	getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
+	return stats.tp_drops;
 }
 
 } /* namespace horace */

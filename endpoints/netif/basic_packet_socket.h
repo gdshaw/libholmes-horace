@@ -43,6 +43,11 @@ public:
 	 * @param iface the interface
 	 */
 	void set_promiscuous(const interface& iface);
+
+	/** Get the number of dropped packets
+	 * @return the number of dropped packets since previous call
+	 */
+	unsigned int drops() const;
 };
 
 } /* namespace horace */
