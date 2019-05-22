@@ -50,6 +50,7 @@ public:
 	ring_buffer_v3(size_t snaplen, size_t buffer_size);
 
 	virtual const record& read();
+	virtual unsigned int drops() const;
 };
 
 } /* namespace horace */

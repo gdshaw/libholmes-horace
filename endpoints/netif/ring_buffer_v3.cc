@@ -14,6 +14,7 @@
 #include "horace/record.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
+#include "horace/repeat_attribute.h"
 #include "horace/packet_length_attribute.h"
 
 #include "ring_buffer_v3.h"
@@ -87,6 +88,23 @@ const record& ring_buffer_v3::read() {
 		// Calculate address of first frame.
 		char* block_ptr = (char*)_block;
 		_frame = (struct tpacket3_hdr*)(block_ptr + _block->hdr.bh1.offset_to_first_pkt);
+
+		// Now check for dropped packets.
+		if (_block->hdr.bh1.block_status & TP_STATUS_LOSING) {
+			// Because further packets may have been buffered since the
+			// TP_STATUS_LOSING flag was set, it is possible that the
+			// dropped packets have already been reported. For this
+			// reason, need to check that the count is non-zero before
+			// deciding whether to report it.
+			if (unsigned int count = drops()) {
+				_builder.reset();
+				_builder.append(std::make_shared<
+					posix_timespec_attribute>());
+				_builder.append(std::make_shared<
+					repeat_attribute>(count));
+				return _builder;
+			}
+		}
 	}
 
 	// Extract required data from frame buffer.
@@ -125,6 +143,12 @@ const record& ring_buffer_v3::read() {
 			pkt_origlen));
 	}
 	return _builder;
+}
+
+unsigned int ring_buffer_v3::drops() const {
+        struct tpacket_stats_v3 stats;
+        getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
+        return stats.tp_drops;
 }
 
 } /* namespace horace */

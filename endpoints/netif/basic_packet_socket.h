@@ -44,10 +44,12 @@ public:
 	 */
 	void set_promiscuous(const interface& iface);
 
-	/** Get the number of dropped packets
+	/** Get the number of dropped packets.
+	 * The default implementation is applicable to TPACKET_V1 and
+	 * TPACKET_V2, but should be overridden for sockets using TPACKET_V3.
 	 * @return the number of dropped packets since previous call
 	 */
-	unsigned int drops() const;
+	virtual unsigned int drops() const;
 };
 
 } /* namespace horace */
