@@ -41,8 +41,14 @@ private:
 	/** A msghdr structure for receiving packets. */
 	struct msghdr _message;
 
+	/** The most recently observed dropped packet counter. */
+	uint32_t _drop_count;
+
 	/** A record builder for returning packet records. */
-	record_builder _builder;
+	record_builder _pbuilder;
+
+	/** A record builder for returning dropped packet records. */
+	record_builder _dbuilder;
 public:
 	/** Open packet socket.
 	 * @param snaplen the required link layer snaplen, in octets

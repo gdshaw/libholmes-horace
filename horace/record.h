@@ -70,6 +70,13 @@ public:
 	 */
 	virtual void log(logger& log) const;
 
+	/** Determine whether this record is empty.
+	 * @return true if empty, otherwise false
+	 */
+	bool empty() const {
+		return _attributes.empty();
+	}
+
 	/** Get the length of the content of this record.
 	 * @return the content length, in octets
 	 */
