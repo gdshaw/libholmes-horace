@@ -8,7 +8,7 @@
 #include <sys/mman.h>
 #include <sys/socket.h>
 
-#include "horace/libc_error.h"
+#include "horace/endpoint_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/record.h"
@@ -30,6 +30,7 @@ ring_buffer_v3::ring_buffer_v3(size_t snaplen, size_t buffer_size):
 	_frame(0),
 	_builder(record::REC_PACKET) {
 
+	// Select ring buffer protocol version.
 	setsockopt<int>(SOL_PACKET, PACKET_VERSION, TPACKET_V3);
 
 	// Frame size is arbitrary for TPACKET_V3, but set based on snaplen
@@ -46,10 +47,21 @@ ring_buffer_v3::ring_buffer_v3(size_t snaplen, size_t buffer_size):
 	_tpreq.tp_frame_nr = _tpreq.tp_block_nr * frames_per_block;
 	_tpreq.tp_retire_blk_tov = 60;
 	_tpreq.tp_feature_req_word = 0;
+
+	// Check that the ring buffer contains a non-zero number of frames
+	// (and thus also a non-zero number of blocks, and frames per block).
+	if (_tpreq.tp_frame_nr == 0) {
+		throw endpoint_error(
+			"buffer capacity insufficient for snaplen");
+	}
+
+	// Create the ring buffer.
 	setsockopt(SOL_PACKET, PACKET_RX_RING, _tpreq);
 
+	// Map the ring buffer into virtual memory.
 	size_t rx_ring_size = _tpreq.tp_block_nr * _tpreq.tp_block_size;
-	_rx_ring = (char*)mmap(0, rx_ring_size, PROT_READ|PROT_WRITE, MAP_SHARED, *this, 0);
+	_rx_ring = static_cast<char*>(mmap(0, rx_ring_size,
+		PROT_READ|PROT_WRITE, MAP_SHARED, *this, 0));
 	_block = (tpacket_block_desc*)_rx_ring;
 
 	if (log->enabled(logger::log_info)) {
