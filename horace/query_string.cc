@@ -41,12 +41,12 @@ static std::string decode(const std::string& encoded) {
 query_string::query_string(const std::string& query) {
 	size_t index = 0;
 	while (index != query.length()) {
-		size_t param_end = query.find('&');
+		size_t param_end = query.find('&', index);
 		if (param_end == std::string::npos) {
 			param_end = query.length();
 		}
 		std::string param = query.substr(index, param_end - index);
-		if (param_end = query.length()) {
+		if (param_end == query.length()) {
 			index = param_end;
 		} else {
 			index = param_end + 1;
