@@ -38,6 +38,10 @@ private:
 
 	/** A record builder for returning packet records. */
 	record_builder _builder;
+
+	/** True if TP_STATUS_LOSING has already been acted upon for the
+	 * current packet, otherwise false. */
+	bool _drops_reported;
 public:
 	/** Create an AF_PACKET socket with a ring buffer.
 	 * @param snaplen the required link layer snaplen, in octets

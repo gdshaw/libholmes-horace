@@ -14,6 +14,7 @@
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
 #include "horace/packet_length_attribute.h"
+#include "horace/repeat_attribute.h"
 #include "horace/libc_error.h"
 
 #include "ring_buffer_v1.h"
@@ -24,7 +25,8 @@ ring_buffer_v1::ring_buffer_v1(size_t snaplen, size_t buffer_size):
 	_tpreq({0}),
 	_frame_idx(0),
 	_last_tphdr(0),
-	_builder(record::REC_PACKET) {
+	_builder(record::REC_PACKET),
+	_drops_reported(false) {
 
 	setsockopt<int>(SOL_PACKET, PACKET_VERSION, TPACKET_V1);
 
@@ -73,6 +75,24 @@ const record& ring_buffer_v1::read() {
 	while (!(tphdr->tp_status & TP_STATUS_USER)) {
 		wait(POLLIN);
 	}
+
+	if ((tphdr->tp_status & TP_STATUS_LOSING) && !_drops_reported) {
+		// Because further packets may have been buffered since the
+		// TP_STATUS_LOSING flag was set, it is possible that the
+		// dropped packets have already been reported. For this
+		// reason, need to check that the count is non-zero before
+		// deciding whether to report it.
+		if (unsigned int count = drops()) {
+			_drops_reported = true;
+			_builder.reset();
+			_builder.append(std::make_shared<
+				posix_timespec_attribute>());
+			_builder.append(std::make_shared<
+				repeat_attribute>(count));
+			return _builder;
+		}
+	}
+	_drops_reported = false;
 
 	struct timespec ts;
 	ts.tv_sec = tphdr->tp_sec;

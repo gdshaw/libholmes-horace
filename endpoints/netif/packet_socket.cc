@@ -45,7 +45,7 @@ packet_socket::packet_socket(size_t snaplen):
 }
 
 const record& packet_socket::read() {
-	// If any packets
+	// If any packets have been dropped then report how many.
 	if (unsigned int count = drops()) {
 		_builder.reset();
 		_builder.append(std::make_shared<posix_timespec_attribute>());
