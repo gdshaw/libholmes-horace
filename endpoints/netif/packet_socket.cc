@@ -3,6 +3,9 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <climits>
+
+#include "horace/endpoint_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/record.h"
@@ -15,9 +18,16 @@
 
 namespace horace {
 
-packet_socket::packet_socket(size_t snaplen):
+packet_socket::packet_socket(size_t snaplen, size_t buffer_size):
 	_pbuilder(record::REC_PACKET),
 	_dbuilder(record::REC_PACKET) {
+
+	// Set receive buffer size.
+	if (buffer_size > INT_MAX) {
+		throw endpoint_error("receive buffer size too large");
+	}
+	setsockopt<int>(SOL_SOCKET, SO_RCVBUFFORCE,
+		static_cast<int>(buffer_size));
 
 	// Enable timestamp generation.
 	setsockopt<int>(SOL_SOCKET, SO_TIMESTAMPNS, 1);

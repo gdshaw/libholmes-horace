@@ -52,8 +52,9 @@ private:
 public:
 	/** Open packet socket.
 	 * @param snaplen the required link layer snaplen, in octets
+	 * @param buffer_size the required ring buffer size, in octets
 	 */
-	explicit packet_socket(size_t snaplen);
+	packet_socket(size_t snaplen, size_t buffer_size);
 
 	virtual const record& read();
 };

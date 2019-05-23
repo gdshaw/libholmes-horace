@@ -21,7 +21,7 @@ class record;
 netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
 	std::string method = ep.method();
 	if (method == "packet") {
-		_sock = std::make_unique<packet_socket>(ep.snaplen());
+		_sock = std::make_unique<packet_socket>(ep.snaplen(), ep.capacity());
 	} else if (method == "ringv1") {
 		_sock = std::make_unique<ring_buffer_v1>(ep.snaplen(), ep.capacity());
 	} else if (method == "ringv2") {
