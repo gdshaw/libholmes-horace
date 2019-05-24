@@ -3,6 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/query_string.h"
+
 #include "tcp_session_listener.h"
 #include "tcp_session_writer.h"
 #include "tcp_endpoint.h"
@@ -10,7 +12,8 @@
 namespace horace {
 
 tcp_endpoint::tcp_endpoint(const std::string& name):
-	endpoint(name) {
+	endpoint(name),
+	_retry(30) {
 
 	std::string hostportname = this->name().authority().value_or("");
 	size_t index = hostportname.rfind(':');
@@ -21,6 +24,11 @@ tcp_endpoint::tcp_endpoint(const std::string& name):
 		_hostname = hostportname.substr(0, index);
 		_portname = hostportname.substr(
 			index + 1, std::string::npos);
+	}
+
+	if (std::optional<std::string> query = this->name().query()) {
+		query_string params(*query);
+		_retry = params.find<long>("retry").value_or(_retry);
 	}
 }
 

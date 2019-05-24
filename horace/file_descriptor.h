@@ -99,6 +99,14 @@ public:
 	 */
 	void wait(int events) const;
 
+	/** Handle an revent of POLLERR.
+	 * This function is needed in order to handle failed connection
+	 * attempts using a non-blocking socket. It is virtual because the
+	 * required action (involving a call to getsockopt) can only be
+	 * applied to sockets and not to other types of file descriptor.
+	 */
+	virtual void handle_pollerror() const {}
+
 	/** Read from file descriptor.
 	 * If no octets are immediately available for reading then this
 	 * function will block until either some have been read, or there

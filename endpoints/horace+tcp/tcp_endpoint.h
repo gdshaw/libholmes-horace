@@ -25,6 +25,9 @@ private:
 
 	/** The portname. */
 	std::string _portname;
+
+	/** The retry interval, in seconds. */
+	long _retry;
 public:
 	/** Construct TCP endpoint.
 	 * @param name the name of this endpoint
@@ -43,6 +46,13 @@ public:
 	 */
 	const std::string& portname() const {
 		return _portname;
+	}
+
+	/** Get the retry interval.
+	 * @return the retry interval, in seconds
+	 */
+	long retry() const {
+		return _retry;
 	}
 
 	virtual std::unique_ptr<session_listener> make_session_listener();

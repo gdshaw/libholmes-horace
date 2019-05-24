@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/file.h>
+#include <sys/socket.h>
 
 #include "horace/libc_error.h"
 #include "horace/signal_set.h"
@@ -61,6 +62,9 @@ void file_descriptor::wait(int events) const {
 		if (interruptible()) {
 			terminating.poll();
 		}
+	}
+	if (fds[0].revents & POLLERR) {
+		handle_pollerror();
 	}
 }
 

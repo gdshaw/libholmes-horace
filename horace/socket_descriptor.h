@@ -36,6 +36,8 @@ public:
 	 */
 	socket_descriptor(int domain, int type, int protocol);
 
+	virtual void handle_pollerror() const;
+
 	/** Bind this socket descriptor to an address.
 	 * @param addr the address
 	 * @param addrlen the length of the address

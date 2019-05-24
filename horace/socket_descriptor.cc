@@ -20,6 +20,12 @@ socket_descriptor::socket_descriptor(int domain, int type, int protocol):
 	}
 }
 
+void socket_descriptor::handle_pollerror() const {
+	int error = 0;
+	getsockopt(SOL_SOCKET, SO_ERROR, error);
+	throw libc_error(error);
+}
+
 void socket_descriptor::bind(const struct sockaddr* addr, socklen_t addrlen) {
 	if (::bind(*this, addr, addrlen) == -1) {
 		throw horace::libc_error();
