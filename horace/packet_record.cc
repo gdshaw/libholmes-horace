@@ -13,7 +13,8 @@ namespace horace {
 packet_record::packet_record(record&& rec):
 	record(std::move(rec)),
 	_packet_attr(0),
-	_timestamp_attr(0) {
+	_timestamp_attr(0),
+	_repeat_attr(0) {
 
 	if (type() != REC_PACKET) {
 		throw horace_error("incorrect type code for packet record");
@@ -44,6 +45,14 @@ packet_record::packet_record(record&& rec):
 					"duplicate timestamp attribute in packet record");
 			}
 			_timestamp_attr = timestamp_attr;
+		} else if (std::shared_ptr<repeat_attribute> repeat_attr =
+			std::dynamic_pointer_cast<repeat_attribute>(attr)) {
+
+			if (_repeat_attr) {
+				throw horace_error(
+					"duplicate repeat attribute in packet record");
+			}
+			_repeat_attr = repeat_attr;
 		}
 	}
 }

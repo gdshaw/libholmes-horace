@@ -7,9 +7,11 @@
 #include "horace/source_attribute.h"
 #include "horace/seqnum_attribute.h"
 #include "horace/packet_attribute.h"
+#include "horace/packet_length_attribute.h"
 #include "horace/relative_timestamp_attribute.h"
 #include "horace/posix_timestamp_attribute.h"
 #include "horace/posix_timespec_attribute.h"
+#include "horace/repeat_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
@@ -24,6 +26,8 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 		return std::make_unique<seqnum_attribute>(in, length);
 	case ATTR_PACKET:
 		return std::make_unique<packet_attribute>(in, length);
+	case ATTR_PACKET_LENGTH:
+		return std::make_unique<packet_length_attribute>(in, length);
 	case ATTR_TIMESTAMP_S:
 	case ATTR_TIMESTAMP_MS:
 	case ATTR_TIMESTAMP_US:
@@ -37,6 +41,8 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	default:
 		return std::make_unique<unrecognised_attribute>(
 			in, type, length);
+	case ATTR_REPEAT:
+		return std::make_unique<repeat_attribute>(in, length);
 	}
 }
 

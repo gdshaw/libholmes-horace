@@ -5,6 +5,8 @@
 
 #include "horace/timestamp_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
+#include "horace/packet_attribute.h"
+#include "horace/packet_length_attribute.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
 #include "horace/packet_record.h"
@@ -54,17 +56,7 @@ void mongodb_session_writer::_write_bulk(const bson_t& doc) {
 void mongodb_session_writer::handle_packet(const packet_record& prec) {
 	_seqnum = prec.update_seqnum(_seqnum);
 
-	struct timespec pts =
-		dynamic_cast<const absolute_timestamp_attribute&>(*prec.timestamp());
-	uint64_t pts64 = (pts.tv_sec * 1000000000L) + pts.tv_nsec;
-
-	const void* content = prec.packet_attr()->content();
-	size_t snaplen = prec.packet_attr()->length();
-	size_t origlen = snaplen;
-	if (prec.origlen_attr()) {
-		origlen = prec.origlen_attr()->origlen();
-	}
-
+	// Construct packet with _id field (which must always be present).
 	bson_t bson_packet;
 	bson_t bson_id;
 	bson_init(&bson_packet);
@@ -73,14 +65,46 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 	bson_append_int64(&bson_id, "ts", -1, _ts64);
 	bson_append_int64(&bson_id, "seqnum", -1, _seqnum);
 	bson_append_document_end(&bson_packet, &bson_id);
-	bson_append_binary(&bson_packet, "content", -1, BSON_SUBTYPE_BINARY,
-		reinterpret_cast<const uint8_t*>(content), snaplen);
-	bson_append_int64(&bson_packet, "length", -1, origlen);
-	bson_append_int64(&bson_packet, "ts", -1, pts64);
+
+	// Add timestamp field, if applicable.
+	if (const absolute_timestamp_attribute* ts_attr =
+		dynamic_cast<const absolute_timestamp_attribute*>(
+		prec.timestamp().get())) {
+
+		struct timespec pts =
+			dynamic_cast<const absolute_timestamp_attribute&>(
+			*prec.timestamp());
+		uint64_t pts64 = (pts.tv_sec * 1000000000L) + pts.tv_nsec;
+		bson_append_int64(&bson_packet, "ts", -1, pts64);
+	}
+
+	// Add content and length fields, if applicable.
+	// The length field can derive either from and origlen attribute,
+	// or in its absence, the length of the content.
+	if (const packet_attribute* packet_attr = prec.packet_attr().get()) {
+		const void* content = packet_attr->content();
+		size_t snaplen = packet_attr->length();
+		size_t origlen = snaplen;
+		if (const packet_length_attribute *origlen_attr = prec.origlen_attr().get()) {
+			origlen = prec.origlen_attr()->origlen();
+		}
+		bson_append_binary(&bson_packet, "content", -1, BSON_SUBTYPE_BINARY,
+			reinterpret_cast<const uint8_t*>(content), snaplen);
+		bson_append_int64(&bson_packet, "length", -1, origlen);
+	} else if (const packet_length_attribute *origlen_attr = prec.origlen_attr().get()) {
+		size_t origlen = prec.origlen_attr()->origlen();
+	}
+
+	// Add repeat field, if applicable.
+	if (const repeat_attribute* repeat_attr =
+		dynamic_cast<const repeat_attribute*>(prec.repeat_attr().get())) {
+
+		bson_append_int32(&bson_packet, "repeat", -1, repeat_attr->count());
+	}
+
+	// Append to the next bulk-write operation.
 	_write_bulk(bson_packet);
 	bson_destroy(&bson_packet);
-
-	_seqnum += 1;
 }
 
 void mongodb_session_writer::handle_session_start(const session_start_record& srec) {
@@ -141,11 +165,13 @@ void mongodb_session_writer::handle_sync(const sync_record& crec) {
 void mongodb_session_writer::handle_event(const record& rec) {
 	if (const packet_record* prec =
 		dynamic_cast<const packet_record*>(&rec)) {
-
 		handle_packet(*prec);
 	} else {
 		throw endpoint_error("unsupported event record type");
 	}
+
+	// Any type of event causes the sequence number to increment.
+	_seqnum += 1;
 }
 
 mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
