@@ -149,6 +149,17 @@ void file_session_reader::write(const record& rec) {
 	_syncing = false;
 }
 
+bool file_session_reader::reset() {
+	if (_sfr) {
+		_sfr = 0;
+		_next_filenum -= 1;
+		_session_ts = {0};
+		_seqnum = 0;
+		_syncing = false;
+	}
+	return true;
+}
+
 void file_session_reader::wait() {
 	_watcher.read();
 }

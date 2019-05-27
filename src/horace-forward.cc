@@ -13,6 +13,7 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/stderr_logger.h"
+#include "horace/retry_exception.h"
 #include "horace/horace_error.h"
 #include "horace/signal_set.h"
 #include "horace/empty_signal_handler.h"
@@ -46,91 +47,137 @@ void write_help(std::ostream& out) {
  * @param src_sr the source
  * @param dst_swep the destination
  */
-void forward_one(std::unique_ptr<session_reader> src_sr, session_writer_endpoint& dst_swep) {
+void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	uint64_t current_seqnum = 0;
 	uint64_t expected_seqnum = 0;
 	bool initial_seqnum = true;
+
+	// Read the start of session record. Keep a copy of it,
+	// unless/until it is superseded by another start of
+	// session record.
+	std::unique_ptr<record> srec = src_sr.read();
+	if (srec->type() != record::REC_SESSION_START) {
+		throw horace_error("start of session record expected");
+	}
+	srec->log(*log);
+
+	// Create a session writer using the source ID from the
+	// start of session record.
+	std::string source_id = dynamic_cast<session_start_record&>(*srec)
+		.source_attr().source_id();
+	std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(source_id);
+
+	// Attempt to write the start of session record.
 	try {
-		// Read the start of session record. Keep a copy of it,
-		// unless/until it is superseded by another start of
-		// session record.
-		std::unique_ptr<record> srec = src_sr->read();
-		if (srec->type() != record::REC_SESSION_START) {
-			throw horace_error("start of session record expected");
-		}
-		srec->log(*log);
-
-		// Create a session writer using the source ID from the
-		// start of session record.
-		std::string source_id = dynamic_cast<session_start_record&>(*srec)
-			.source_attr().source_id();
-		std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(source_id);
 		dst_sw->write(*srec);
+	} catch (terminate_exception&) {
+		throw;
+	} catch (std::exception& ex) {
+		throw retry_exception(ex);
+	}
 
-		// Copy records from source to destination. Watch for
-		// start of session records and sync records, which
-		// require special handling.
-		while (true) {
-			// Ensure that termination is picked up, even if
-			// the thread never blocks.
-			terminating.poll();
+	// Copy records from source to destination. Watch for
+	// start of session records and sync records, which
+	// require special handling.
+	while (true) {
+		// Ensure that termination is picked up, even if
+		// the thread never blocks.
+		terminating.poll();
 
-			// Read record from source endpoint.
-			std::unique_ptr<record> rec = src_sr->read();
+		// Read record from source endpoint.
+		std::unique_ptr<record> rec = src_sr.read();
 
-			// Log the record.
-			rec->log(*log);
+		// Log the record.
+		rec->log(*log);
 
-			// Update sequence number, log any discontinuties.
-			current_seqnum = rec->update_seqnum(current_seqnum);
-			if (initial_seqnum) {
-				if (log->enabled(logger::log_notice)) {
-					log_message msg(*log, logger::log_notice);
-					msg << "forwarding from seqnum=" << current_seqnum;
-				}
-				initial_seqnum = false;
-			} else if (current_seqnum != expected_seqnum) {
-				if (log->enabled(logger::log_warning)) {
-					log_message msg(*log, logger::log_warning);
-					msg << "seqnum discontinuity (" <<
-						"expected=" << expected_seqnum << ", " <<
-						"observed=" << current_seqnum << ")";
-				}
+		// Update sequence number, log any discontinuties.
+		current_seqnum = rec->update_seqnum(current_seqnum);
+		if (initial_seqnum) {
+			if (log->enabled(logger::log_notice)) {
+				log_message msg(*log, logger::log_notice);
+				msg << "forwarding from seqnum=" << current_seqnum;
 			}
-
-			// Write record to destination endpoint.
-			dst_sw->write(*rec);
-
-			// Perform any special handling required by specific
-			// record types.
-			switch (rec->type()) {
-			case record::REC_SESSION_START:
-				// Keep a copy of the most recent start of
-				// session record.
-				// Note: must not make any further reference to rec
-				// following this statement.
-				srec = std::move(rec);
-				current_seqnum = 0;
-				break;
-			case record::REC_SYNC:
-				// Sync records must be acknowledged.
-				{
-					std::unique_ptr<record> arec = dst_sw->read();
-					src_sr->write(*arec);
-					arec->log(*log);
-					break;
-				}
-			default:
-				if (rec->type() >= record::REC_EVENT_MIN) {
-					current_seqnum += 1;
-					expected_seqnum = current_seqnum;
-				}
+			initial_seqnum = false;
+		} else if (current_seqnum != expected_seqnum) {
+			if (log->enabled(logger::log_warning)) {
+				log_message msg(*log, logger::log_warning);
+				msg << "seqnum discontinuity (" <<
+					"expected=" << expected_seqnum << ", " <<
+					"observed=" << current_seqnum << ")";
 			}
 		}
-	} catch (terminate_exception&) {
-		// No action.
-	} catch (std::exception& ex) {
-		std::cerr << ex.what() << std::endl;
+
+		// Attempt to write record to destination.
+		try {
+			dst_sw->write(*rec);
+		} catch (terminate_exception&) {
+			throw;
+		} catch (std::exception& ex) {
+			throw retry_exception(ex);
+		}
+
+		// Perform any special handling required by specific
+		// record types.
+		switch (rec->type()) {
+		case record::REC_SESSION_START:
+			// Keep a copy of the most recent start of
+			// session record.
+			// Note: must not make any further reference to rec
+			// following this statement.
+			srec = std::move(rec);
+			current_seqnum = 0;
+			break;
+		case record::REC_SYNC:
+			// Sync records must be acknowledged.
+			{
+				std::unique_ptr<record> arec;
+				try {
+					arec = dst_sw->read();
+				} catch (terminate_exception&) {
+					throw;
+				} catch (std::exception& ex) {
+					throw retry_exception(ex);
+				}
+				src_sr.write(*arec);
+				arec->log(*log);
+				break;
+			}
+		default:
+			if (rec->type() >= record::REC_EVENT_MIN) {
+				current_seqnum += 1;
+				expected_seqnum = current_seqnum;
+			}
+		}
+	}
+}
+
+/** Forward records for a single source ID, with retry on error.
+ * @param src_sr the source
+ * @param dst_swep the destination
+ */
+void forward_one_with_retry(std::unique_ptr<session_reader> src_sr,
+	session_writer_endpoint& dst_swep) {
+
+	bool retry = true;
+	while (retry) {
+		retry = false;
+		try {
+			forward_one(*src_sr, dst_swep);
+		} catch (retry_exception&) {
+			retry = src_sr->reset();
+
+			if (log->enabled(logger::log_err)) {
+				log_message msg(*log, logger::log_err);
+				msg << "error during forwarding";
+				if (retry) {
+					msg << " (will retry)";
+				}
+			}
+		} catch (terminate_exception&) {
+			// No action.
+		} catch (std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+		}
 	}
 }
 
@@ -157,7 +204,8 @@ void forward_all(session_listener_endpoint& src_slep,
 
 			std::unique_ptr<session_reader> src_sr =
 				src_sl->accept();
-			std::thread* th = new std::thread(forward_one,
+			std::thread* th = new std::thread(
+				forward_one_with_retry,
 				std::move(src_sr), std::ref(dst_swep));
 			threads.push_back(th);
 		}

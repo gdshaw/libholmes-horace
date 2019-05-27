@@ -30,6 +30,14 @@ public:
 	 * @param rec the record to be written
 	 */
 	virtual void write(const record& rec) = 0;
+
+	/** Attempt to reset this session reader.
+	 * Session readers are not required to have a reset capability, in
+	 * which case they should unconditionally return false. This is the
+	 * default behaviour if the reset function is not overridden.
+	 * @return true if the attempt was successful, otherwise false.
+	 */
+	virtual bool reset();
 };
 
 } /* namespace horace */

@@ -11,6 +11,7 @@
 
 #include <getopt.h>
 
+#include "horace/retry_exception.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/stderr_logger.h"
@@ -47,13 +48,24 @@ void write_help(std::ostream& out) {
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
-void capture(const std::string& source_id, event_reader& src_er, session_writer& dst_sw) {
+void capture(const std::string& source_id, event_reader& src_er,
+	session_writer_endpoint& dst_swep) {
+
+	std::unique_ptr<session_writer> dst_sw =
+		dst_swep.make_session_writer(source_id);
+
 	try {
 		record_builder srecb(record::REC_SESSION_START);
 		srecb.append(std::make_shared<source_attribute>(source_id));
 		srecb.append(std::make_shared<posix_timespec_attribute>());
 		std::unique_ptr<record> srec = srecb.build();
-		dst_sw.write(*srec);
+		try {
+			dst_sw->write(*srec);
+		} catch (terminate_exception&) {
+			throw;
+		} catch (std::exception& ex) {
+			throw retry_exception(ex);
+		}
 		srec->log(*log);
 
 		while (true) {
@@ -64,9 +76,17 @@ void capture(const std::string& source_id, event_reader& src_er, session_writer&
 			// Read record from source.
 			const record& rec = src_er.read();
 
-			// Write record to destination.
-			dst_sw.write(rec);
+			// Attempt to write record to destination.
+			try {
+				dst_sw->write(rec);
+			} catch (terminate_exception&) {
+				throw;
+			} catch (std::exception& ex) {
+				throw retry_exception(ex);
+			}
 		}
+	} catch (retry_exception&) {
+		throw;
 	} catch (terminate_exception&) {
 		// No action.
 	} catch (std::exception& ex) {
@@ -76,8 +96,28 @@ void capture(const std::string& source_id, event_reader& src_er, session_writer&
 	record_builder erecb(record::REC_SESSION_END);
 	erecb.append(std::make_shared<posix_timespec_attribute>());
 	std::unique_ptr<record> erec = erecb.build();
-	dst_sw.write(*erec);
+	dst_sw->write(*erec);
 	erec->log(*log);
+}
+
+void capture_with_retry(const std::string& source_id, event_reader& src_er,
+	session_writer_endpoint& dst_swep) {
+
+	bool retry = true;
+	while (retry) {
+		retry = false;
+		try {
+			capture(source_id, src_er, dst_swep);
+		} catch (retry_exception&) {
+			retry = true;
+			if (log->enabled(logger::log_err)) {
+				log_message msg(*log, logger::log_err);
+				msg << "error during capture (will retry)";
+			}
+		} catch (std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+		}
+	}
 }
 
 int main(int argc, char* argv[]) {
@@ -173,8 +213,6 @@ int main(int argc, char* argv[]) {
 			<< std::endl;
 		exit(1);
 	}
-	std::unique_ptr<session_writer> dst_sw =
-		dst_swep->make_session_writer(source_id);
 
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
@@ -187,7 +225,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Capture events.
-	std::thread capture_thread(capture, source_id, std::ref(*src_er), std::ref(*dst_sw));
+	std::thread capture_thread(capture_with_retry, source_id,
+		std::ref(*src_er), std::ref(*dst_swep));
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();

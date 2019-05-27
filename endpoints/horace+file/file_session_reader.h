@@ -73,6 +73,7 @@ public:
 
 	virtual std::unique_ptr<record> read();
 	virtual void write(const record& rec);
+	virtual bool reset();
 
 	/** Wait for a change to the repository.
 	 * This could be a change to an existing file or the creation
