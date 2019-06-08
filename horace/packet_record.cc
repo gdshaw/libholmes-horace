@@ -13,6 +13,7 @@ namespace horace {
 packet_record::packet_record(record&& rec):
 	record(std::move(rec)),
 	_packet_attr(0),
+	_origlen_attr(0),
 	_timestamp_attr(0),
 	_repeat_attr(0) {
 
@@ -21,32 +22,32 @@ packet_record::packet_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (std::shared_ptr<packet_attribute> packet_attr =
-			std::dynamic_pointer_cast<packet_attribute>(attr)) {
+		if (const packet_attribute* packet_attr =
+			dynamic_cast<const packet_attribute*>(attr)) {
 
 			if (_packet_attr) {
 				throw horace_error(
 					"duplicate packet attribute in packet record");
 			}
 			_packet_attr = packet_attr;
-		} else if (std::shared_ptr<packet_length_attribute> origlen_attr =
-			std::dynamic_pointer_cast<packet_length_attribute>(attr)) {
+		} else if (const packet_length_attribute* origlen_attr =
+			dynamic_cast<const packet_length_attribute*>(attr)) {
 
 			if (_origlen_attr) {
 				throw horace_error("duplicate packet "
 					"length attribute in packet record");
 			}
 			_origlen_attr = origlen_attr;
-		} else if (std::shared_ptr<timestamp_attribute> timestamp_attr =
-			std::dynamic_pointer_cast<timestamp_attribute>(attr)) {
+		} else if (const timestamp_attribute* timestamp_attr =
+			dynamic_cast<const timestamp_attribute*>(attr)) {
 
 			if (_timestamp_attr) {
 				throw horace_error(
 					"duplicate timestamp attribute in packet record");
 			}
 			_timestamp_attr = timestamp_attr;
-		} else if (std::shared_ptr<repeat_attribute> repeat_attr =
-			std::dynamic_pointer_cast<repeat_attribute>(attr)) {
+		} else if (const repeat_attribute* repeat_attr =
+			dynamic_cast<const repeat_attribute*>(attr)) {
 
 			if (_repeat_attr) {
 				throw horace_error(
@@ -60,11 +61,15 @@ packet_record::packet_record(record&& rec):
 void packet_record::log(logger& log) const {
 	if (log.enabled(logger::log_debug)) {
 		log_message msg(log, logger::log_debug);
-		size_t length = _packet_attr->length();
-		if (_origlen_attr) {
-			length = _origlen_attr->length();
+		if (_packet_attr) {
+			size_t length = _packet_attr->length();
+			if (_origlen_attr) {
+				length = _origlen_attr->length();
+			}
+			msg << "packet (length=" << length << ")";
+		} else {
+			msg << "packet (dropped)";
 		}
-		msg << "packet (length=" << length << ")";
 	}
 }
 

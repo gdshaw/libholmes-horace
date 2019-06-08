@@ -19,8 +19,8 @@ session_end_record::session_end_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (std::shared_ptr<timestamp_attribute> timestamp_attr =
-			std::dynamic_pointer_cast<timestamp_attribute>(attr)) {
+		if (const timestamp_attribute* timestamp_attr =
+			dynamic_cast<const timestamp_attribute*>(attr)) {
 
 			if (_timestamp_attr) {
 				throw horace_error(

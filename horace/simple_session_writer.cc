@@ -33,8 +33,8 @@ void simple_session_writer::_process_session_end(const session_end_record& erec)
 void simple_session_writer::_process_sync(const sync_record& crec) {
 	handle_sync(crec);
 	record_builder builder(record::REC_ACK);
-	for (std::shared_ptr<attribute> attr : crec.attributes()) {
-		builder.append(attr);
+	for (const attribute* attr : crec.attributes()) {
+		builder.append(*attr);
 	}
 	_reply = builder.build();
 }

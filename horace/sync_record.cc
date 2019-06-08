@@ -22,16 +22,16 @@ sync_record::sync_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (std::shared_ptr<absolute_timestamp_attribute> timestamp_attr =
-			std::dynamic_pointer_cast<absolute_timestamp_attribute>(attr)) {
+		if (const absolute_timestamp_attribute* timestamp_attr =
+			dynamic_cast<const absolute_timestamp_attribute*>(attr)) {
 
 			if (_timestamp_attr) {
 				throw horace_error(
 					"duplicate timestamp attribute in sync record");
 			}
 			_timestamp_attr = timestamp_attr;
-		} else if (std::shared_ptr<seqnum_attribute> seqnum_attr =
-			std::dynamic_pointer_cast<seqnum_attribute>(attr)) {
+		} else if (const seqnum_attribute* seqnum_attr =
+			dynamic_cast<const seqnum_attribute*>(attr)) {
 
 			if (_seqnum_attr) {
 				throw horace_error(

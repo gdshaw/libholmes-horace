@@ -69,7 +69,7 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 	// Add timestamp field, if applicable.
 	if (const absolute_timestamp_attribute* ts_attr =
 		dynamic_cast<const absolute_timestamp_attribute*>(
-		prec.timestamp().get())) {
+		prec.timestamp())) {
 
 		struct timespec pts =
 			dynamic_cast<const absolute_timestamp_attribute&>(
@@ -81,23 +81,24 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 	// Add content and length fields, if applicable.
 	// The length field can derive either from and origlen attribute,
 	// or in its absence, the length of the content.
-	if (const packet_attribute* packet_attr = prec.packet_attr().get()) {
+	if (const packet_attribute* packet_attr = prec.packet_attr()) {
 		const void* content = packet_attr->content();
 		size_t snaplen = packet_attr->length();
 		size_t origlen = snaplen;
-		if (const packet_length_attribute *origlen_attr = prec.origlen_attr().get()) {
-			origlen = prec.origlen_attr()->origlen();
+		if (const packet_length_attribute *origlen_attr = prec.origlen_attr()) {
+			origlen = origlen_attr->origlen();
 		}
 		bson_append_binary(&bson_packet, "content", -1, BSON_SUBTYPE_BINARY,
 			reinterpret_cast<const uint8_t*>(content), snaplen);
 		bson_append_int64(&bson_packet, "length", -1, origlen);
-	} else if (const packet_length_attribute *origlen_attr = prec.origlen_attr().get()) {
-		size_t origlen = prec.origlen_attr()->origlen();
+	} else if (const packet_length_attribute *origlen_attr = prec.origlen_attr()) {
+		size_t origlen = origlen_attr->origlen();
+		bson_append_int64(&bson_packet, "length", -1, origlen);
 	}
 
 	// Add repeat field, if applicable.
 	if (const repeat_attribute* repeat_attr =
-		dynamic_cast<const repeat_attribute*>(prec.repeat_attr().get())) {
+		dynamic_cast<const repeat_attribute*>(prec.repeat_attr())) {
 
 		bson_append_int32(&bson_packet, "repeat", -1, repeat_attr->count());
 	}

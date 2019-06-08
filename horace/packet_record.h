@@ -19,16 +19,16 @@ class packet_record:
 	public record {
 private:
 	/** An optional packet attribute. */
-	std::shared_ptr<packet_attribute> _packet_attr;
+	const packet_attribute* _packet_attr;
 
 	/** An optional length attribute. */
-	std::shared_ptr<packet_length_attribute> _origlen_attr;
+	const packet_length_attribute* _origlen_attr;
 
 	/** An optional timestamp attribute. */
-	std::shared_ptr<timestamp_attribute> _timestamp_attr;
+	const timestamp_attribute* _timestamp_attr;
 
 	/** An optional repeat attribute. */
-	std::shared_ptr<repeat_attribute> _repeat_attr;
+	const repeat_attribute* _repeat_attr;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record
@@ -38,28 +38,28 @@ public:
 	/** Get the packet attribute.
 	 * @return the packet attribute, or 0 if none
 	 */
-	const std::shared_ptr<packet_attribute> packet_attr() const {
+	const packet_attribute* packet_attr() const {
 		return _packet_attr;
 	}
 
 	/** Get the packet length attribute, if there is one.
 	 * @return the packet length attribute, or 0 if none
 	 */
-	const std::shared_ptr<packet_length_attribute> origlen_attr() const {
+	const packet_length_attribute* origlen_attr() const {
 		return _origlen_attr;
 	}
 
 	/** Get the timestamp attribute.
 	 * @return the timestamp attribute, or 0 if none
 	 */
-	const std::shared_ptr<timestamp_attribute> timestamp() const {
+	const timestamp_attribute* timestamp() const {
 		return _timestamp_attr;
 	}
 
 	/** Get the repeat attribute.
 	 * @return the repeat attribute, or 0 if none
 	 */
-	const std::shared_ptr<repeat_attribute> repeat_attr() const {
+	const repeat_attribute* repeat_attr() const {
 		return _repeat_attr;
 	}
 

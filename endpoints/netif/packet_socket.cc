@@ -97,17 +97,14 @@ const record& packet_socket::read() {
 		}
 	}
 
-	std::shared_ptr<posix_timespec_attribute> ts_attr =
-		std::make_shared<posix_timespec_attribute>(*ts);
-
 	// The substantive packet record is always built at this point while
 	// the required data is available.
 	_pbuilder.reset();
-	_pbuilder.append(ts_attr);
-	_pbuilder.append(std::make_shared<packet_ref_attribute>(
+	_pbuilder.append(std::make_unique<posix_timespec_attribute>(*ts));
+	_pbuilder.append(std::make_unique<packet_ref_attribute>(
 		_buffer.get(), pkt_snaplen));
 	if (pkt_snaplen != pkt_origlen) {
-		_pbuilder.append(std::make_shared<packet_length_attribute>(
+		_pbuilder.append(std::make_unique<packet_length_attribute>(
 			pkt_origlen));
 	}
 
@@ -116,8 +113,8 @@ const record& packet_socket::read() {
 	// the substantive packet record.
 	if (drop_diff != 0) {
 		_dbuilder.reset();
-		_dbuilder.append(ts_attr);
-		_dbuilder.append(std::make_shared<repeat_attribute>(drop_diff));
+		_dbuilder.append(std::make_unique<posix_timespec_attribute>(*ts));
+		_dbuilder.append(std::make_unique<repeat_attribute>(drop_diff));
 		return _dbuilder;
 	}
 

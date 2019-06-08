@@ -18,7 +18,7 @@ class record_builder:
 	public record {
 public:
 	/** Construct record builder with empty attribute list.
-	 * @param type the type of the record to be built.
+	 * @param type the type of the record to be built
 	 */
 	explicit record_builder(int type);
 
@@ -29,11 +29,26 @@ public:
 	 */
 	explicit record_builder(octet_reader& in);
 
-	/** Append an attribute to this record.
+	/** Append an attribute to this record, with transfer of ownership.
 	 * @param attr the attribute to be appended
 	 * @return a reference to this
 	 */
-	record_builder& append(std::shared_ptr<attribute> attr);
+	record_builder& append(std::unique_ptr<attribute>& attr);
+
+	/** Append an attribute to this record, with transfer of ownership.
+	 * @param attr the attribute to be appended
+	 * @return a reference to this
+	 */
+	record_builder& append(std::unique_ptr<attribute>&& attr);
+
+	/** Append an attribute to this record, without transfer of ownership.
+	 * It is the caller's responsibility to ensure that the attribute
+	 * remains in existence until there is no further possibility of it
+	 * being accessed.
+	 * @param attr the attribute to be appended
+	 * @return a reference to this
+	 */
+	record_builder& append(const attribute& attr);
 
 	/** Remove all attributes from this record. */
 	void reset();

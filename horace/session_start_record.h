@@ -17,10 +17,10 @@ class session_start_record:
 	public record {
 private:
 	/** The source attribute. */
-	std::shared_ptr<source_attribute> _source_attr;
+	const source_attribute* _source_attr;
 
 	/** The timestamp attribute. */
-	std::shared_ptr<absolute_timestamp_attribute> _timestamp_attr;
+	const absolute_timestamp_attribute* _timestamp_attr;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record

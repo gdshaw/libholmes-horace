@@ -16,7 +16,7 @@ class session_end_record:
 	public record {
 private:
 	/** The timestamp attribute. */
-	std::shared_ptr<timestamp_attribute> _timestamp_attr;
+	const timestamp_attribute* _timestamp_attr;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record

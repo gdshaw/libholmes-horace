@@ -19,10 +19,10 @@ class ack_record:
 	public record {
 private:
 	/** The timestamp attribute. */
-	std::shared_ptr<absolute_timestamp_attribute> _timestamp_attr;
+	const absolute_timestamp_attribute* _timestamp_attr;
 
 	/** The sequence number attribute. */
-	std::shared_ptr<seqnum_attribute> _seqnum_attr;
+	const seqnum_attribute* _seqnum_attr;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record

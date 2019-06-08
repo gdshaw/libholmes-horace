@@ -27,7 +27,7 @@ record_builder::record_builder(octet_reader& in):
 		int attr_len = in.read_base128(hdr_len);
 		std::unique_ptr<attribute> attr =
 			attribute::parse(in, attr_type, attr_len);
-		_attributes.push_back(std::move(attr));
+		append(attr);
 
 		size_t length = hdr_len + attr_len;
 		if (length > remaining) {
@@ -38,8 +38,20 @@ record_builder::record_builder(octet_reader& in):
 	}
 }
 
-record_builder& record_builder::append(std::shared_ptr<attribute> attr) {
-	_attributes.push_back(attr);
+record_builder& record_builder::append(std::unique_ptr<attribute>& attr) {
+	_attributes.push_back(attr.get());
+	_owned_attributes.push_back(attr.release());
+	return *this;
+}
+
+record_builder& record_builder::append(std::unique_ptr<attribute>&& attr) {
+	_attributes.push_back(attr.get());
+	_owned_attributes.push_back(attr.release());
+	return *this;
+}
+
+record_builder& record_builder::append(const attribute& attr) {
+	_attributes.push_back(&attr);
 	return *this;
 }
 

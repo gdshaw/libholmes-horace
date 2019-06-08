@@ -22,16 +22,16 @@ session_start_record::session_start_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (std::shared_ptr<source_attribute> source_attr =
-			std::dynamic_pointer_cast<source_attribute>(attr)) {
+		if (const source_attribute* source_attr =
+			dynamic_cast<const source_attribute*>(attr)) {
 
 			if (_source_attr) {
 				throw horace_error(
 					"duplicate source attribute in start of session record");
 			}
 			_source_attr = source_attr;
-		} else if (std::shared_ptr<absolute_timestamp_attribute> timestamp_attr =
-			std::dynamic_pointer_cast<absolute_timestamp_attribute>(attr)) {
+		} else if (const absolute_timestamp_attribute* timestamp_attr =
+			dynamic_cast<const absolute_timestamp_attribute*>(attr)) {
 
 			if (_timestamp_attr) {
 				throw horace_error(

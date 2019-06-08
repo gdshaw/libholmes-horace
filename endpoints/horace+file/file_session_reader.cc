@@ -106,8 +106,8 @@ std::unique_ptr<record> file_session_reader::read() {
 		// return a sync record.
 		_syncing = true;
 		record_builder builder(record::REC_SYNC);
-		builder.append(std::make_shared<posix_timespec_attribute>(_session_ts));
-		builder.append(std::make_shared<seqnum_attribute>(_seqnum));
+		builder.append(std::make_unique<posix_timespec_attribute>(_session_ts));
+		builder.append(std::make_unique<seqnum_attribute>(_seqnum));
 		return builder.build();
 	}
 }

@@ -56,8 +56,8 @@ void capture(const std::string& source_id, event_reader& src_er,
 
 	try {
 		record_builder srecb(record::REC_SESSION_START);
-		srecb.append(std::make_shared<source_attribute>(source_id));
-		srecb.append(std::make_shared<posix_timespec_attribute>());
+		srecb.append(std::make_unique<source_attribute>(source_id));
+		srecb.append(std::make_unique<posix_timespec_attribute>());
 		std::unique_ptr<record> srec = srecb.build();
 		try {
 			dst_sw->write(*srec);
@@ -94,7 +94,7 @@ void capture(const std::string& source_id, event_reader& src_er,
 	}
 
 	record_builder erecb(record::REC_SESSION_END);
-	erecb.append(std::make_shared<posix_timespec_attribute>());
+	erecb.append(std::make_unique<posix_timespec_attribute>());
 	std::unique_ptr<record> erec = erecb.build();
 	dst_sw->write(*erec);
 	erec->log(*log);

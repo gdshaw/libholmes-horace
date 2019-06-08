@@ -13,6 +13,18 @@
 
 namespace horace {
 
+record::~record() {
+	for (const attribute* attr : _owned_attributes) {
+		delete attr;
+	}
+}
+
+record::record(record&& that) {
+	_type = that._type;
+	_attributes.swap(that._attributes);
+	_owned_attributes.swap(that._owned_attributes);
+}
+
 std::string record::type_name() const {
 	std::ostringstream name;
 	name << "rec" << _type;
@@ -36,7 +48,7 @@ uint64_t record::update_seqnum(uint64_t seqnum) const {
 	}
 	for (auto&& attr : _attributes) {
 		if (attr->type() == attribute::ATTR_SEQNUM) {
-			return dynamic_cast<seqnum_attribute&>(*attr).seqnum();
+			return dynamic_cast<const seqnum_attribute&>(*attr).seqnum();
 		}
 	}
 	return seqnum;

@@ -64,10 +64,9 @@ bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
 	if (seqnum != _seqnum) {
 		record_builder builder(rec.type());
 		for (auto&& attr : rec.attributes()) {
-			builder.append(attr);
+			builder.append(*attr);
 		}
-		std::shared_ptr<seqnum_attribute> seqnum_attr =
-			std::make_shared<seqnum_attribute>(seqnum);
+		seqnum_attribute seqnum_attr(seqnum);
 		builder.append(seqnum_attr);
 		std::unique_ptr<record> nrec = builder.build();
 		return write(*nrec);

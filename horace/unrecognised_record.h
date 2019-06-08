@@ -18,7 +18,7 @@ public:
 	 * @param rec the record
 	 */
 	explicit unrecognised_record(record&& rec):
-		record(rec) {}
+		record(std::move(rec)) {}
 };
 
 } /* namespace horace */

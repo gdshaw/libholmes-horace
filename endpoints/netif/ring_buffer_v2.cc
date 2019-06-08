@@ -103,9 +103,9 @@ const record& ring_buffer_v2::read() {
 		if (unsigned int count = drops()) {
 			_drops_reported = true;
 			_builder.reset();
-			_builder.append(std::make_shared<
+			_builder.append(std::make_unique<
 				posix_timespec_attribute>());
-			_builder.append(std::make_shared<
+			_builder.append(std::make_unique<
 				repeat_attribute>(count));
 			return _builder;
 		}
@@ -126,11 +126,11 @@ const record& ring_buffer_v2::read() {
 	}
 
 	_builder.reset();
-	_builder.append(std::make_shared<posix_timespec_attribute>(ts));
-	_builder.append(std::make_shared<packet_ref_attribute>(
+	_builder.append(std::make_unique<posix_timespec_attribute>(ts));
+	_builder.append(std::make_unique<packet_ref_attribute>(
 		content, pkt_snaplen));
 	if (pkt_snaplen != pkt_origlen) {
-		_builder.append(std::make_shared<packet_length_attribute>(
+		_builder.append(std::make_unique<packet_length_attribute>(
 			pkt_origlen));
 	}
 	return _builder;

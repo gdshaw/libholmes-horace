@@ -6,8 +6,7 @@
 #ifndef LIBHOLMES_HORACE_RECORD
 #define LIBHOLMES_HORACE_RECORD
 
-#include <memory>
-#include <list>
+#include <vector>
 #include <iostream>
 
 #include "horace/octet_writer.h"
@@ -25,8 +24,11 @@ private:
 	/** The type of this record. */
 	int _type;
 
-	/** The attributes of this record. */
-	std::list<std::shared_ptr<attribute>> _attributes;
+	/** All attributes of this record. */
+	std::vector<const attribute*> _attributes;
+
+	/** The attribute owned by this record. */
+	std::vector<const attribute*> _owned_attributes;
 protected:
 	/** Construct record with empty attribute list. */
 	explicit record(int type):
@@ -42,7 +44,13 @@ public:
 	static const int REC_EVENT_MIN = 0x20;
 	static const int REC_PACKET = 0x20;
 
-	virtual ~record() = default;
+	virtual ~record();
+
+	record(const record&) = delete;
+	record(record&& that);
+
+	record& operator=(const record&) = delete;
+	record& operator=(record&&) = delete;
 
 	/** Get the type of this record.
 	 * @return type the type code
@@ -85,7 +93,7 @@ public:
 	/** Get the attribute list for this record.
 	 * @return the attribute list
 	 */
-	const std::list<std::shared_ptr<attribute>> attributes() const {
+	const std::vector<const attribute*> attributes() const {
 		return _attributes;
 	}
 
