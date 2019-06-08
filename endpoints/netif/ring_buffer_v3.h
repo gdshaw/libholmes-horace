@@ -9,7 +9,7 @@
 #include <poll.h>
 #include <linux/if_packet.h>
 
-#include "horace/record_builder.h"
+#include "horace/packet_record_builder.h"
 
 #include "basic_packet_socket.h"
 
@@ -40,8 +40,8 @@ private:
 	/** The current frame, or 0 if waiting for a block. */
 	struct tpacket3_hdr* _frame;
 
-	/** A record builder for returning packet records. */
-	record_builder _builder;
+	/** A packet record builder for returning packet records. */
+	packet_record_builder _builder;
 public:
 	/** Create an AF_PACKET socket with a ring buffer.
 	 * @param snaplen the required link layer snaplen, in octets

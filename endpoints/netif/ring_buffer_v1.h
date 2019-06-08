@@ -9,7 +9,7 @@
 #include <poll.h>
 #include <linux/if_packet.h>
 
-#include "horace/record_builder.h"
+#include "horace/packet_record_builder.h"
 
 #include "basic_packet_socket.h"
 
@@ -36,12 +36,8 @@ private:
 	/** The tpacket_hdr structure for the last frame to be read. */
 	struct tpacket_hdr* _last_tphdr;
 
-	/** A record builder for returning packet records. */
-	record_builder _builder;
-
-	/** True if TP_STATUS_LOSING has already been acted upon for the
-	 * current packet, otherwise false. */
-	bool _drops_reported;
+	/** A packet record builder for returning packet records. */
+	packet_record_builder _builder;
 public:
 	/** Create an AF_PACKET socket with a ring buffer.
 	 * @param snaplen the required link layer snaplen, in octets

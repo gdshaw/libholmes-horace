@@ -13,7 +13,7 @@
 #include <sys/socket.h>
 #include <linux/if_packet.h>
 
-#include "horace/record_builder.h"
+#include "horace/packet_record_builder.h"
 
 #include "basic_packet_socket.h"
 
@@ -44,11 +44,8 @@ private:
 	/** The most recently observed dropped packet counter. */
 	uint32_t _drop_count;
 
-	/** A record builder for returning packet records. */
-	record_builder _pbuilder;
-
-	/** A record builder for returning dropped packet records. */
-	record_builder _dbuilder;
+	/** A packet record builder for returning packet records. */
+	packet_record_builder _builder;
 public:
 	/** Open packet socket.
 	 * @param snaplen the required link layer snaplen, in octets

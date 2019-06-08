@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <sys/socket.h>
 
+#include "horace/libc_error.h"
 #include "horace/endpoint_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
@@ -27,8 +28,7 @@ ring_buffer_v3::ring_buffer_v3(size_t snaplen, size_t buffer_size):
 	_frame_idx(0),
 	_last_block(0),
 	_block(0),
-	_frame(0),
-	_builder(record::REC_PACKET) {
+	_frame(0) {
 
 	// Select ring buffer protocol version.
 	setsockopt<int>(SOL_PACKET, PACKET_VERSION, TPACKET_V3);
@@ -80,6 +80,10 @@ ring_buffer_v3::ring_buffer_v3(size_t snaplen, size_t buffer_size):
 }
 
 const record& ring_buffer_v3::read() {
+	if (const record* rec = _builder.next()) {
+		return *rec;
+	}
+
 	if (!_frame) {
 		// Free last block, if not already freed.
 		if (_last_block) {
@@ -109,12 +113,12 @@ const record& ring_buffer_v3::read() {
 			// reason, need to check that the count is non-zero before
 			// deciding whether to report it.
 			if (unsigned int count = drops()) {
-				_builder.reset();
-				_builder.append(std::make_unique<
-					posix_timespec_attribute>());
-				_builder.append(std::make_unique<
-					repeat_attribute>(count));
-				return _builder;
+				struct timespec ts;
+				if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+					throw libc_error();
+				}
+				_builder.build_dropped(&ts, count);
+				return *_builder.next();
 			}
 		}
 	}
@@ -146,15 +150,8 @@ const record& ring_buffer_v3::read() {
 		_frame = (struct tpacket3_hdr*)(frame_ptr + _frame->tp_next_offset);
 	}
 
-	_builder.reset();
-	_builder.append(std::make_unique<posix_timespec_attribute>(ts));
-	_builder.append(std::make_unique<packet_ref_attribute>(
-		content, pkt_snaplen));
-	if (pkt_snaplen != pkt_origlen) {
-		_builder.append(std::make_unique<packet_length_attribute>(
-			pkt_origlen));
-	}
-	return _builder;
+	_builder.build_packet(&ts, content, pkt_snaplen, pkt_origlen, 0);
+	return *_builder.next();
 }
 
 unsigned int ring_buffer_v3::drops() const {

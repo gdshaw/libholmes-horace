@@ -25,9 +25,7 @@ namespace horace {
 ring_buffer_v1::ring_buffer_v1(size_t snaplen, size_t buffer_size):
 	_tpreq({0}),
 	_frame_idx(0),
-	_last_tphdr(0),
-	_builder(record::REC_PACKET),
-	_drops_reported(false) {
+	_last_tphdr(0) {
 
 	// Select ring buffer protocol version.
 	setsockopt<int>(SOL_PACKET, PACKET_VERSION, TPACKET_V1);
@@ -78,6 +76,10 @@ ring_buffer_v1::ring_buffer_v1(size_t snaplen, size_t buffer_size):
 }
 
 const record& ring_buffer_v1::read() {
+	if (const record* rec = _builder.next()) {
+		return *rec;
+	}
+
 	if (_last_tphdr) {
 		_last_tphdr->tp_status = TP_STATUS_KERNEL;
 		_last_tphdr = 0;
@@ -94,23 +96,10 @@ const record& ring_buffer_v1::read() {
 		wait(POLLIN);
 	}
 
-	if ((tphdr->tp_status & TP_STATUS_LOSING) && !_drops_reported) {
-		// Because further packets may have been buffered since the
-		// TP_STATUS_LOSING flag was set, it is possible that the
-		// dropped packets have already been reported. For this
-		// reason, need to check that the count is non-zero before
-		// deciding whether to report it.
-		if (unsigned int count = drops()) {
-			_drops_reported = true;
-			_builder.reset();
-			_builder.append(std::make_unique<
-				posix_timespec_attribute>());
-			_builder.append(std::make_unique<
-				repeat_attribute>(count));
-			return _builder;
-		}
+	unsigned int drop_count = 0;
+	if (tphdr->tp_status & TP_STATUS_LOSING) {
+		drop_count = drops();
 	}
-	_drops_reported = false;
 
 	struct timespec ts;
 	ts.tv_sec = tphdr->tp_sec;
@@ -125,15 +114,9 @@ const record& ring_buffer_v1::read() {
 		_frame_idx = 0;
 	}
 
-	_builder.reset();
-	_builder.append(std::make_unique<posix_timespec_attribute>(ts));
-	_builder.append(std::make_unique<packet_ref_attribute>(
-		content, pkt_snaplen));
-	if (pkt_snaplen != pkt_origlen) {
-		_builder.append(std::make_unique<packet_length_attribute>(
-			pkt_origlen));
-	}
-	return _builder;
+	_builder.build_packet(&ts, content, pkt_snaplen, pkt_origlen,
+		drop_count);
+	return *_builder.next();
 }
 
 } /* namespace horace */

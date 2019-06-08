@@ -18,9 +18,7 @@
 
 namespace horace {
 
-packet_socket::packet_socket(size_t snaplen, size_t buffer_size):
-	_pbuilder(record::REC_PACKET),
-	_dbuilder(record::REC_PACKET) {
+packet_socket::packet_socket(size_t snaplen, size_t buffer_size) {
 
 	// Set receive buffer size.
 	if (buffer_size > INT_MAX) {
@@ -60,11 +58,10 @@ packet_socket::packet_socket(size_t snaplen, size_t buffer_size):
 }
 
 const record& packet_socket::read() {
-	// If a dropped packet count has been returned then there must be
-	// a substantive packet waiting to be returned after it.
-	if (!_dbuilder.empty()) {
-		_dbuilder.reset();
-		return _pbuilder;
+	// If there are any records remaining from the last call to this
+	// function then return the next one.
+	if (const record* rec = _builder.next()) {
+		return *rec;
 	}
 
 	// Read a packet from the packet socket, with the MSG_TRUNC flag set
@@ -97,30 +94,9 @@ const record& packet_socket::read() {
 		}
 	}
 
-	// The substantive packet record is always built at this point while
-	// the required data is available.
-	_pbuilder.reset();
-	_pbuilder.append(std::make_unique<posix_timespec_attribute>(*ts));
-	_pbuilder.append(std::make_unique<packet_ref_attribute>(
-		_buffer.get(), pkt_snaplen));
-	if (pkt_snaplen != pkt_origlen) {
-		_pbuilder.append(std::make_unique<packet_length_attribute>(
-			pkt_origlen));
-	}
-
-	// However, if a non-zero number of dropped packets have been detected
-	// a dropped packet record is constructed too, and returned before
-	// the substantive packet record.
-	if (drop_diff != 0) {
-		_dbuilder.reset();
-		_dbuilder.append(std::make_unique<posix_timespec_attribute>(*ts));
-		_dbuilder.append(std::make_unique<repeat_attribute>(drop_diff));
-		return _dbuilder;
-	}
-
-	// In the absence of any packet drops, the substantive packet record
-	// can be returned immediately.
-	return _pbuilder;
+	_builder.build_packet(ts, _buffer.get(), pkt_snaplen, pkt_origlen,
+		drop_diff);
+	return *_builder.next();
 }
 
 } /* namespace horace */
