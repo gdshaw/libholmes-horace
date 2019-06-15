@@ -9,6 +9,7 @@
 namespace horace {
 
 class record;
+class record_builder;
 class filter;
 
 /** A class for reading events from an endpoint.
@@ -41,6 +42,21 @@ public:
 	 * @param filt the filter to be attached
 	 */
 	virtual void attach(const filter& filt);
+
+	/** Build session start record.
+	 * This function gives each active event reader the opportunity to
+	 * contribute attributes to the session start record which are
+	 * specific to that event reader. For example, an event reader which
+	 * captures traffic from a network interface would add a
+	 * netif_attribute to the record.
+	 *
+	 * Note that implementations of this function are not responsible
+	 * for adding the source attribute, the session timestamp attribute,
+	 * or any other attribute which is not associated with a specific
+	 * event reader. The default implementation does nothing.
+	 * @param builder a record builder for the session start record
+	 */
+	virtual void build_session_start(record_builder& builder);
 };
 
 } /* namespace horace */

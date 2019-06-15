@@ -8,8 +8,10 @@
 
 #include <memory>
 
-#include "basic_packet_socket.h"
+#include "horace/record_builder.h"
 #include "horace/event_reader.h"
+
+#include "basic_packet_socket.h"
 
 namespace horace {
 
@@ -19,6 +21,9 @@ class netif_endpoint;
 class netif_event_reader:
 	public event_reader {
 private:
+	/** The endpoint from which to capture. */
+	const netif_endpoint* _ep;
+
 	/** The socket for capturing packets. */
 	std::unique_ptr<basic_packet_socket> _sock;
 public:
@@ -29,6 +34,7 @@ public:
 
 	virtual const record& read();
 	virtual void attach(const filter& filt);
+	virtual void build_session_start(record_builder& builder);
 };
 
 } /* namespace horace */

@@ -12,6 +12,9 @@
 #include "horace/posix_timestamp_attribute.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/repeat_attribute.h"
+#include "horace/netif_attribute.h"
+#include "horace/ifindex_attribute.h"
+#include "horace/ifname_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
@@ -43,6 +46,12 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 			in, type, length);
 	case ATTR_REPEAT:
 		return std::make_unique<repeat_attribute>(in, length);
+	case ATTR_NETIF:
+		return std::make_unique<netif_attribute>(in, length);
+	case ATTR_IFINDEX:
+		return std::make_unique<ifindex_attribute>(in, length);
+	case ATTR_IFNAME:
+		return std::make_unique<ifname_attribute>(in, length);
 	}
 }
 

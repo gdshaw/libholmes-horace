@@ -6,6 +6,7 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/endpoint_error.h"
+#include "horace/netif_attribute.h"
 
 #include "packet_socket.h"
 #include "ring_buffer_v1.h"
@@ -18,7 +19,9 @@ namespace horace {
 
 class record;
 
-netif_event_reader::netif_event_reader(const netif_endpoint& ep) {
+netif_event_reader::netif_event_reader(const netif_endpoint& ep):
+	_ep(&ep) {
+
 	std::string method = ep.method();
 	if (method == "packet") {
 		_sock = std::make_unique<packet_socket>(ep.snaplen(), ep.capacity());
@@ -67,6 +70,11 @@ const record& netif_event_reader::read() {
 
 void netif_event_reader::attach(const filter& filt) {
 	_sock->attach(filt);
+}
+
+void netif_event_reader::build_session_start(record_builder& builder) {
+	builder.append(std::make_unique<netif_attribute>(
+		_ep->netif(), _ep->netifname()));
 }
 
 } /* namespace horace */

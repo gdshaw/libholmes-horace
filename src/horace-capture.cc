@@ -58,6 +58,7 @@ void capture(const std::string& source_id, event_reader& src_er,
 		record_builder srecb(record::REC_SESSION_START);
 		srecb.append(std::make_unique<source_attribute>(source_id));
 		srecb.append(std::make_unique<posix_timespec_attribute>());
+		src_er.build_session_start(srecb);
 		std::unique_ptr<record> srec = srecb.build();
 		try {
 			dst_sw->write(*srec);
