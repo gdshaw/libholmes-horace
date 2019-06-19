@@ -31,6 +31,8 @@ public:
 	static const unsigned int ATTR_NETIF = 0x0b;
 	static const unsigned int ATTR_IFINDEX = 0x0c;
 	static const unsigned int ATTR_IFNAME = 0x0d;
+	static const unsigned int ATTR_LINKTYPE = 0x0e;
+	static const unsigned int ATTR_EUI = 0x0f;
 
 	virtual ~attribute() = default;
 

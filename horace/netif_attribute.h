@@ -21,10 +21,16 @@ private:
 	attribute_list _attributes;
 public:
 	/** Construct netif attribute.
+	 * The current implementation presumes that the hardware address
+	 * is an EUI.
 	 * @param ifindex the interface index
 	 * @param ifname the interface name
+	 * @param linktype the linktype, or -1 if not known
+	 * @param hwaddr the hardware address, or the empty string
+	 *  if not known
 	 */
-	netif_attribute(unsigned int ifindex, const std::string& ifname);
+	netif_attribute(unsigned int ifindex, const std::string& ifname,
+		int linktype, std::string hwaddr);
 
 	/** Construct netif attribute from an octet reader.
 	 * The type and length fields must already have been read. This

@@ -12,9 +12,18 @@ namespace horace {
 
 /** A class to represent a network interface. */
 class interface {
+public:
+	static const int linktype_ethernet = 1;
 private:
 	/** The interface index, or 0 for any interface. */
-	int _ifindex;
+	unsigned int _ifindex;
+
+	/** The linktype. */
+	int _linktype;
+
+	/** The hardware address, or the empty string if not known
+	 * or not applicable. */
+	std::string _hwaddr;
 public:
 	/** Construct interface object for any interface. */
 	interface();
@@ -29,6 +38,21 @@ public:
 	 */
 	operator int() const {
 		return _ifindex;
+	}
+
+	/** Get the linktype.
+	 * @return the linktype, or -1 if not known
+	 */
+	int linktype() const {
+		return _linktype;
+	}
+
+	/** Get the hardware address.
+	 * @return the hardware address, or the empty string if not known
+	 *  or not applicable
+	 */
+	const std::string& hwaddr() const {
+		return _hwaddr;
 	}
 };
 

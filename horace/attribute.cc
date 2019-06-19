@@ -15,6 +15,8 @@
 #include "horace/netif_attribute.h"
 #include "horace/ifindex_attribute.h"
 #include "horace/ifname_attribute.h"
+#include "horace/linktype_attribute.h"
+#include "horace/eui_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
@@ -52,6 +54,10 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 		return std::make_unique<ifindex_attribute>(in, length);
 	case ATTR_IFNAME:
 		return std::make_unique<ifname_attribute>(in, length);
+	case ATTR_LINKTYPE:
+		return std::make_unique<linktype_attribute>(in, length);
+	case ATTR_EUI:
+		return std::make_unique<eui_attribute>(in, length);
 	}
 }
 

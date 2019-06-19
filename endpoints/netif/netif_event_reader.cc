@@ -74,7 +74,8 @@ void netif_event_reader::attach(const filter& filt) {
 
 void netif_event_reader::build_session_start(record_builder& builder) {
 	builder.append(std::make_unique<netif_attribute>(
-		_ep->netif(), _ep->netifname()));
+		_ep->netif(), _ep->netifname(), _ep->netif().linktype(),
+		_ep->netif().hwaddr()));
 }
 
 } /* namespace horace */
