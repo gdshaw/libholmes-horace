@@ -15,6 +15,20 @@ eui_attribute::eui_attribute(const std::string& eui):
 eui_attribute::eui_attribute(octet_reader& in, size_t length):
 	_eui(in.read_string(length)) {}
 
+std::string eui_attribute::to_string() const {
+	char buffer[_eui.length() * 3];
+	char* ptr = buffer;
+	for (char ch : _eui) {
+		if (ptr != buffer) {
+			*ptr++ = '-';
+		}
+		unsigned int b = static_cast<unsigned int>(ch) & 0xff;
+		sprintf(ptr, "%02X", b);
+		ptr += 2;
+	}
+	return std::string(buffer);
+}
+
 int eui_attribute::type() const {
 	return ATTR_EUI;
 }
@@ -24,18 +38,7 @@ size_t eui_attribute::length() const {
 }
 
 void eui_attribute::write(std::ostream& out) const {
-	out << "eui(" << std::hex << std::uppercase;
-	bool first = true;
-	for (char ch : _eui) {
-		if (first) {
-			first = false;
-		} else {
-			out << "-";
-		}
-		unsigned int b = static_cast<unsigned int>(ch) & 0xff;
-		out << std::setw(2) << b;
-	}
-	out << std::dec;
+	out << "eui(" << to_string() << ")";
 }
 
 void eui_attribute::write(octet_writer& out) const {

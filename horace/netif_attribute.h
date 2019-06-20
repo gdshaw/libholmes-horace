@@ -10,6 +10,8 @@
 
 #include "horace/attribute.h"
 #include "horace/attribute_list.h"
+#include "horace/ifname_attribute.h"
+#include "horace/ifindex_attribute.h"
 
 namespace horace {
 
@@ -18,7 +20,13 @@ class netif_attribute:
 	public attribute {
 private:
 	/** A list of sub-attributes to describe the interface. */
-	attribute_list _attributes;
+	attribute_list _attrs;
+
+	/** The interface name attribute. */
+	const ifname_attribute* _ifname_attr;
+
+	/** The interface index attribute. */
+	const ifindex_attribute* _ifindex_attr;
 public:
 	/** Construct netif attribute.
 	 * The current implementation presumes that the hardware address
@@ -43,8 +51,22 @@ public:
 	/** Get the list of sub-attributes which describe the interface.
 	 * @return the list of sub-attributes
 	 */
-	const attribute_list& attributes() {
-		return _attributes;
+	const attribute_list& attributes() const {
+		return _attrs;
+	}
+
+	/** Get the interface name attribute.
+	 * return the ifname attribute
+	 */
+	const ifname_attribute& ifname() const {
+		return *_ifname_attr;
+	}
+
+	/** Get the interface index attribute.
+	 * return the ifindex attribute
+	 */
+	const ifindex_attribute& ifindex() const {
+		return *_ifindex_attr;
 	}
 
 	virtual int type() const;

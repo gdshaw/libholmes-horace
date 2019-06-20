@@ -38,6 +38,10 @@ session_start_record::session_start_record(record&& rec):
 					"duplicate timestamp attribute in start of session record");
 			}
 			_timestamp_attr = timestamp_attr;
+		} else if (const netif_attribute* netif_attr =
+			dynamic_cast<const netif_attribute*>(attr)) {
+
+			_netif_attrs.push_back(netif_attr);
 		}
 	}
 

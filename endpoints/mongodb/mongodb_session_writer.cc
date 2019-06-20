@@ -7,6 +7,9 @@
 #include "horace/absolute_timestamp_attribute.h"
 #include "horace/packet_attribute.h"
 #include "horace/packet_length_attribute.h"
+#include "horace/netif_attribute.h"
+#include "horace/linktype_attribute.h"
+#include "horace/eui_attribute.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
 #include "horace/packet_record.h"
@@ -114,12 +117,37 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 	_seqnum = 0;
 
 	bson_t bson_session;
-	bson_t bson_id;
 	bson_init(&bson_session);
+
+	bson_t bson_id;
 	bson_append_document_begin(&bson_session, "_id", -1, &bson_id);
 	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
 	bson_append_int64(&bson_id, "ts", -1, _ts64);
 	bson_append_document_end(&bson_session, &bson_id);
+
+	bson_t bson_interfaces;
+	bson_append_document_begin(&bson_session, "netif", -1, &bson_interfaces);
+	for (const netif_attribute* netif_attr : srec.interfaces()) {
+		std::string ifname = netif_attr->ifname().ifname();
+		bson_t bson_interface;
+		bson_append_document_begin(&bson_interfaces, ifname.c_str(),
+			-1, &bson_interface);
+		for (auto attr : netif_attr->attributes().attributes()) {
+			if (const linktype_attribute* linktype_attr =
+				dynamic_cast<const linktype_attribute*>(attr)) {
+
+				bson_append_int32(&bson_interface, "linktype", -1,
+					linktype_attr->linktype());
+			} else if (const eui_attribute* eui_attr =
+				dynamic_cast<const eui_attribute*>(attr)) {
+
+				bson_append_utf8(&bson_interface, "hwaddr", -1,
+					eui_attr->to_string().c_str(), -1);
+			}
+		}
+		bson_append_document_end(&bson_interfaces, &bson_interface);
+	}
+	bson_append_document_end(&bson_session, &bson_interfaces);
 
 	bson_error_t error;
 	if (!mongoc_collection_insert_one(_sessions, &bson_session, &_opts_session, 0, &error)) {

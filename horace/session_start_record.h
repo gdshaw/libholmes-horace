@@ -6,8 +6,11 @@
 #ifndef LIBHOLMES_HORACE_SESSION_START_RECORD
 #define LIBHOLMES_HORACE_SESSION_START_RECORD
 
+#include <vector>
+
 #include "horace/source_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
+#include "horace/netif_attribute.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -21,6 +24,9 @@ private:
 
 	/** The timestamp attribute. */
 	const absolute_timestamp_attribute* _timestamp_attr;
+
+	/** The network interface attributes. */
+	std::vector<const netif_attribute*> _netif_attrs;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record
@@ -39,6 +45,13 @@ public:
 	 */
 	const absolute_timestamp_attribute& timestamp() const {
 		return *_timestamp_attr;
+	}
+
+	/** Get a list of network interface attributes.
+	 * @return the network interface attributes
+	 */
+	const std::vector<const netif_attribute*> interfaces() const {
+		return _netif_attrs;
 	}
 
 	virtual std::string type_name() const {

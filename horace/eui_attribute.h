@@ -39,6 +39,11 @@ public:
 		return _eui;
 	}
 
+	/** Get the string representation of the EUI.
+	 * @return the EUI, as a string
+	 */
+	std::string to_string() const;
+
 	virtual int type() const;
 	virtual size_t length() const;
 	virtual void write(std::ostream& out) const;
