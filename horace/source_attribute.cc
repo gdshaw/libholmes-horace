@@ -26,8 +26,8 @@ void source_attribute::write(std::ostream& out) const {
 }
 
 void source_attribute::write(octet_writer& out) const {
-	out.write_base128(type());
-	out.write_base128(length());
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(length());
 	out.write_string(_source_id);
 }
 

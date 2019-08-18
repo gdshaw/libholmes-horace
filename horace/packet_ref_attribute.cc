@@ -23,8 +23,8 @@ void packet_ref_attribute::write(std::ostream& out) const {
 }
 
 void packet_ref_attribute::write(octet_writer& out) const {
-	out.write_base128(type());
-	out.write_base128(_length);
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(_length);
 	out.write(_content, _length);
 }
 

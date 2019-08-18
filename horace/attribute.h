@@ -17,22 +17,22 @@ namespace horace {
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
 public:
-	static const unsigned int ATTR_SOURCE = 0x00;
-	static const unsigned int ATTR_SEQNUM = 0x01;
-	static const unsigned int ATTR_PACKET = 0x02;
-	static const unsigned int ATTR_PACKET_LENGTH = 0x03;
-	static const unsigned int ATTR_TIMESTAMP_S = 0x04;
-	static const unsigned int ATTR_TIMESTAMP_MS = 0x05;
-	static const unsigned int ATTR_TIMESTAMP_US = 0x06;
-	static const unsigned int ATTR_TIMESTAMP_NS = 0x07;
-	static const unsigned int ATTR_POSIX_TIMESTAMP = 0x08;
-	static const unsigned int ATTR_POSIX_TIMESPEC = 0x09;
-	static const unsigned int ATTR_REPEAT = 0x0a;
-	static const unsigned int ATTR_NETIF = 0x0b;
-	static const unsigned int ATTR_IFINDEX = 0x0c;
-	static const unsigned int ATTR_IFNAME = 0x0d;
-	static const unsigned int ATTR_LINKTYPE = 0x0e;
-	static const unsigned int ATTR_EUI = 0x0f;
+	static const int ATTR_SOURCE = 0x00;
+	static const int ATTR_SEQNUM = 0x01;
+	static const int ATTR_PACKET = 0x02;
+	static const int ATTR_PACKET_LENGTH = 0x03;
+	static const int ATTR_TIMESTAMP_S = 0x04;
+	static const int ATTR_TIMESTAMP_MS = 0x05;
+	static const int ATTR_TIMESTAMP_US = 0x06;
+	static const int ATTR_TIMESTAMP_NS = 0x07;
+	static const int ATTR_POSIX_TIMESTAMP = 0x08;
+	static const int ATTR_POSIX_TIMESPEC = 0x09;
+	static const int ATTR_REPEAT = 0x0a;
+	static const int ATTR_NETIF = 0x0b;
+	static const int ATTR_IFINDEX = 0x0c;
+	static const int ATTR_IFNAME = 0x0d;
+	static const int ATTR_LINKTYPE = 0x0e;
+	static const int ATTR_EUI = 0x0f;
 
 	virtual ~attribute() = default;
 

@@ -23,8 +23,8 @@ attribute_list::attribute_list(octet_reader& in, size_t length) {
 	size_t remaining = length;
 	while (remaining) {
 		size_t hdr_len = 0;
-		int attr_type = in.read_base128(hdr_len);
-		int attr_len = in.read_base128(hdr_len);
+		int attr_type = in.read_signed_base128(hdr_len);
+		int attr_len = in.read_unsigned_base128(hdr_len);
 		std::unique_ptr<attribute> attr =
 			attribute::parse(in, attr_type, attr_len);
 		append(attr);
@@ -42,8 +42,8 @@ size_t attribute_list::length() const {
 	size_t len = 0;
 	for (auto&& attr : _attributes) {
 		size_t attr_len = attr->length();
-		len += octet_writer::base128_length(attr->type());
-		len += octet_writer::base128_length(attr_len);
+		len += octet_writer::signed_base128_length(attr->type());
+		len += octet_writer::unsigned_base128_length(attr_len);
 		len += attr_len;
 	}
 	return len;

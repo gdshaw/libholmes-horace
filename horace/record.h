@@ -35,14 +35,15 @@ protected:
 		_type(type) {}
 public:
 	// Control record type codes.
-	static const int REC_SESSION_START = 0x00;
-	static const int REC_SESSION_END = 0x01;
-	static const int REC_SYNC = 0x02;
-	static const int REC_ACK = 0x03;
+	static const int REC_ERROR = -1;
+	static const int REC_SESSION_START = -2;
+	static const int REC_SESSION_END = -3;
+	static const int REC_SYNC = -4;
+	static const int REC_ACK = -5;
 
 	// Event record type codes.
-	static const int REC_EVENT_MIN = 0x20;
-	static const int REC_PACKET = 0x20;
+	static const int REC_EVENT_MIN = 0;
+	static const int REC_PACKET = 0;
 
 	virtual ~record();
 

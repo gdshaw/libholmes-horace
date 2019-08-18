@@ -35,8 +35,8 @@ size_t record::length() const {
 	size_t len = 0;
 	for (auto&& attr : _attributes) {
 		size_t attr_len = attr->length();
-		len += octet_writer::base128_length(attr->type());
-		len += octet_writer::base128_length(attr_len);
+		len += octet_writer::signed_base128_length(attr->type());
+		len += octet_writer::unsigned_base128_length(attr_len);
 		len += attr_len;
 	}
 	return len;
@@ -55,8 +55,8 @@ uint64_t record::update_seqnum(uint64_t seqnum) const {
 }
 
 void record::write(octet_writer& out) const {
-	out.write_base128(type());
-	out.write_base128(length());
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(length());
 	for (auto&& attr : _attributes) {
 		attr->write(out);
 	}

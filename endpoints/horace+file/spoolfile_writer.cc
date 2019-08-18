@@ -43,8 +43,8 @@ bool spoolfile_writer::write(const record& rec) {
 	// Calculate the number of octets required for this record,
 	// including the type and length fields.
 	size_t content_len = rec.length();
-	size_t full_len = octet_writer::base128_length(rec.type()) +
-		octet_writer::base128_length(content_len) + content_len;
+	size_t full_len = octet_writer::signed_base128_length(rec.type()) +
+		octet_writer::unsigned_base128_length(content_len) + content_len;
 
 	// Return false if this record would cause the spoolfile capacity
 	// to be exceeded, except that it is always permissible to write

@@ -32,8 +32,8 @@ void packet_length_attribute::write(std::ostream& out) const {
 
 void packet_length_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_base128(type());
-	out.write_base128(len);
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(len);
 	out.write_unsigned(_origlen, len);
 }
 

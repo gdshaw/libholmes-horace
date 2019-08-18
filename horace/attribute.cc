@@ -62,8 +62,8 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 }
 
 std::unique_ptr<attribute> attribute::parse(octet_reader& in) {
-	int type = in.read_base128();
-	size_t length = in.read_base128();
+	int type = in.read_signed_base128();
+	size_t length = in.read_unsigned_base128();
 	return parse(in, type, length);
 }
 

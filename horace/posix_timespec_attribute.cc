@@ -55,8 +55,8 @@ void posix_timespec_attribute::write(std::ostream& out) const {
 
 void posix_timespec_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_base128(type());
-	out.write_base128(len);
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(len);
 	out.write_unsigned(_ts.tv_sec, len - 4);
 	out.write_unsigned(_ts.tv_nsec, 4);
 }

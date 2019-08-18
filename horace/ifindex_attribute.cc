@@ -32,8 +32,8 @@ void ifindex_attribute::write(std::ostream& out) const {
 
 void ifindex_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_base128(type());
-	out.write_base128(len);
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(len);
 	out.write_unsigned(_ifindex, len);
 }
 

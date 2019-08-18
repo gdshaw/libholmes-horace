@@ -53,7 +53,7 @@ void octet_writer::write_unsigned(uint64_t value, size_t width) {
 	}
 }
 
-void octet_writer::write_base128(uint64_t value) {
+void octet_writer::write_unsigned_base128(uint64_t value) {
 	int size = 7;
 	while ((value >> size) != 0) {
 		size += 7;
@@ -65,16 +65,51 @@ void octet_writer::write_base128(uint64_t value) {
 	write(value & 0x7f);
 }
 
+void octet_writer::write_signed_base128(int64_t value) {
+	int64_t term = (value >= 0) ? 0 : -1;
+	int size = 6;
+	while ((value >> size) != term) {
+		size += 7;
+	}
+	uint8_t sign = (value >= 0) ? 0 : 0x40;
+	if (size > 6) {
+		size -= 6;
+		write(0x80 | sign | ((value >> size) & 0x3f));
+	}
+	while (size > 7) {
+		size -= 7;
+		write(0x80 | ((value >> size) & 0x7f));
+	}
+	if (size == 7) {
+		write(value & 0x7f);
+	} else {
+		write(sign | (value & 0x3f));
+	}
+}
+
 void octet_writer::write_string(const std::string& s) {
 	write(s.data(), s.length());
 }
 
-size_t octet_writer::base128_length(uint64_t value) {
-	size_t size = 1;
-	while ((value >> size * 7) != 0) {
-		size += 1;
+size_t octet_writer::unsigned_base128_length(uint64_t value) {
+	int size = 7;
+	size_t count = 1;
+	while ((value >> size) != 0) {
+		size += 7;
+		count += 1;
 	}
-	return size;
+	return count;
+}
+
+size_t octet_writer::signed_base128_length(int64_t value) {
+	int64_t term = (value >= 0) ? 0 : -1;
+	int size = 6;
+	size_t count = 1;
+	while ((value >> size) != term) {
+		size += 7;
+		count += 1;
+	}
+	return count;
 }
 
 } /* namespace horace */

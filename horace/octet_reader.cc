@@ -68,7 +68,7 @@ uint64_t octet_reader::read_unsigned(size_t width) {
 	return result;
 }
 
-uint64_t octet_reader::read_base128() {
+uint64_t octet_reader::read_unsigned_base128() {
 	uint8_t byte = read();
 	uint64_t result = byte & 0x7f;
 	while (byte & 0x80) {
@@ -79,10 +79,34 @@ uint64_t octet_reader::read_base128() {
 	return result;
 }
 
-uint64_t octet_reader::read_base128(size_t& count) {
+uint64_t octet_reader::read_unsigned_base128(size_t& count) {
 	uint8_t byte = read();
 	count += 1;
 	uint64_t result = byte & 0x7f;
+	while (byte & 0x80) {
+		result <<= 7;
+		byte = read();
+		count += 1;
+		result |= byte & 0x7f;
+	}
+	return result;
+}
+
+int64_t octet_reader::read_signed_base128() {
+	uint8_t byte = read();
+	int64_t result = (byte & 0x3f) - (byte & 0x40);
+	while (byte & 0x80) {
+		result <<= 7;
+		byte = read();
+		result |= byte & 0x7f;
+	}
+	return result;
+}
+
+int64_t octet_reader::read_signed_base128(size_t& count) {
+	uint8_t byte = read();
+	count += 1;
+	int64_t result = (byte & 0x3f) - (byte & 0x40);
 	while (byte & 0x80) {
 		result <<= 7;
 		byte = read();

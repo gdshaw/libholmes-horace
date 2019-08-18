@@ -80,8 +80,8 @@ void netif_attribute::write(std::ostream& out) const {
 }
 
 void netif_attribute::write(octet_writer& out) const {
-	out.write_base128(type());
-	out.write_base128(length());
+	out.write_signed_base128(type());
+	out.write_unsigned_base128(length());
 	_attrs.write(out);
 }
 

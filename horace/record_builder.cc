@@ -18,13 +18,13 @@ record_builder::record_builder(int type):
 	record(type) {}
 
 record_builder::record_builder(octet_reader& in):
-	record(in.read_base128()) {
+	record(in.read_signed_base128()) {
 
-	size_t remaining = in.read_base128();
+	size_t remaining = in.read_unsigned_base128();
 	while (remaining) {
 		size_t hdr_len = 0;
-		int attr_type = in.read_base128(hdr_len);
-		int attr_len = in.read_base128(hdr_len);
+		int attr_type = in.read_signed_base128(hdr_len);
+		int attr_len = in.read_unsigned_base128(hdr_len);
 		std::unique_ptr<attribute> attr =
 			attribute::parse(in, attr_type, attr_len);
 		append(attr);
