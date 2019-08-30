@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "horace/source_attribute.h"
+#include "horace/string_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
 #include "horace/netif_attribute.h"
 #include "horace/record.h"
@@ -20,7 +20,7 @@ class session_start_record:
 	public record {
 private:
 	/** The source attribute. */
-	const source_attribute* _source_attr;
+	const string_attribute* _source_attr;
 
 	/** The timestamp attribute. */
 	const absolute_timestamp_attribute* _timestamp_attr;
@@ -36,7 +36,7 @@ public:
 	/** Get the source attribute.
 	 * @return the source attribute
 	 */
-	const source_attribute& source_attr() const {
+	const string_attribute& source_attr() const {
 		return *_source_attr;
 	}
 

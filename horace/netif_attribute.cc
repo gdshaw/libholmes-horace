@@ -5,7 +5,6 @@
 
 #include "horace_error.h"
 #include "netif_attribute.h"
-#include "ifname_attribute.h"
 #include "ifindex_attribute.h"
 #include "linktype_attribute.h"
 #include "eui_attribute.h"
@@ -16,8 +15,8 @@ netif_attribute::netif_attribute(unsigned int ifindex,
 	const std::string& ifname, int linktype, std::string hwaddr):
 	attribute(ATTR_NETIF) {
 
-	std::unique_ptr<ifname_attribute> ifname_attr =
-		std::make_unique<ifname_attribute>(ifname);
+	std::unique_ptr<string_attribute> ifname_attr =
+		std::make_unique<string_attribute>(attribute::ATTR_IFNAME, ifname);
 	std::unique_ptr<ifindex_attribute> ifindex_attr =
 		std::make_unique<ifindex_attribute>(ifindex);
 	_ifname_attr = ifname_attr.get();
@@ -40,14 +39,12 @@ netif_attribute::netif_attribute(octet_reader& in, size_t length):
 	_ifindex_attr(0) {
 
 	for (auto attr : _attrs.attributes()) {
-		if (const ifname_attribute* ifname_attr =
-			dynamic_cast<const ifname_attribute*>(attr)) {
-
+		if (attr->type() == attribute::ATTR_IFNAME) {
 			if (_ifname_attr) {
 				throw horace_error(
 					"duplicate ifname attribute in netif attribute");
 			}
-			_ifname_attr = ifname_attr;
+			_ifname_attr = &dynamic_cast<const string_attribute&>(*attr);
 		} else if (const ifindex_attribute* ifindex_attr =
 			dynamic_cast<const ifindex_attribute*>(attr)) {
 

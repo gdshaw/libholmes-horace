@@ -22,7 +22,7 @@
 #include "horace/inet4_netblock.h"
 #include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
-#include "horace/source_attribute.h"
+#include "horace/string_attribute.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
@@ -56,7 +56,8 @@ void capture(const std::string& source_id, event_reader& src_er,
 
 	try {
 		record_builder srecb(record::REC_SESSION_START);
-		srecb.append(std::make_unique<source_attribute>(source_id));
+		srecb.append(std::make_unique<string_attribute>(
+			attribute::ATTR_SOURCE, source_id));
 		srecb.append(std::make_unique<posix_timespec_attribute>());
 		src_er.build_session_start(srecb);
 		std::unique_ptr<record> srec = srecb.build();

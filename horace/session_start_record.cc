@@ -22,14 +22,12 @@ session_start_record::session_start_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (const source_attribute* source_attr =
-			dynamic_cast<const source_attribute*>(attr)) {
-
+		if (attr->type() == attribute::ATTR_SOURCE) {
 			if (_source_attr) {
 				throw horace_error(
 					"duplicate source attribute in start of session record");
 			}
-			_source_attr = source_attr;
+			_source_attr = &dynamic_cast<const string_attribute&>(*attr);
 		} else if (const absolute_timestamp_attribute* timestamp_attr =
 			dynamic_cast<const absolute_timestamp_attribute*>(attr)) {
 
@@ -60,14 +58,14 @@ void session_start_record::log(logger& log) const {
 		log_message msg(log, logger::log_notice);
 		struct timespec ts = *_timestamp_attr;
 		msg << "start of session (source=" <<
-			_source_attr->source_id() << ", ts=" <<
+			_source_attr->content() << ", ts=" <<
 			ts.tv_sec << "." << std::setfill('0') <<
 			std::setw(9) << ts.tv_nsec << ")";
 	}
 }
 
 bool session_start_record::matches(const session_start_record& rec) const {
-	return (_source_attr->source_id() == rec._source_attr->source_id()) &&
+	return (_source_attr->content() == rec._source_attr->content()) &&
 		(_timestamp_attr->equals(*rec._timestamp_attr));
 }
 

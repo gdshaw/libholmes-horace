@@ -4,7 +4,7 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/attribute.h"
-#include "horace/source_attribute.h"
+#include "horace/string_attribute.h"
 #include "horace/seqnum_attribute.h"
 #include "horace/packet_attribute.h"
 #include "horace/packet_length_attribute.h"
@@ -14,7 +14,6 @@
 #include "horace/repeat_attribute.h"
 #include "horace/netif_attribute.h"
 #include "horace/ifindex_attribute.h"
-#include "horace/ifname_attribute.h"
 #include "horace/linktype_attribute.h"
 #include "horace/eui_attribute.h"
 #include "horace/unrecognised_attribute.h"
@@ -26,7 +25,7 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 
 	switch (type) {
 	case ATTR_SOURCE:
-		return std::make_unique<source_attribute>(in, length);
+		return std::make_unique<string_attribute>(ATTR_SOURCE, length, in);
 	case ATTR_SEQNUM:
 		return std::make_unique<seqnum_attribute>(in, length);
 	case ATTR_PACKET:
@@ -53,7 +52,7 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	case ATTR_IFINDEX:
 		return std::make_unique<ifindex_attribute>(in, length);
 	case ATTR_IFNAME:
-		return std::make_unique<ifname_attribute>(in, length);
+		return std::make_unique<string_attribute>(ATTR_IFNAME, length, in);
 	case ATTR_LINKTYPE:
 		return std::make_unique<linktype_attribute>(in, length);
 	case ATTR_EUI:

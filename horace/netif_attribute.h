@@ -10,7 +10,7 @@
 
 #include "horace/attribute.h"
 #include "horace/attribute_list.h"
-#include "horace/ifname_attribute.h"
+#include "horace/string_attribute.h"
 #include "horace/ifindex_attribute.h"
 
 namespace horace {
@@ -23,7 +23,7 @@ private:
 	attribute_list _attrs;
 
 	/** The interface name attribute. */
-	const ifname_attribute* _ifname_attr;
+	const string_attribute* _ifname_attr;
 
 	/** The interface index attribute. */
 	const ifindex_attribute* _ifindex_attr;
@@ -58,7 +58,7 @@ public:
 	/** Get the interface name attribute.
 	 * return the ifname attribute
 	 */
-	const ifname_attribute& ifname() const {
+	const string_attribute& ifname() const {
 		return *_ifname_attr;
 	}
 

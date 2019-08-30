@@ -128,7 +128,7 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 	bson_t bson_interfaces;
 	bson_append_document_begin(&bson_session, "netif", -1, &bson_interfaces);
 	for (const netif_attribute* netif_attr : srec.interfaces()) {
-		std::string ifname = netif_attr->ifname().ifname();
+		std::string ifname = netif_attr->ifname().content();
 		bson_t bson_interface;
 		bson_append_document_begin(&bson_interfaces, ifname.c_str(),
 			-1, &bson_interface);
