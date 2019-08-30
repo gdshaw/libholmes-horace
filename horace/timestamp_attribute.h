@@ -15,7 +15,14 @@ namespace horace {
  * timestamp is acceptable.
  */
 class timestamp_attribute:
-	public attribute {};
+	public attribute {
+public:
+	/** Construct timestamp attribute.
+	 * @param type the required attribute type
+	 */
+	timestamp_attribute(int type):
+		attribute(type) {}
+};
 
 } /* namespace horace */
 

@@ -10,10 +10,12 @@
 namespace horace {
 
 ifindex_attribute::ifindex_attribute(uint64_t ifindex):
+	attribute(ATTR_IFINDEX),
 	_ifindex(ifindex) {
 }
 
 ifindex_attribute::ifindex_attribute(octet_reader& in, size_t length):
+	attribute(ATTR_IFINDEX),
 	_ifindex(in.read_unsigned(length)) {}
 
 size_t ifindex_attribute::length() const {

@@ -13,7 +13,8 @@
 namespace horace {
 
 netif_attribute::netif_attribute(unsigned int ifindex,
-	const std::string& ifname, int linktype, std::string hwaddr) {
+	const std::string& ifname, int linktype, std::string hwaddr):
+	attribute(ATTR_NETIF) {
 
 	std::unique_ptr<ifname_attribute> ifname_attr =
 		std::make_unique<ifname_attribute>(ifname);
@@ -33,6 +34,7 @@ netif_attribute::netif_attribute(unsigned int ifindex,
 }
 
 netif_attribute::netif_attribute(octet_reader& in, size_t length):
+	attribute(ATTR_NETIF),
 	_attrs(in, length),
 	_ifname_attr(0),
 	_ifindex_attr(0) {
@@ -65,10 +67,6 @@ netif_attribute::netif_attribute(octet_reader& in, size_t length):
 		throw horace_error(
 			"missing ifindex attribute in netif attribute");
 	}
-}
-
-int netif_attribute::type() const {
-	return ATTR_NETIF;
 }
 
 size_t netif_attribute::length() const {

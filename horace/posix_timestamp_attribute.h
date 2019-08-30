@@ -43,10 +43,6 @@ public:
 		return _ts;
 	}
 
-	virtual int type() const {
-		return ATTR_POSIX_TIMESTAMP;
-	}
-
 	virtual size_t length() const;
 	virtual void write(std::ostream& out) const;
 	virtual void write(octet_writer& out) const;

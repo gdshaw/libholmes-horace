@@ -39,10 +39,6 @@ public:
 		return _content;
 	}
 
-	virtual int type() const {
-		return ATTR_PACKET;
-	}
-
 	/** Get length.
 	 * @return the length of the packet.
 	 */

@@ -19,6 +19,12 @@ namespace horace {
 class absolute_timestamp_attribute:
 	public timestamp_attribute {
 public:
+	/** Construct absolute timestamp attribute.
+	 * @param type the required attribute type
+	 */
+	absolute_timestamp_attribute(int type):
+		timestamp_attribute(type) {}
+
 	/** Test whether two attributes have the same absolute timestamp.
 	 * Implementations may allow conversion between different time
 	 * systems, but are not required to.

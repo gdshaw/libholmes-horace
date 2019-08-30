@@ -11,7 +11,7 @@ namespace horace {
 
 unrecognised_attribute::unrecognised_attribute(octet_reader& in,
 	int type, size_t length):
-	_type(type),
+	attribute(type),
 	_length(length) {
 
 	std::unique_ptr<char[]> content = std::make_unique<char[]>(_length);
@@ -21,7 +21,7 @@ unrecognised_attribute::unrecognised_attribute(octet_reader& in,
 
 unrecognised_attribute::unrecognised_attribute(int type,
 	std::unique_ptr<const char[]>& content, size_t length):
-	_type(type),
+	attribute(type),
 	_content(move(content)),
 	_length(length) {}
 

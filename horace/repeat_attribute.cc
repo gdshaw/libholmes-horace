@@ -10,10 +10,12 @@
 namespace horace {
 
 repeat_attribute::repeat_attribute(uint64_t count):
+	attribute(ATTR_REPEAT),
 	_count(count) {
 }
 
 repeat_attribute::repeat_attribute(octet_reader& in, size_t length):
+	attribute(ATTR_REPEAT),
 	_count(in.read_unsigned(length)) {}
 
 size_t repeat_attribute::length() const {

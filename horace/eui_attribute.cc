@@ -10,9 +10,11 @@
 namespace horace {
 
 eui_attribute::eui_attribute(const std::string& eui):
+	attribute(ATTR_EUI),
 	_eui(eui) {}
 
 eui_attribute::eui_attribute(octet_reader& in, size_t length):
+	attribute(ATTR_EUI),
 	_eui(in.read_string(length)) {}
 
 std::string eui_attribute::to_string() const {
@@ -27,10 +29,6 @@ std::string eui_attribute::to_string() const {
 		ptr += 2;
 	}
 	return std::string(buffer);
-}
-
-int eui_attribute::type() const {
-	return ATTR_EUI;
 }
 
 size_t eui_attribute::length() const {

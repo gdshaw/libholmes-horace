@@ -11,6 +11,7 @@
 namespace horace {
 
 packet_ref_attribute::packet_ref_attribute(const void* content, size_t length):
+	attribute(ATTR_PACKET),
 	_content(static_cast<const char*>(content)),
 	_length(length) {}
 

@@ -13,17 +13,20 @@
 
 namespace horace {
 
-posix_timespec_attribute::posix_timespec_attribute() {
+posix_timespec_attribute::posix_timespec_attribute():
+	absolute_timestamp_attribute(ATTR_POSIX_TIMESPEC) {
 	if (clock_gettime(CLOCK_REALTIME, &_ts) == -1) {
 		throw libc_error();
 	}
 }
 
 posix_timespec_attribute::posix_timespec_attribute(const struct timespec& ts):
+	absolute_timestamp_attribute(ATTR_POSIX_TIMESPEC),
 	_ts(ts) {}
 
 posix_timespec_attribute::posix_timespec_attribute(
-	octet_reader& in, size_t length) {
+	octet_reader& in, size_t length):
+	absolute_timestamp_attribute(ATTR_POSIX_TIMESPEC) {
 
 	if (length < 5) {
 		throw horace_error(

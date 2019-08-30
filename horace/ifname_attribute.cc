@@ -8,14 +8,12 @@
 namespace horace {
 
 ifname_attribute::ifname_attribute(const std::string& ifname):
+	attribute(ATTR_IFNAME),
 	_ifname(ifname) {}
 
 ifname_attribute::ifname_attribute(octet_reader& in, size_t length):
+	attribute(ATTR_IFNAME),
 	_ifname(in.read_string(length)) {}
-
-int ifname_attribute::type() const {
-	return ATTR_IFNAME;
-}
 
 size_t ifname_attribute::length() const {
 	return _ifname.length();

@@ -10,10 +10,12 @@
 namespace horace {
 
 linktype_attribute::linktype_attribute(uint64_t linktype):
+	attribute(ATTR_LINKTYPE),
 	_linktype(linktype) {
 }
 
 linktype_attribute::linktype_attribute(octet_reader& in, size_t length):
+	attribute(ATTR_LINKTYPE),
 	_linktype(in.read_unsigned(length)) {}
 
 size_t linktype_attribute::length() const {

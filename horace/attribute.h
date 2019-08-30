@@ -33,13 +33,24 @@ public:
 	static const int ATTR_IFNAME = 0x0d;
 	static const int ATTR_LINKTYPE = 0x0e;
 	static const int ATTR_EUI = 0x0f;
+private:
+	/** The type code for this attribute. */
+	int _type;
+public:
+	/** Construct attribute.
+	 * @param type the required type code
+	 */
+	explicit attribute(int type):
+		_type(type) {}
 
 	virtual ~attribute() = default;
 
 	/** Get the type of this attribute.
 	 * @return type type code
 	 */
-	virtual int type() const = 0;
+	int type() const {
+		return _type;
+	}
 
 	/** Get the length of the content of this attribute.
 	 * @return the content length, in octets

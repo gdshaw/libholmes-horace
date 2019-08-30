@@ -22,9 +22,6 @@ class relative_timestamp_attribute:
 private:
 	/** The timestamp as a number of time units. */
 	uint64_t _ts;
-
-	/** The attribute type. */
-	int _type;
 public:
 	/** Construct relative timestamp attribute from an octet reader.
 	 * It is presumed that the type and length fields have already been
@@ -58,10 +55,6 @@ public:
 	 * @return the unit of measurement
 	 */
 	std::string unit_name() const;
-
-	virtual int type() const {
-		return _type;
-	}
 
 	virtual size_t length() const;
 	virtual void write(std::ostream& out) const;

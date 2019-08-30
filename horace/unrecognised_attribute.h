@@ -16,9 +16,6 @@ namespace horace {
 class unrecognised_attribute:
 	public attribute {
 private:
-	/** The type of this attribute. */
-	int _type;
-
 	/** The length of the raw content, in octets. */
 	size_t _length;
 
@@ -48,10 +45,6 @@ public:
 	 */
 	const char* content() const {
 		return _content.get();
-	}
-
-	virtual int type() const {
-		return _type;
 	}
 
 	virtual size_t length() const {

@@ -12,8 +12,8 @@ namespace horace {
 
 relative_timestamp_attribute::relative_timestamp_attribute(
 	octet_reader& in, int type, size_t length):
-	_ts(in.read_unsigned(length)),
-	_type(type) {
+	timestamp_attribute(type),
+	_ts(in.read_unsigned(length)) {
 
 	if  ((type != ATTR_TIMESTAMP_S) && (type != ATTR_TIMESTAMP_MS) &&
 		(type != ATTR_TIMESTAMP_US) && (type != ATTR_TIMESTAMP_NS)) {
@@ -25,12 +25,12 @@ relative_timestamp_attribute::relative_timestamp_attribute(
 
 relative_timestamp_attribute::relative_timestamp_attribute(
 	uint64_t value, int type):
-	_ts(value),
-	_type(type) {
+	timestamp_attribute(type),
+	_ts(value) {
 }
 
 uint64_t relative_timestamp_attribute::unit_divisor() const {
-	switch (_type) {
+	switch (type()) {
 	case ATTR_TIMESTAMP_S:
 		return 1;
 	case ATTR_TIMESTAMP_MS:
@@ -46,7 +46,7 @@ uint64_t relative_timestamp_attribute::unit_divisor() const {
 }
 
 std::string relative_timestamp_attribute::unit_name() const {
-	switch (_type) {
+	switch (type()) {
 	case ATTR_TIMESTAMP_S:
 		return "s";
 	case ATTR_TIMESTAMP_MS:

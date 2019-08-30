@@ -40,10 +40,6 @@ public:
 		return _seqnum;
 	}
 
-	virtual int type() const {
-		return ATTR_SEQNUM;
-	}
-
 	virtual size_t length() const;
 	virtual void write(std::ostream& out) const;
 	virtual void write(octet_writer& out) const;

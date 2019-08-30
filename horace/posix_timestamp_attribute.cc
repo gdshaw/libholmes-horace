@@ -10,10 +10,12 @@
 namespace horace {
 
 posix_timestamp_attribute::posix_timestamp_attribute(time_t ts):
+	absolute_timestamp_attribute(ATTR_POSIX_TIMESTAMP),
 	_ts(ts) {}
 
 posix_timestamp_attribute::posix_timestamp_attribute(
 	octet_reader& in, size_t length):
+	absolute_timestamp_attribute(ATTR_POSIX_TIMESTAMP),
 	_ts(in.read_unsigned(length)) {}
 
 size_t posix_timestamp_attribute::length() const {
