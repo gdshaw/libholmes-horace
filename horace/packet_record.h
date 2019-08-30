@@ -7,9 +7,8 @@
 #define LIBHOLMES_HORACE_PACKET_RECORD
 
 #include "horace/packet_attribute.h"
-#include "horace/packet_length_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
-#include "horace/repeat_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -22,13 +21,13 @@ private:
 	const packet_attribute* _packet_attr;
 
 	/** An optional length attribute. */
-	const packet_length_attribute* _origlen_attr;
+	const unsigned_integer_attribute* _origlen_attr;
 
 	/** An optional timestamp attribute. */
 	const timestamp_attribute* _timestamp_attr;
 
 	/** An optional repeat attribute. */
-	const repeat_attribute* _repeat_attr;
+	const unsigned_integer_attribute* _repeat_attr;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record
@@ -45,7 +44,7 @@ public:
 	/** Get the packet length attribute, if there is one.
 	 * @return the packet length attribute, or 0 if none
 	 */
-	const packet_length_attribute* origlen_attr() const {
+	const unsigned_integer_attribute* origlen_attr() const {
 		return _origlen_attr;
 	}
 
@@ -59,7 +58,7 @@ public:
 	/** Get the repeat attribute.
 	 * @return the repeat attribute, or 0 if none
 	 */
-	const repeat_attribute* repeat_attr() const {
+	const unsigned_integer_attribute* repeat_attr() const {
 		return _repeat_attr;
 	}
 

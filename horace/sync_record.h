@@ -8,7 +8,7 @@
 
 #include "horace/record.h"
 #include "horace/absolute_timestamp_attribute.h"
-#include "horace/seqnum_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 
 namespace horace {
 
@@ -22,7 +22,7 @@ private:
 	const absolute_timestamp_attribute* _timestamp_attr;
 
 	/** The sequence number attribute. */
-	const seqnum_attribute* _seqnum_attr;
+	const unsigned_integer_attribute* _seqnum_attr;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record
@@ -39,7 +39,7 @@ public:
 	/** Get the seqnum attribute.
 	 * @return the seqnum attribute
 	 */
-	const seqnum_attribute& seqnum() const {
+	const unsigned_integer_attribute& seqnum() const {
 		return *_seqnum_attr;
 	}
 

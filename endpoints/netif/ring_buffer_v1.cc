@@ -12,10 +12,6 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/record.h"
-#include "horace/posix_timespec_attribute.h"
-#include "horace/packet_ref_attribute.h"
-#include "horace/packet_length_attribute.h"
-#include "horace/repeat_attribute.h"
 #include "horace/libc_error.h"
 
 #include "ring_buffer_v1.h"

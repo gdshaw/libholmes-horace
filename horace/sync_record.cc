@@ -30,14 +30,12 @@ sync_record::sync_record(record&& rec):
 					"duplicate timestamp attribute in sync record");
 			}
 			_timestamp_attr = timestamp_attr;
-		} else if (const seqnum_attribute* seqnum_attr =
-			dynamic_cast<const seqnum_attribute*>(attr)) {
-
+		} else if (attr->type() == attribute::ATTR_SEQNUM) {
 			if (_seqnum_attr) {
 				throw horace_error(
 					"duplicate sequence number attribute in sync record");
 			}
-			_seqnum_attr = seqnum_attr;
+			_seqnum_attr = &dynamic_cast<const unsigned_integer_attribute&>(*attr);
 		}
 	}
 
@@ -58,7 +56,7 @@ void sync_record::log(logger& log) const {
 		msg << "sync request (ts=" <<
 			ts.tv_sec << "." << std::setfill('0') <<
 			std::setw(9) << ts.tv_nsec <<
-			" seqnum=" << _seqnum_attr->seqnum() << ")";
+			" seqnum=" << _seqnum_attr->content() << ")";
 	}
 }
 

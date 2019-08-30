@@ -8,7 +8,7 @@
 
 #include "horace/logger.h"
 #include "horace/log_message.h"
-#include "horace/seqnum_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -48,7 +48,7 @@ uint64_t record::update_seqnum(uint64_t seqnum) const {
 	}
 	for (auto&& attr : _attributes) {
 		if (attr->type() == attribute::ATTR_SEQNUM) {
-			return dynamic_cast<const seqnum_attribute&>(*attr).seqnum();
+			return dynamic_cast<const unsigned_integer_attribute&>(*attr).content();
 		}
 	}
 	return seqnum;

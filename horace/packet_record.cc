@@ -30,14 +30,12 @@ packet_record::packet_record(record&& rec):
 					"duplicate packet attribute in packet record");
 			}
 			_packet_attr = packet_attr;
-		} else if (const packet_length_attribute* origlen_attr =
-			dynamic_cast<const packet_length_attribute*>(attr)) {
-
+		} else if (attr->type() == attribute::ATTR_PACKET_LENGTH) {
 			if (_origlen_attr) {
 				throw horace_error("duplicate packet "
 					"length attribute in packet record");
 			}
-			_origlen_attr = origlen_attr;
+			_origlen_attr = &dynamic_cast<const unsigned_integer_attribute&>(*attr);
 		} else if (const timestamp_attribute* timestamp_attr =
 			dynamic_cast<const timestamp_attribute*>(attr)) {
 
@@ -46,14 +44,12 @@ packet_record::packet_record(record&& rec):
 					"duplicate timestamp attribute in packet record");
 			}
 			_timestamp_attr = timestamp_attr;
-		} else if (const repeat_attribute* repeat_attr =
-			dynamic_cast<const repeat_attribute*>(attr)) {
-
+		} else if (attr->type() == attribute::ATTR_REPEAT) {
 			if (_repeat_attr) {
 				throw horace_error(
 					"duplicate repeat attribute in packet record");
 			}
-			_repeat_attr = repeat_attr;
+			_repeat_attr = &dynamic_cast<const unsigned_integer_attribute&>(*attr);
 		}
 	}
 }

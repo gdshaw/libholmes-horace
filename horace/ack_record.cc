@@ -31,14 +31,12 @@ ack_record::ack_record(record&& rec):
 					"duplicate timestamp attribute in ack record");
 			}
 			_timestamp_attr = timestamp_attr;
-		} else if (const seqnum_attribute* seqnum_attr =
-			dynamic_cast<const seqnum_attribute*>(attr)) {
-
+		} else if (attr->type() == attribute::ATTR_SEQNUM) {
 			if (_seqnum_attr) {
 				throw horace_error(
 					"duplicate sequence number attribute in ack record");
 			}
-			_seqnum_attr = seqnum_attr;
+			_seqnum_attr = &dynamic_cast<const unsigned_integer_attribute&>(*attr);
 		}
 	}
 
@@ -59,13 +57,13 @@ void ack_record::log(logger& log) const {
 		msg << "sync request (ts=" <<
 			ts.tv_sec << "." << std::setfill('0') <<
 			std::setw(9) << ts.tv_nsec <<
-			" seqnum=" << _seqnum_attr->seqnum() << ")";
+			" seqnum=" << _seqnum_attr->content() << ")";
 	}
 }
 
 bool ack_record::matches(const sync_record& rec) const {
 	return (_timestamp_attr->equals(rec.timestamp()) &&
-		(_seqnum_attr->seqnum() == rec.seqnum().seqnum()));
+		(_seqnum_attr->content() == rec.seqnum().content()));
 }
 
 } /* namespace horace */

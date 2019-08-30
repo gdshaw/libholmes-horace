@@ -11,8 +11,7 @@
 
 #include "horace/posix_timespec_attribute.h"
 #include "horace/packet_ref_attribute.h"
-#include "horace/packet_length_attribute.h"
-#include "horace/repeat_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
 
@@ -28,10 +27,10 @@ private:
 	packet_ref_attribute _pkt_attr;
 
 	/** The packet length attribute. */
-	packet_length_attribute _origlen_attr;
+	unsigned_integer_attribute _origlen_attr;
 
 	/** The repeat count attribute. */
-	repeat_attribute _rpt_attr;
+	unsigned_integer_attribute _rpt_attr;
 
 	/** The record buffer.
 	 * Records are returned in reverse order.

@@ -5,16 +5,11 @@
 
 #include "horace/attribute.h"
 #include "horace/string_attribute.h"
-#include "horace/seqnum_attribute.h"
 #include "horace/packet_attribute.h"
-#include "horace/packet_length_attribute.h"
 #include "horace/relative_timestamp_attribute.h"
 #include "horace/posix_timestamp_attribute.h"
 #include "horace/posix_timespec_attribute.h"
-#include "horace/repeat_attribute.h"
 #include "horace/netif_attribute.h"
-#include "horace/ifindex_attribute.h"
-#include "horace/linktype_attribute.h"
 #include "horace/eui_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
@@ -27,11 +22,11 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	case ATTR_SOURCE:
 		return std::make_unique<string_attribute>(ATTR_SOURCE, length, in);
 	case ATTR_SEQNUM:
-		return std::make_unique<seqnum_attribute>(in, length);
+		return std::make_unique<unsigned_integer_attribute>(ATTR_SEQNUM, length, in);
 	case ATTR_PACKET:
 		return std::make_unique<packet_attribute>(in, length);
 	case ATTR_PACKET_LENGTH:
-		return std::make_unique<packet_length_attribute>(in, length);
+		return std::make_unique<unsigned_integer_attribute>(ATTR_PACKET_LENGTH, length, in);
 	case ATTR_TIMESTAMP_S:
 	case ATTR_TIMESTAMP_MS:
 	case ATTR_TIMESTAMP_US:
@@ -46,15 +41,15 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 		return std::make_unique<unrecognised_attribute>(
 			in, type, length);
 	case ATTR_REPEAT:
-		return std::make_unique<repeat_attribute>(in, length);
+		return std::make_unique<unsigned_integer_attribute>(ATTR_REPEAT, length, in);
 	case ATTR_NETIF:
 		return std::make_unique<netif_attribute>(in, length);
 	case ATTR_IFINDEX:
-		return std::make_unique<ifindex_attribute>(in, length);
+		return std::make_unique<unsigned_integer_attribute>(ATTR_IFINDEX, length, in);
 	case ATTR_IFNAME:
 		return std::make_unique<string_attribute>(ATTR_IFNAME, length, in);
 	case ATTR_LINKTYPE:
-		return std::make_unique<linktype_attribute>(in, length);
+		return std::make_unique<unsigned_integer_attribute>(ATTR_LINKTYPE, length, in);
 	case ATTR_EUI:
 		return std::make_unique<eui_attribute>(in, length);
 	}

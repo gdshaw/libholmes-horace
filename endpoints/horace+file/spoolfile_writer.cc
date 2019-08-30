@@ -7,7 +7,7 @@
 
 #include "horace/logger.h"
 #include "horace/log_message.h"
-#include "horace/seqnum_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
 
@@ -66,7 +66,7 @@ bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
 		for (auto&& attr : rec.attributes()) {
 			builder.append(*attr);
 		}
-		seqnum_attribute seqnum_attr(seqnum);
+		unsigned_integer_attribute seqnum_attr(attribute::ATTR_SEQNUM, seqnum);
 		builder.append(seqnum_attr);
 		std::unique_ptr<record> nrec = builder.build();
 		return write(*nrec);

@@ -10,8 +10,8 @@
 #include "horace/eof_error.h"
 #include "horace/horace_error.h"
 #include "horace/endpoint_error.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/posix_timespec_attribute.h"
-#include "horace/seqnum_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
 #include "horace/session_start_record.h"
@@ -107,7 +107,7 @@ std::unique_ptr<record> file_session_reader::read() {
 		_syncing = true;
 		record_builder builder(record::REC_SYNC);
 		builder.append(std::make_unique<posix_timespec_attribute>(_session_ts));
-		builder.append(std::make_unique<seqnum_attribute>(_seqnum));
+		builder.append(std::make_unique<unsigned_integer_attribute>(attribute::ATTR_SEQNUM, _seqnum));
 		return builder.build();
 	}
 }
@@ -129,7 +129,7 @@ void file_session_reader::write(const record& rec) {
 	// sync record.
 	const ack_record& crec = dynamic_cast<const ack_record&>(rec);
 	struct timespec crec_ts = crec.timestamp();
-	uint64_t crec_seqnum = crec.seqnum().seqnum();
+	uint64_t crec_seqnum = crec.seqnum().content();
 	if ((crec_ts.tv_sec != _session_ts.tv_sec) ||
 		(crec_ts.tv_nsec != _session_ts.tv_nsec) ||
 		(crec_seqnum != _seqnum)) {

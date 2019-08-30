@@ -5,8 +5,6 @@
 
 #include "horace_error.h"
 #include "netif_attribute.h"
-#include "ifindex_attribute.h"
-#include "linktype_attribute.h"
 #include "eui_attribute.h"
 
 namespace horace {
@@ -17,15 +15,16 @@ netif_attribute::netif_attribute(unsigned int ifindex,
 
 	std::unique_ptr<string_attribute> ifname_attr =
 		std::make_unique<string_attribute>(attribute::ATTR_IFNAME, ifname);
-	std::unique_ptr<ifindex_attribute> ifindex_attr =
-		std::make_unique<ifindex_attribute>(ifindex);
+	std::unique_ptr<unsigned_integer_attribute> ifindex_attr =
+		std::make_unique<unsigned_integer_attribute>(attribute::ATTR_IFINDEX, ifindex);
 	_ifname_attr = ifname_attr.get();
 	_ifindex_attr = ifindex_attr.get();
 
 	_attrs.append(std::move(ifname_attr));
 	_attrs.append(std::move(ifindex_attr));
 	if (linktype != -1) {
-		_attrs.append(std::make_unique<linktype_attribute>(linktype));
+		_attrs.append(std::make_unique<unsigned_integer_attribute>(
+			attribute::ATTR_LINKTYPE, linktype));
 	}
 	if (!hwaddr.empty()) {
 		_attrs.append(std::make_unique<eui_attribute>(hwaddr));
@@ -45,14 +44,12 @@ netif_attribute::netif_attribute(octet_reader& in, size_t length):
 					"duplicate ifname attribute in netif attribute");
 			}
 			_ifname_attr = &dynamic_cast<const string_attribute&>(*attr);
-		} else if (const ifindex_attribute* ifindex_attr =
-			dynamic_cast<const ifindex_attribute*>(attr)) {
-
+		} else if (attr->type() == attribute::ATTR_IFINDEX) {
 			if (_ifindex_attr) {
 				throw horace_error(
 					"duplicate ifindex attribute in netif attribute");
 			}
-			_ifindex_attr = ifindex_attr;
+			_ifindex_attr = &dynamic_cast<const unsigned_integer_attribute&>(*attr);
 		}
 	}
 

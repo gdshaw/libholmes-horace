@@ -9,8 +9,8 @@ namespace horace {
 
 packet_record_builder::packet_record_builder():
 	_pkt_attr(0, 0),
-	_origlen_attr(0),
-	_rpt_attr(0),
+	_origlen_attr(attribute::ATTR_PACKET_LENGTH, 0),
+	_rpt_attr(attribute::ATTR_REPEAT, 0),
 	_count(0) {
 
 	_buffer.emplace_back(0 + record::REC_PACKET);
@@ -30,7 +30,7 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 	}
 	pkt_builder.append(_pkt_attr = packet_ref_attribute(content, snaplen));
 	if (snaplen != origlen) {
-		pkt_builder.append(_origlen_attr = packet_length_attribute(origlen));
+		pkt_builder.append(_origlen_attr = unsigned_integer_attribute(attribute::ATTR_PACKET_LENGTH, origlen));
 	}
 	_count += 1;
 
@@ -40,7 +40,7 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 		if (ts) {
 			drop_builder.append(_ts_attr);
 		}
-		drop_builder.append(_rpt_attr = repeat_attribute(dropped));
+		drop_builder.append(_rpt_attr = unsigned_integer_attribute(attribute::ATTR_REPEAT, dropped));
 		_count += 1;
 	}
 }
@@ -56,7 +56,7 @@ void packet_record_builder::build_dropped(const struct timespec* ts,
 		if (ts) {
 			drop_builder.append(_ts_attr = posix_timespec_attribute(*ts));
 		}
-		drop_builder.append(_rpt_attr = repeat_attribute(dropped));
+		drop_builder.append(_rpt_attr = unsigned_integer_attribute(attribute::ATTR_REPEAT, dropped));
 		_count += 1;
 	}
 }

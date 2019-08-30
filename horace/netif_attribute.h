@@ -10,8 +10,8 @@
 
 #include "horace/attribute.h"
 #include "horace/attribute_list.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/string_attribute.h"
-#include "horace/ifindex_attribute.h"
 
 namespace horace {
 
@@ -26,7 +26,7 @@ private:
 	const string_attribute* _ifname_attr;
 
 	/** The interface index attribute. */
-	const ifindex_attribute* _ifindex_attr;
+	const unsigned_integer_attribute* _ifindex_attr;
 public:
 	/** Construct netif attribute.
 	 * The current implementation presumes that the hardware address
@@ -65,7 +65,7 @@ public:
 	/** Get the interface index attribute.
 	 * return the ifindex attribute
 	 */
-	const ifindex_attribute& ifindex() const {
+	const unsigned_integer_attribute& ifindex() const {
 		return *_ifindex_attr;
 	}
 

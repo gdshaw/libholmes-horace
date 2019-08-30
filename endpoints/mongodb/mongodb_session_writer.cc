@@ -3,12 +3,11 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
 #include "horace/packet_attribute.h"
-#include "horace/packet_length_attribute.h"
 #include "horace/netif_attribute.h"
-#include "horace/linktype_attribute.h"
 #include "horace/eui_attribute.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
@@ -88,22 +87,22 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 		const void* content = packet_attr->content();
 		size_t snaplen = packet_attr->length();
 		size_t origlen = snaplen;
-		if (const packet_length_attribute *origlen_attr = prec.origlen_attr()) {
-			origlen = origlen_attr->origlen();
+		if (const unsigned_integer_attribute *origlen_attr = prec.origlen_attr()) {
+			origlen = origlen_attr->content();
 		}
 		bson_append_binary(&bson_packet, "content", -1, BSON_SUBTYPE_BINARY,
 			reinterpret_cast<const uint8_t*>(content), snaplen);
 		bson_append_int64(&bson_packet, "length", -1, origlen);
-	} else if (const packet_length_attribute *origlen_attr = prec.origlen_attr()) {
-		size_t origlen = origlen_attr->origlen();
+	} else if (const unsigned_integer_attribute *origlen_attr = prec.origlen_attr()) {
+		size_t origlen = origlen_attr->content();
 		bson_append_int64(&bson_packet, "length", -1, origlen);
 	}
 
 	// Add repeat field, if applicable.
-	if (const repeat_attribute* repeat_attr =
-		dynamic_cast<const repeat_attribute*>(prec.repeat_attr())) {
+	if (const unsigned_integer_attribute* repeat_attr =
+		dynamic_cast<const unsigned_integer_attribute*>(prec.repeat_attr())) {
 
-		bson_append_int32(&bson_packet, "repeat", -1, repeat_attr->count());
+		bson_append_int32(&bson_packet, "repeat", -1, repeat_attr->content());
 	}
 
 	// Append to the next bulk-write operation.
@@ -133,11 +132,11 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 		bson_append_document_begin(&bson_interfaces, ifname.c_str(),
 			-1, &bson_interface);
 		for (auto attr : netif_attr->attributes().attributes()) {
-			if (const linktype_attribute* linktype_attr =
-				dynamic_cast<const linktype_attribute*>(attr)) {
+			if (const unsigned_integer_attribute* linktype_attr =
+				dynamic_cast<const unsigned_integer_attribute*>(attr)) {
 
 				bson_append_int32(&bson_interface, "linktype", -1,
-					linktype_attr->linktype());
+					linktype_attr->content());
 			} else if (const eui_attribute* eui_attr =
 				dynamic_cast<const eui_attribute*>(attr)) {
 
