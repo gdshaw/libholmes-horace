@@ -10,7 +10,7 @@
 #include <cstdint>
 
 #include "horace/posix_timespec_attribute.h"
-#include "horace/packet_ref_attribute.h"
+#include "horace/binary_ref_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
@@ -24,7 +24,7 @@ private:
 	posix_timespec_attribute _ts_attr;
 
 	/** The packet attribute. */
-	packet_ref_attribute _pkt_attr;
+	binary_ref_attribute _pkt_attr;
 
 	/** The packet length attribute. */
 	unsigned_integer_attribute _origlen_attr;

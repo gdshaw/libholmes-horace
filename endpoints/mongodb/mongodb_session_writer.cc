@@ -6,9 +6,7 @@
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
-#include "horace/packet_attribute.h"
 #include "horace/netif_attribute.h"
-#include "horace/eui_attribute.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
 #include "horace/packet_record.h"
@@ -83,7 +81,7 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 	// Add content and length fields, if applicable.
 	// The length field can derive either from and origlen attribute,
 	// or in its absence, the length of the content.
-	if (const packet_attribute* packet_attr = prec.packet_attr()) {
+	if (const binary_ref_attribute* packet_attr = prec.packet_attr()) {
 		const void* content = packet_attr->content();
 		size_t snaplen = packet_attr->length();
 		size_t origlen = snaplen;
@@ -132,16 +130,18 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 		bson_append_document_begin(&bson_interfaces, ifname.c_str(),
 			-1, &bson_interface);
 		for (auto attr : netif_attr->attributes().attributes()) {
-			if (const unsigned_integer_attribute* linktype_attr =
-				dynamic_cast<const unsigned_integer_attribute*>(attr)) {
-
+			if (attr->type() == attribute::ATTR_LINKTYPE) {
+				const unsigned_integer_attribute& linktype_attr =
+					dynamic_cast<const unsigned_integer_attribute&>(*attr);
 				bson_append_int32(&bson_interface, "linktype", -1,
-					linktype_attr->content());
-			} else if (const eui_attribute* eui_attr =
-				dynamic_cast<const eui_attribute*>(attr)) {
-
-				bson_append_utf8(&bson_interface, "hwaddr", -1,
-					eui_attr->to_string().c_str(), -1);
+					linktype_attr.content());
+			} else if (attr->type() == attribute::ATTR_EUI) {
+				const binary_ref_attribute& eui_attr =
+					dynamic_cast<const binary_ref_attribute&>(*attr);
+				bson_append_binary(&bson_interface, "hwaddr", -1,
+					BSON_SUBTYPE_BINARY,
+					reinterpret_cast<const uint8_t*>(eui_attr.content()),
+					eui_attr.length());
 			}
 		}
 		bson_append_document_end(&bson_interfaces, &bson_interface);

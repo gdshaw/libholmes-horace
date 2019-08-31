@@ -6,24 +6,24 @@
 #include <iomanip>
 #include <cstring>
 
-#include "horace/packet_ref_attribute.h"
+#include "horace/binary_ref_attribute.h"
 
 namespace horace {
 
-packet_ref_attribute::packet_ref_attribute(const void* content, size_t length):
-	attribute(ATTR_PACKET),
+binary_ref_attribute::binary_ref_attribute(int type, size_t length, const void* content):
+	attribute(type),
 	_content(static_cast<const char*>(content)),
 	_length(length) {}
 
-void packet_ref_attribute::write(std::ostream& out) const {
-	out << "packet(" << std::hex << std::setfill('0');
+void binary_ref_attribute::write(std::ostream& out) const {
+	out << "attr" << type() << "(" << std::hex << std::setfill('0');
 	for (size_t i = 0; i != _length; ++i) {
 		out << std::setw(2) << (_content[i] & 0xff);
 	}
 	out << std::dec << ")";
 }
 
-void packet_ref_attribute::write(octet_writer& out) const {
+void binary_ref_attribute::write(octet_writer& out) const {
 	out.write_signed_base128(type());
 	out.write_unsigned_base128(_length);
 	out.write(_content, _length);

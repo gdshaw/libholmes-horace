@@ -5,7 +5,7 @@
 
 #include "horace_error.h"
 #include "netif_attribute.h"
-#include "eui_attribute.h"
+#include "binary_attribute.h"
 
 namespace horace {
 
@@ -27,7 +27,8 @@ netif_attribute::netif_attribute(unsigned int ifindex,
 			attribute::ATTR_LINKTYPE, linktype));
 	}
 	if (!hwaddr.empty()) {
-		_attrs.append(std::make_unique<eui_attribute>(hwaddr));
+		_attrs.append(std::make_unique<binary_attribute>(attribute::ATTR_EUI,
+			hwaddr.length(), hwaddr.data()));
 	}
 }
 

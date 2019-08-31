@@ -6,7 +6,7 @@
 #ifndef LIBHOLMES_HORACE_PACKET_RECORD
 #define LIBHOLMES_HORACE_PACKET_RECORD
 
-#include "horace/packet_attribute.h"
+#include "horace/binary_attribute.h"
 #include "horace/absolute_timestamp_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
@@ -18,7 +18,7 @@ class packet_record:
 	public record {
 private:
 	/** An optional packet attribute. */
-	const packet_attribute* _packet_attr;
+	const binary_ref_attribute* _packet_attr;
 
 	/** An optional length attribute. */
 	const unsigned_integer_attribute* _origlen_attr;
@@ -37,7 +37,7 @@ public:
 	/** Get the packet attribute.
 	 * @return the packet attribute, or 0 if none
 	 */
-	const packet_attribute* packet_attr() const {
+	const binary_ref_attribute* packet_attr() const {
 		return _packet_attr;
 	}
 

@@ -8,7 +8,7 @@
 namespace horace {
 
 packet_record_builder::packet_record_builder():
-	_pkt_attr(0, 0),
+	_pkt_attr(attribute::ATTR_PACKET, 0, 0),
 	_origlen_attr(attribute::ATTR_PACKET_LENGTH, 0),
 	_rpt_attr(attribute::ATTR_REPEAT, 0),
 	_count(0) {
@@ -28,7 +28,7 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 	if (ts) {
 		pkt_builder.append(_ts_attr = posix_timespec_attribute(*ts));
 	}
-	pkt_builder.append(_pkt_attr = packet_ref_attribute(content, snaplen));
+	pkt_builder.append(_pkt_attr = binary_ref_attribute(attribute::ATTR_PACKET, snaplen, content));
 	if (snaplen != origlen) {
 		pkt_builder.append(_origlen_attr = unsigned_integer_attribute(attribute::ATTR_PACKET_LENGTH, origlen));
 	}

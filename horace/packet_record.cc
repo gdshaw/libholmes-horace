@@ -22,14 +22,12 @@ packet_record::packet_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (const packet_attribute* packet_attr =
-			dynamic_cast<const packet_attribute*>(attr)) {
-
+		if (attr->type() == attribute::ATTR_PACKET) {
 			if (_packet_attr) {
 				throw horace_error(
 					"duplicate packet attribute in packet record");
 			}
-			_packet_attr = packet_attr;
+			_packet_attr = &dynamic_cast<const binary_ref_attribute&>(*attr);
 		} else if (attr->type() == attribute::ATTR_PACKET_LENGTH) {
 			if (_origlen_attr) {
 				throw horace_error("duplicate packet "

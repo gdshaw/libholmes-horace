@@ -4,13 +4,12 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/attribute.h"
+#include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
-#include "horace/packet_attribute.h"
 #include "horace/relative_timestamp_attribute.h"
 #include "horace/posix_timestamp_attribute.h"
 #include "horace/posix_timespec_attribute.h"
 #include "horace/netif_attribute.h"
-#include "horace/eui_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
@@ -24,7 +23,7 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	case ATTR_SEQNUM:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_SEQNUM, length, in);
 	case ATTR_PACKET:
-		return std::make_unique<packet_attribute>(in, length);
+		return std::make_unique<binary_attribute>(ATTR_PACKET, length, in);
 	case ATTR_PACKET_LENGTH:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_PACKET_LENGTH, length, in);
 	case ATTR_TIMESTAMP_S:
@@ -37,9 +36,6 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 		return std::make_unique<posix_timestamp_attribute>(in, length);
 	case ATTR_POSIX_TIMESPEC:
 		return std::make_unique<posix_timespec_attribute>(in, length);
-	default:
-		return std::make_unique<unrecognised_attribute>(
-			in, type, length);
 	case ATTR_REPEAT:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_REPEAT, length, in);
 	case ATTR_NETIF:
@@ -51,7 +47,10 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	case ATTR_LINKTYPE:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_LINKTYPE, length, in);
 	case ATTR_EUI:
-		return std::make_unique<eui_attribute>(in, length);
+		return std::make_unique<binary_attribute>(ATTR_EUI, length, in);
+	default:
+		return std::make_unique<unrecognised_attribute>(
+			in, type, length);
 	}
 }
 
