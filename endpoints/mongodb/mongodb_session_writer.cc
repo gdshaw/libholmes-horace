@@ -5,7 +5,6 @@
 
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
-#include "horace/absolute_timestamp_attribute.h"
 #include "horace/netif_attribute.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
@@ -62,20 +61,22 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 	bson_init(&bson_packet);
 	bson_append_document_begin(&bson_packet, "_id", -1, &bson_id);
 	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
-	bson_append_int64(&bson_id, "ts", -1, _ts64);
+	bson_t bson_ts;
+	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
+	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
+	bson_append_int32(&bson_ts, "nsec", -1, _session_ts.tv_nsec);
+	bson_append_document_end(&bson_id, &bson_ts);
 	bson_append_int64(&bson_id, "seqnum", -1, _seqnum);
 	bson_append_document_end(&bson_packet, &bson_id);
 
 	// Add timestamp field, if applicable.
-	if (const absolute_timestamp_attribute* ts_attr =
-		dynamic_cast<const absolute_timestamp_attribute*>(
-		prec.timestamp())) {
-
-		struct timespec pts =
-			dynamic_cast<const absolute_timestamp_attribute&>(
-			*prec.timestamp());
-		uint64_t pts64 = (pts.tv_sec * 1000000000L) + pts.tv_nsec;
-		bson_append_int64(&bson_packet, "ts", -1, pts64);
+	if (const timestamp_attribute* ts_attr = prec.timestamp()) {
+		struct timespec packet_ts = ts_attr->content();
+		bson_t bson_ts2;
+		bson_append_document_begin(&bson_packet, "ts", -1, &bson_ts2);
+		bson_append_int64(&bson_ts2, "sec", -1, packet_ts.tv_sec);
+		bson_append_int32(&bson_ts2, "nsec", -1, packet_ts.tv_nsec);
+		bson_append_document_end(&bson_packet, &bson_ts2);
 	}
 
 	// Add content and length fields, if applicable.
@@ -109,8 +110,7 @@ void mongodb_session_writer::handle_packet(const packet_record& prec) {
 }
 
 void mongodb_session_writer::handle_session_start(const session_start_record& srec) {
-	struct timespec ts = srec.timestamp();
-	_ts64 = (ts.tv_sec * 1000000000L) + ts.tv_nsec;
+	_session_ts = srec.timestamp().content();
 	_seqnum = 0;
 
 	bson_t bson_session;
@@ -119,7 +119,11 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 	bson_t bson_id;
 	bson_append_document_begin(&bson_session, "_id", -1, &bson_id);
 	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
-	bson_append_int64(&bson_id, "ts", -1, _ts64);
+	bson_t bson_ts;
+	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
+	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
+	bson_append_int32(&bson_ts, "nsec", -1, _session_ts.tv_nsec);
+	bson_append_document_end(&bson_id, &bson_ts);
 	bson_append_document_end(&bson_session, &bson_id);
 
 	bson_t bson_interfaces;
@@ -160,23 +164,29 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 }
 
 void mongodb_session_writer::handle_session_end(const session_end_record& erec) {
-	struct timespec ets =
-		dynamic_cast<const absolute_timestamp_attribute&>(erec.timestamp());
-	uint64_t ets64 = (ets.tv_sec * 1000000000L) + ets.tv_nsec;
+	struct timespec end_ts = erec.timestamp().content();
 
 	bson_t bson_session;
 	bson_t bson_id;
 	bson_init(&bson_session);
 	bson_append_document_begin(&bson_session, "_id", -1, &bson_id);
 	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
-	bson_append_int64(&bson_id, "ts", -1, _ts64);
+	bson_t bson_ts;
+	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
+	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
+	bson_append_int32(&bson_ts, "nsec", -1, _session_ts.tv_nsec);
+	bson_append_document_end(&bson_id, &bson_ts);
 	bson_append_document_end(&bson_session, &bson_id);
 
 	bson_t bson_update;
 	bson_t bson_set;
 	bson_init(&bson_update);
 	bson_append_document_begin(&bson_update, "$set", -1, &bson_set);
-	bson_append_int64(&bson_set, "end_ts", -1, ets64);
+	bson_t bson_ts2;
+	bson_append_document_begin(&bson_set, "end_ts", -1, &bson_ts2);
+	bson_append_int64(&bson_ts2, "sec", -1, end_ts.tv_sec);
+	bson_append_int32(&bson_ts2, "nsec", -1, end_ts.tv_nsec);
+	bson_append_document_end(&bson_set, &bson_ts2);
 	bson_append_document_end(&bson_update, &bson_set);
 
 	bson_error_t error;

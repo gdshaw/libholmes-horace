@@ -7,8 +7,8 @@
 #define LIBHOLMES_HORACE_PACKET_RECORD
 
 #include "horace/binary_attribute.h"
-#include "horace/absolute_timestamp_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/timestamp_attribute.h"
 #include "horace/record.h"
 
 namespace horace {

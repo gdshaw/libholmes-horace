@@ -6,22 +6,70 @@
 #ifndef LIBHOLMES_HORACE_TIMESTAMP_ATTRIBUTE
 #define LIBHOLMES_HORACE_TIMESTAMP_ATTRIBUTE
 
+#include <cstdint>
+
 #include "horace/attribute.h"
 
 namespace horace {
 
-/** An abstract class to represent a timestamp attribute.
- * This class should be used where either an absolute or a relative
- * timestamp is acceptable.
+/** A class to represent an attribute containing a timestamp.
+ * A timestamp consists of a number of whole seconds and a number of
+ * nanoseconds. It is interpreted with respect to a time system which is
+ * applicable to the session as a whole (and therefore not explicitly
+ * specified as part of the timestamp).
+ *
+ * The number of nanoseconds must be in the range 0 to 999999999
+ * inclusive, excepting that the range 1000000000 to 1999999999 may be
+ * used to represent a leap second if permitted by the time system.
  */
 class timestamp_attribute:
 	public attribute {
-public:
-	/** Construct timestamp attribute.
-	 * @param type the required attribute type
+private:
+	/** The attribute content.
+	 * Note that, depending on the applicable time system, this will
+	 * not necessarily have the sematics normally associated with a
+	 * POSIX struct timespec.
 	 */
-	timestamp_attribute(int type):
-		attribute(type) {}
+	struct timespec _content;
+public:
+	/** Construct timestamp attribute from an octet reader.
+	 * It is presumed that the type and length fields have already been
+	 * read. This function must read exactly the specified number of
+	 * octets.
+	 * @param type the attribute type
+	 * @param length the length of the content, in octets
+	 * @param in the octet reader
+	 */
+	timestamp_attribute(int type, size_t length, octet_reader& in);
+
+	/** Construct timestamp attribute for current time.
+	 * @param type the attribute type
+	 */
+	timestamp_attribute(int type);
+
+	/** Construct timestamp attribute.
+	 * @param type the attribute type
+	 * @param sec the number of whole seconds since the epoch
+	 * @param nsec the number of nanoseconds since the
+	 */
+	timestamp_attribute(int type, time_t sec, long nsec);
+
+	/** Construct timestamp attribute from a timespec.
+	 * @param type the attribute type
+	 * @param ts the required timestamp
+	 */
+	timestamp_attribute(int type, const struct timespec& ts);
+
+	/** Get the attribute content.
+	 * @return the content as a timespec
+	 */
+	const struct timespec& content() const {
+		return _content;
+	}
+
+	virtual size_t length() const;
+	virtual void write(std::ostream& out) const;
+	virtual void write(octet_writer& out) const;
 };
 
 } /* namespace horace */

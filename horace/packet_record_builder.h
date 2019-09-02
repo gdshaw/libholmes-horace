@@ -9,7 +9,7 @@
 #include <memory>
 #include <cstdint>
 
-#include "horace/posix_timespec_attribute.h"
+#include "horace/timestamp_attribute.h"
 #include "horace/binary_ref_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
@@ -21,7 +21,7 @@ namespace horace {
 class packet_record_builder {
 private:
 	/** The timestamp attribute. */
-	posix_timespec_attribute _ts_attr;
+	timestamp_attribute _ts_attr;
 
 	/** The packet attribute. */
 	binary_ref_attribute _pkt_attr;

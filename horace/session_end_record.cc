@@ -19,14 +19,12 @@ session_end_record::session_end_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (const timestamp_attribute* timestamp_attr =
-			dynamic_cast<const timestamp_attribute*>(attr)) {
-
+		if (attr->type() == attribute::ATTR_TIMESTAMP) {
 			if (_timestamp_attr) {
 				throw horace_error(
 					"duplicate timestamp attribute in end of session record");
 			}
-			_timestamp_attr = timestamp_attr;
+			_timestamp_attr = dynamic_cast<const timestamp_attribute*>(attr);
 		}
 	}
 

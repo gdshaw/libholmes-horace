@@ -23,14 +23,12 @@ ack_record::ack_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (const absolute_timestamp_attribute* timestamp_attr =
-			dynamic_cast<const absolute_timestamp_attribute*>(attr)) {
-
+		if (attr->type() == attribute::ATTR_TIMESTAMP) {
 			if (_timestamp_attr) {
 				throw horace_error(
 					"duplicate timestamp attribute in ack record");
 			}
-			_timestamp_attr = timestamp_attr;
+			_timestamp_attr = dynamic_cast<const timestamp_attribute*>(attr);
 		} else if (attr->type() == attribute::ATTR_SEQNUM) {
 			if (_seqnum_attr) {
 				throw horace_error(
@@ -53,7 +51,7 @@ ack_record::ack_record(record&& rec):
 void ack_record::log(logger& log) const {
 	if (log.enabled(logger::log_info)) {
 		log_message msg(log, logger::log_info);
-		struct timespec ts = *_timestamp_attr;
+		struct timespec ts = _timestamp_attr->content();
 		msg << "sync request (ts=" <<
 			ts.tv_sec << "." << std::setfill('0') <<
 			std::setw(9) << ts.tv_nsec <<
@@ -62,8 +60,9 @@ void ack_record::log(logger& log) const {
 }
 
 bool ack_record::matches(const sync_record& rec) const {
-	return (_timestamp_attr->equals(rec.timestamp()) &&
-		(_seqnum_attr->content() == rec.seqnum().content()));
+	return (_timestamp_attr->content().tv_sec == rec.timestamp().content().tv_sec) &&
+		(_timestamp_attr->content().tv_nsec == rec.timestamp().content().tv_nsec) &&
+		(_seqnum_attr->content() == rec.seqnum().content());
 }
 
 } /* namespace horace */

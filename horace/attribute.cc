@@ -6,9 +6,7 @@
 #include "horace/attribute.h"
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
-#include "horace/relative_timestamp_attribute.h"
-#include "horace/posix_timestamp_attribute.h"
-#include "horace/posix_timespec_attribute.h"
+#include "horace/timestamp_attribute.h"
 #include "horace/netif_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
@@ -26,16 +24,8 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 		return std::make_unique<binary_attribute>(ATTR_PACKET, length, in);
 	case ATTR_PACKET_LENGTH:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_PACKET_LENGTH, length, in);
-	case ATTR_TIMESTAMP_S:
-	case ATTR_TIMESTAMP_MS:
-	case ATTR_TIMESTAMP_US:
-	case ATTR_TIMESTAMP_NS:
-		return std::make_unique<relative_timestamp_attribute>(
-			in, type, length);
-	case ATTR_POSIX_TIMESTAMP:
-		return std::make_unique<posix_timestamp_attribute>(in, length);
-	case ATTR_POSIX_TIMESPEC:
-		return std::make_unique<posix_timespec_attribute>(in, length);
+	case ATTR_TIMESTAMP:
+		return std::make_unique<timestamp_attribute>(ATTR_TIMESTAMP, length, in);
 	case ATTR_REPEAT:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_REPEAT, length, in);
 	case ATTR_NETIF:

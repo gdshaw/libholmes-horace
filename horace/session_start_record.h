@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "horace/string_attribute.h"
-#include "horace/absolute_timestamp_attribute.h"
+#include "horace/timestamp_attribute.h"
 #include "horace/netif_attribute.h"
 #include "horace/record.h"
 
@@ -23,7 +23,7 @@ private:
 	const string_attribute* _source_attr;
 
 	/** The timestamp attribute. */
-	const absolute_timestamp_attribute* _timestamp_attr;
+	const timestamp_attribute* _timestamp_attr;
 
 	/** The network interface attributes. */
 	std::vector<const netif_attribute*> _netif_attrs;
@@ -43,7 +43,7 @@ public:
 	/** Get the timestamp attribute.
 	 * @return the timestamp attribute
 	 */
-	const absolute_timestamp_attribute& timestamp() const {
+	const timestamp_attribute& timestamp() const {
 		return *_timestamp_attr;
 	}
 

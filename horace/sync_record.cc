@@ -22,14 +22,12 @@ sync_record::sync_record(record&& rec):
 	}
 
 	for (auto attr : attributes()) {
-		if (const absolute_timestamp_attribute* timestamp_attr =
-			dynamic_cast<const absolute_timestamp_attribute*>(attr)) {
-
+		if (attr->type() == attribute::ATTR_TIMESTAMP) {
 			if (_timestamp_attr) {
 				throw horace_error(
 					"duplicate timestamp attribute in sync record");
 			}
-			_timestamp_attr = timestamp_attr;
+			_timestamp_attr = dynamic_cast<const timestamp_attribute*>(attr);
 		} else if (attr->type() == attribute::ATTR_SEQNUM) {
 			if (_seqnum_attr) {
 				throw horace_error(
@@ -52,7 +50,7 @@ sync_record::sync_record(record&& rec):
 void sync_record::log(logger& log) const {
 	if (log.enabled(logger::log_info)) {
 		log_message msg(log, logger::log_info);
-		struct timespec ts = *_timestamp_attr;
+		struct timespec ts = _timestamp_attr->content();
 		msg << "sync request (ts=" <<
 			ts.tv_sec << "." << std::setfill('0') <<
 			std::setw(9) << ts.tv_nsec <<

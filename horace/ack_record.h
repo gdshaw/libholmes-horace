@@ -7,8 +7,8 @@
 #define LIBHOLMES_HORACE_ACK_RECORD
 
 #include "horace/record.h"
-#include "horace/absolute_timestamp_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/timestamp_attribute.h"
 
 namespace horace {
 
@@ -19,7 +19,7 @@ class ack_record:
 	public record {
 private:
 	/** The timestamp attribute. */
-	const absolute_timestamp_attribute* _timestamp_attr;
+	const timestamp_attribute* _timestamp_attr;
 
 	/** The sequence number attribute. */
 	const unsigned_integer_attribute* _seqnum_attr;
@@ -32,7 +32,7 @@ public:
 	/** Get the timestamp attribute.
 	 * @return the timestamp attribute
 	 */
-	const absolute_timestamp_attribute& timestamp() const {
+	const timestamp_attribute& timestamp() const {
 		return *_timestamp_attr;
 	}
 

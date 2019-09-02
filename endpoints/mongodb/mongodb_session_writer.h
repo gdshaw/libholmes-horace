@@ -32,7 +32,7 @@ private:
 	mongodb_collection _packets;
 
 	/** The current session timestamp. */
-	uint64_t _ts64;
+	struct timespec _session_ts;
 
 	/** The current sequence number. */
 	uint64_t _seqnum;
