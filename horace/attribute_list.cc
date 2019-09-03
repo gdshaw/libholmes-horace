@@ -49,6 +49,22 @@ size_t attribute_list::length() const {
 	return len;
 }
 
+const attribute& attribute_list::_find_one(int type) const {
+	const attribute* found = 0;
+	for (auto&& attr : _attributes) {
+		if (attr -> type() == type) {
+			if (found) {
+				throw horace_error("unexpected multiple attributes of same type");
+			}
+			found = attr;
+		}
+	}
+	if (!found) {
+		throw horace_error("expected attribute not found");
+	}
+	return *found;
+}
+
 attribute_list& attribute_list::append(
 	std::unique_ptr<attribute>& attr) {
 

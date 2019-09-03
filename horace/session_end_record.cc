@@ -24,7 +24,7 @@ session_end_record::session_end_record(record&& rec):
 				throw horace_error(
 					"duplicate timestamp attribute in end of session record");
 			}
-			_timestamp_attr = dynamic_cast<const timestamp_attribute*>(attr);
+			_timestamp_attr = &dynamic_cast<const timestamp_attribute&>(*attr);
 		}
 	}
 

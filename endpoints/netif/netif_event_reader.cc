@@ -6,7 +6,10 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/endpoint_error.h"
-#include "horace/netif_attribute.h"
+#include "horace/string_attribute.h"
+#include "horace/binary_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
+#include "horace/compound_attribute.h"
 
 #include "packet_socket.h"
 #include "ring_buffer_v1.h"
@@ -73,9 +76,18 @@ void netif_event_reader::attach(const filter& filt) {
 }
 
 void netif_event_reader::build_session_start(record_builder& builder) {
-	builder.append(std::make_unique<netif_attribute>(
-		_ep->netif(), _ep->netifname(), _ep->netif().linktype(),
-		_ep->netif().hwaddr()));
+	attribute_list attrlist;
+	attrlist.append(std::make_unique<unsigned_integer_attribute>(
+		attribute::ATTR_IFINDEX, _ep->netif()));
+	attrlist.append(std::make_unique<string_attribute>(
+		attribute::ATTR_IFNAME, _ep->netifname()));
+	attrlist.append(std::make_unique<unsigned_integer_attribute>(
+		attribute::ATTR_LINKTYPE, _ep->netif().linktype()));
+	attrlist.append(std::make_unique<binary_attribute>(
+		attribute::ATTR_EUI, _ep->netif().hwaddr().length(),
+		_ep->netif().hwaddr().data()));
+	builder.append(std::make_unique<compound_attribute>(
+		attribute::ATTR_NETIF, std::move(attrlist)));
 }
 
 } /* namespace horace */

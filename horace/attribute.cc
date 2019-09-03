@@ -7,7 +7,8 @@
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
-#include "horace/netif_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
+#include "horace/compound_attribute.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
@@ -29,7 +30,7 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	case ATTR_REPEAT:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_REPEAT, length, in);
 	case ATTR_NETIF:
-		return std::make_unique<netif_attribute>(in, length);
+		return std::make_unique<compound_attribute>(ATTR_NETIF, length, in);
 	case ATTR_IFINDEX:
 		return std::make_unique<unsigned_integer_attribute>(ATTR_IFINDEX, length, in);
 	case ATTR_IFNAME:

@@ -5,7 +5,7 @@
 
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
-#include "horace/netif_attribute.h"
+#include "horace/compound_attribute.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
 #include "horace/packet_record.h"
@@ -128,12 +128,13 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 
 	bson_t bson_interfaces;
 	bson_append_document_begin(&bson_session, "netif", -1, &bson_interfaces);
-	for (const netif_attribute* netif_attr : srec.interfaces()) {
-		std::string ifname = netif_attr->ifname().content();
+	for (auto netif_attr : srec.interfaces()) {
+		std::string ifname = netif_attr->content().
+			find_one<string_attribute>(attribute::ATTR_IFNAME).content();
 		bson_t bson_interface;
 		bson_append_document_begin(&bson_interfaces, ifname.c_str(),
 			-1, &bson_interface);
-		for (auto attr : netif_attr->attributes().attributes()) {
+		for (auto attr : netif_attr->content().attributes()) {
 			if (attr->type() == attribute::ATTR_LINKTYPE) {
 				const unsigned_integer_attribute& linktype_attr =
 					dynamic_cast<const unsigned_integer_attribute&>(*attr);

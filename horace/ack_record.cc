@@ -28,7 +28,7 @@ ack_record::ack_record(record&& rec):
 				throw horace_error(
 					"duplicate timestamp attribute in ack record");
 			}
-			_timestamp_attr = dynamic_cast<const timestamp_attribute*>(attr);
+			_timestamp_attr = &dynamic_cast<const timestamp_attribute&>(*attr);
 		} else if (attr->type() == attribute::ATTR_SEQNUM) {
 			if (_seqnum_attr) {
 				throw horace_error(

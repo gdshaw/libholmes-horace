@@ -34,14 +34,12 @@ packet_record::packet_record(record&& rec):
 					"length attribute in packet record");
 			}
 			_origlen_attr = &dynamic_cast<const unsigned_integer_attribute&>(*attr);
-		} else if (const timestamp_attribute* timestamp_attr =
-			dynamic_cast<const timestamp_attribute*>(attr)) {
-
+		} else if (attr->type() == attribute::ATTR_TIMESTAMP) {
 			if (_timestamp_attr) {
 				throw horace_error(
 					"duplicate timestamp attribute in packet record");
 			}
-			_timestamp_attr = timestamp_attr;
+			_timestamp_attr = &dynamic_cast<const timestamp_attribute&>(*attr);
 		} else if (attr->type() == attribute::ATTR_REPEAT) {
 			if (_repeat_attr) {
 				throw horace_error(

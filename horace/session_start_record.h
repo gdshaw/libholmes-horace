@@ -10,7 +10,7 @@
 
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
-#include "horace/netif_attribute.h"
+#include "horace/compound_attribute.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -26,7 +26,7 @@ private:
 	const timestamp_attribute* _timestamp_attr;
 
 	/** The network interface attributes. */
-	std::vector<const netif_attribute*> _netif_attrs;
+	std::vector<const compound_attribute*> _netif_attrs;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record
@@ -50,7 +50,7 @@ public:
 	/** Get a list of network interface attributes.
 	 * @return the network interface attributes
 	 */
-	const std::vector<const netif_attribute*> interfaces() const {
+	const std::vector<const compound_attribute*> interfaces() const {
 		return _netif_attrs;
 	}
 

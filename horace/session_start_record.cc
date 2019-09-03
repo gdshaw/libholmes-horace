@@ -33,11 +33,9 @@ session_start_record::session_start_record(record&& rec):
 				throw horace_error(
 					"duplicate timestamp attribute in start of session record");
 			}
-			_timestamp_attr = dynamic_cast<const timestamp_attribute*>(attr);
-		} else if (const netif_attribute* netif_attr =
-			dynamic_cast<const netif_attribute*>(attr)) {
-
-			_netif_attrs.push_back(netif_attr);
+			_timestamp_attr = &dynamic_cast<const timestamp_attribute&>(*attr);
+		} else if (attr->type() == attribute::ATTR_NETIF) {
+			_netif_attrs.push_back(&dynamic_cast<const compound_attribute&>(*attr));
 		}
 	}
 
