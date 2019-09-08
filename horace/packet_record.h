@@ -62,10 +62,6 @@ public:
 		return _repeat_attr;
 	}
 
-	virtual std::string type_name() const {
-		return "packet";
-	}
-
 	virtual void log(logger& log) const;
 };
 

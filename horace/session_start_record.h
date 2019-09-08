@@ -54,10 +54,6 @@ public:
 		return _netif_attrs;
 	}
 
-	virtual std::string type_name() const {
-		return "session-start";
-	}
-
 	virtual void log(logger& log) const;
 
 	/** Compare with another start of session record.

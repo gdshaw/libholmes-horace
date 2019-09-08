@@ -26,9 +26,14 @@ record::record(record&& that) {
 }
 
 std::string record::type_name() const {
-	std::ostringstream name;
-	name << "rec" << _type;
-	return name.str();
+	switch (_type) {
+	case REC_PACKET:
+		return "packet";
+	default:
+		std::ostringstream name;
+		name << "rec" << _type;
+		return name.str();
+	}
 }
 
 size_t record::length() const {

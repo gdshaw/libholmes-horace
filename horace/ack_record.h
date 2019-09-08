@@ -43,10 +43,6 @@ public:
 		return *_seqnum_attr;
 	}
 
-	virtual std::string type_name() const {
-		return "ack";
-	}
-
 	virtual void log(logger& log) const;
 
 	/** Compare with a sync record.

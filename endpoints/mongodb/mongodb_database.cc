@@ -50,10 +50,19 @@ mongodb_database::~mongodb_database() {
 	mongoc_client_destroy(_client);
 }
 
-mongodb_collection mongodb_database::collection(const std::string& clname)
+mongodb_collection& mongodb_database::collection(const std::string& collname)
 	const {
 
-	return mongodb_collection(*_client, _dbname, clname);
+	auto f = _collections.find(collname);
+	if (f != _collections.end()) {
+		return *f->second.get();
+	}
+
+	std::shared_ptr<mongodb_collection> coll =
+		std::make_shared<mongodb_collection>(
+			*_client, _dbname, collname);
+	_collections[collname] = coll;
+	return *coll.get();
 }
 
 } /* namespace horace */

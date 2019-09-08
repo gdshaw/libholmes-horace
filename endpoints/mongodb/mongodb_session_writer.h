@@ -7,6 +7,7 @@
 #define LIBHOLMES_HORACE_MONGODB_SESSION_WRITER
 
 #include <memory>
+#include <map>
 
 #include "horace/simple_session_writer.h"
 
@@ -15,7 +16,6 @@
 
 namespace horace {
 
-class packet_record;
 class mongodb_endpoint;
 
 /** A class for writing sessions to a MongoDB database. */
@@ -26,10 +26,7 @@ private:
 	mongodb_database _database;
 
 	/** The MongoDB collection in which sessions are recorded. */
-	mongodb_collection _sessions;
-
-	/** The MongoDB collection in which packets are recorded. */
-	mongodb_collection _packets;
+	mongodb_collection* _sessions;
 
 	/** The current session timestamp. */
 	struct timespec _session_ts;
@@ -46,8 +43,8 @@ private:
 	/** The options document for creating a bulk operation. */
 	bson_t _opts_bulk;
 
-	/** The options document for bulk writing packets. */
-	bson_t _opts_packet;
+	/** The options document for bulk writing events. */
+	bson_t _opts_event;
 
 	/** The current bulk operation, or 0 if none. */
 	mongoc_bulk_operation_t* _bulk;
@@ -55,22 +52,29 @@ private:
 	/** The number of outstanding bulk insertions. */
 	unsigned int _bulk_count;
 
+	/** The event type for the current bulk operation. */
+	int _bulk_type;
+
+	/** Append attribute to BSON document.
+	 * @param bson the BSON document
+	 * @param attr the attribute to be appended
+	 */
+	void _append_bson(bson_t& bson, const attribute& attr);
+
 	/** Ensure details recorded for start of session. */
 	void _start_session();
 
 	/** Ensure all preceding data is has been record durably. */
 	void _sync();
 
-	/** Write packet document as part of bulk operation.
-	 * @param doc the packet document to be written
+	/** Write event document as part of bulk operation.
+	 * @param type_code the record type code
+	 * @param type_name the record type name
+	 * @param doc the event document to be written
 	 */
-	void _write_bulk(const bson_t& doc);
+	void _write_bulk(int type_code, const std::string& type_name,
+		const bson_t& doc);
 protected:
-	/** Handle packet.
-	 * @param prec the packet record to be handled
-	 */
-	virtual void handle_packet(const packet_record& prec);
-
 	virtual void handle_session_start(const session_start_record& srec);
 	virtual void handle_session_end(const session_end_record& erec);
 	virtual void handle_sync(const sync_record& crec);

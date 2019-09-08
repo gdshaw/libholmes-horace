@@ -6,6 +6,9 @@
 #ifndef LIBHOLMES_HORACE_MONGODB_DATABASE
 #define LIBHOLMES_HORACE_MONGODB_DATABASE
 
+#include <memory>
+#include <map>
+
 #include <mongoc.h>
 
 #include "mongodb_collection.h"
@@ -23,6 +26,10 @@ private:
 
 	/** The MongoDB database name. */
 	std::string _dbname;
+
+	/** Cached MongoDB collection objects, indexed by name. */
+	mutable std::map<std::string, std::shared_ptr<mongodb_collection>>
+		_collections;
 public:
 	/** Open connection to database.
 	 * @param name the MongoDB connection URI
@@ -35,11 +42,11 @@ public:
 	mongodb_database(const mongodb_database&) = delete;
 	mongodb_database& operator=(const mongodb_database&) = delete;
 
-	/** Open collection.
+	/** Access collection.
 	 * @param clname the collection name
-	 * @return the collection
+	 * @return a reference to the collection
 	 */
-	mongodb_collection collection(const std::string& clname) const;
+	mongodb_collection& collection(const std::string& clname) const;
 };
 
 } /* namespace horace */

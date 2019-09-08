@@ -63,7 +63,7 @@ public:
 	/** Get the type name of this record.
 	 * @return type the type name
 	 */
-	virtual std::string type_name() const;
+	std::string type_name() const;
 
 	/** Update sequence number.
 	 * If the record is an event record containing a seqnum attribute

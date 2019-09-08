@@ -41,11 +41,16 @@ public:
 	virtual ~attribute() = default;
 
 	/** Get the type of this attribute.
-	 * @return type type code
+	 * @return the type code
 	 */
 	int type() const {
 		return _type;
 	}
+
+	/** Get the name of this attribute.
+	 * @return the name
+	 */
+	std::string name() const;
 
 	/** Get the length of the content of this attribute.
 	 * @return the content length, in octets

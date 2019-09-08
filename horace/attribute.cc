@@ -3,6 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <sstream>
+
 #include "horace/attribute.h"
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
@@ -12,6 +14,37 @@
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {
+
+std::string attribute::name() const {
+	switch (_type) {
+	case ATTR_SOURCE:
+		return "source";
+	case ATTR_SEQNUM:
+		return "seqnum";
+	case ATTR_PACKET:
+		return "packet";
+	case ATTR_PACKET_LENGTH:
+		return "packet_length";
+	case ATTR_TIMESTAMP:
+		return "timestamp";
+	case ATTR_REPEAT:
+		return "repeat";
+	case ATTR_NETIF:
+		return "netif";
+	case ATTR_IFINDEX:
+		return "ifindex";
+	case ATTR_IFNAME:
+		return "ifname";
+	case ATTR_LINKTYPE:
+		return "linktype";
+	case ATTR_EUI:
+		return "hwaddr";
+	default:
+		std::stringstream name_builder;
+		name_builder << "attr" << _type;
+		return name_builder.str();
+	}
+}
 
 std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	int type, size_t length) {
