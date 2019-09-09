@@ -41,9 +41,9 @@ void spoolfile_writer::sync() const {
 
 bool spoolfile_writer::write(const record& rec) {
 	// Calculate the number of octets required for this record,
-	// including the type and length fields.
+	// including the channel and length fields.
 	size_t content_len = rec.length();
-	size_t full_len = octet_writer::signed_base128_length(rec.type()) +
+	size_t full_len = octet_writer::signed_base128_length(rec.channel_number()) +
 		octet_writer::unsigned_base128_length(content_len) + content_len;
 
 	// Return false if this record would cause the spoolfile capacity
@@ -62,7 +62,7 @@ bool spoolfile_writer::write(const record& rec) {
 
 bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
 	if (seqnum != _seqnum) {
-		record_builder builder(rec.type());
+		record_builder builder(rec.channel_number());
 		for (auto&& attr : rec.attributes()) {
 			builder.append(*attr);
 		}

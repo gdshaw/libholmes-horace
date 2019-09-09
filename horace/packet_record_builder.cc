@@ -14,8 +14,8 @@ packet_record_builder::packet_record_builder():
 	_rpt_attr(attribute::ATTR_REPEAT, 0),
 	_count(0) {
 
-	_buffer.emplace_back(0 + record::REC_PACKET);
-	_buffer.emplace_back(0 + record::REC_PACKET);
+	_buffer.emplace_back(0 + record::channel_packet);
+	_buffer.emplace_back(0 + record::channel_packet);
 }
 
 void packet_record_builder::build_packet(const struct timespec* ts,

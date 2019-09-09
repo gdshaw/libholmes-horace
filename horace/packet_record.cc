@@ -17,8 +17,8 @@ packet_record::packet_record(record&& rec):
 	_timestamp_attr(0),
 	_repeat_attr(0) {
 
-	if (type() != REC_PACKET) {
-		throw horace_error("incorrect type code for packet record");
+	if (channel_number() != channel_packet) {
+		throw horace_error("incorrect channel number for packet record");
 	}
 
 	for (auto attr : attributes()) {

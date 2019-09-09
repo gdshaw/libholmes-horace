@@ -20,18 +20,18 @@ record::~record() {
 }
 
 record::record(record&& that) {
-	_type = that._type;
+	_channel = that._channel;
 	_attributes.swap(that._attributes);
 	_owned_attributes.swap(that._owned_attributes);
 }
 
-std::string record::type_name() const {
-	switch (_type) {
-	case REC_PACKET:
+std::string record::channel_name() const {
+	switch (_channel) {
+	case channel_packet:
 		return "packet";
 	default:
 		std::ostringstream name;
-		name << "rec" << _type;
+		name << "rec" << _channel;
 		return name.str();
 	}
 }
@@ -48,19 +48,18 @@ size_t record::length() const {
 }
 
 uint64_t record::update_seqnum(uint64_t seqnum) const {
-	if (_type < REC_EVENT_MIN) {
-		return seqnum;
-	}
-	for (auto&& attr : _attributes) {
-		if (attr->type() == attribute::ATTR_SEQNUM) {
-			return dynamic_cast<const unsigned_integer_attribute&>(*attr).content();
+	if (is_event()) {
+		for (auto&& attr : _attributes) {
+			if (attr->type() == attribute::ATTR_SEQNUM) {
+				return dynamic_cast<const unsigned_integer_attribute&>(*attr).content();
+			}
 		}
 	}
 	return seqnum;
 }
 
 void record::write(octet_writer& out) const {
-	out.write_signed_base128(type());
+	out.write_signed_base128(channel_number());
 	out.write_unsigned_base128(length());
 	for (auto&& attr : _attributes) {
 		attr->write(out);
@@ -70,14 +69,13 @@ void record::write(octet_writer& out) const {
 void record::log(logger& log) const {
 	if (log.enabled(logger::log_info)) {
 		log_message msg(log, logger::log_info);
-		msg << "unrecognised message type 0x" <<
-			std::hex << std::setfill('0') <<
-			std::setw(2) << type();
+		msg << "unrecognised message for channel "
+			<< channel_name();
 	}
 }
 
 std::ostream& operator<<(std::ostream& out, const record& rec) {
-	out << rec.type_name() << "(";
+	out << rec.channel_name() << "(";
 	for (auto&& attr : rec.attributes()) {
 		out << std::endl;
 		out << " " << *attr;

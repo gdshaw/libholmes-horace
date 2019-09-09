@@ -18,8 +18,8 @@ ack_record::ack_record(record&& rec):
 	_timestamp_attr(0),
 	_seqnum_attr(0) {
 
-	if (type() != REC_ACK) {
-		throw horace_error("incorrect type code for ack record");
+	if (channel_number() != channel_ack) {
+		throw horace_error("incorrect channel number for ack record");
 	}
 
 	for (auto attr : attributes()) {

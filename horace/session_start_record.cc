@@ -17,8 +17,8 @@ session_start_record::session_start_record(record&& rec):
 	_source_attr(0),
 	_timestamp_attr(0) {
 
-	if (type() != REC_SESSION_START) {
-		throw horace_error("incorrect type code for session start record");
+	if (channel_number() != channel_session) {
+		throw horace_error("incorrect channel number for session start record");
 	}
 
 	for (auto attr : attributes()) {

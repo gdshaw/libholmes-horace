@@ -55,7 +55,7 @@ void capture(const std::string& source_id, event_reader& src_er,
 		dst_swep.make_session_writer(source_id);
 
 	try {
-		record_builder srecb(record::REC_SESSION_START);
+		record_builder srecb(record::channel_session);
 		srecb.append(std::make_unique<string_attribute>(
 			attribute::ATTR_SOURCE, source_id));
 		srecb.append(std::make_unique<timestamp_attribute>(attribute::ATTR_TIMESTAMP));
@@ -95,7 +95,7 @@ void capture(const std::string& source_id, event_reader& src_er,
 		std::cerr << ex.what() << std::endl;
 	}
 
-	record_builder erecb(record::REC_SESSION_END);
+	record_builder erecb(record::channel_session_end);
 	erecb.append(std::make_unique<timestamp_attribute>(attribute::ATTR_TIMESTAMP));
 	std::unique_ptr<record> erec = erecb.build();
 	dst_sw->write(*erec);

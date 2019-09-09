@@ -17,8 +17,8 @@ sync_record::sync_record(record&& rec):
 	_timestamp_attr(0),
 	_seqnum_attr(0) {
 
-	if (type() != REC_SYNC) {
-		throw horace_error("incorrect type code for sync record");
+	if (channel_number() != channel_sync) {
+		throw horace_error("incorrect channel number for sync record");
 	}
 
 	for (auto attr : attributes()) {

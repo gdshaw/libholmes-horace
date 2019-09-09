@@ -21,8 +21,8 @@ class record_builder;
 class record {
 	friend record_builder;
 private:
-	/** The type of this record. */
-	int _type;
+	/** The channel number. */
+	int _channel;
 
 	/** All attributes of this record. */
 	std::vector<const attribute*> _attributes;
@@ -30,20 +30,21 @@ private:
 	/** The attribute owned by this record. */
 	std::vector<const attribute*> _owned_attributes;
 protected:
-	/** Construct record with empty attribute list. */
-	explicit record(int type):
-		_type(type) {}
+	/** Construct record with empty attribute list.
+	 * @param channel the channel number
+	 */
+	explicit record(int channel):
+		_channel(channel) {}
 public:
-	// Control record type codes.
-	static const int REC_ERROR = -1;
-	static const int REC_SESSION_START = -2;
-	static const int REC_SESSION_END = -3;
-	static const int REC_SYNC = -4;
-	static const int REC_ACK = -5;
+	// Reserved channel numbers.
+	static const int channel_error = -1;
+	static const int channel_session = -2;
+	static const int channel_sync = -3;
 
-	// Event record type codes.
-	static const int REC_EVENT_MIN = 0;
-	static const int REC_PACKET = 0;
+	// Reserved channel numbers (transitional period only).
+	static const int channel_packet = 0;
+	static const int channel_session_end = -4;
+	static const int channel_ack = -5;
 
 	virtual ~record();
 
@@ -53,17 +54,25 @@ public:
 	record& operator=(const record&) = delete;
 	record& operator=(record&&) = delete;
 
-	/** Get the type of this record.
-	 * @return type the type code
+	/** Get the channel number for this record.
+	 * @return the channel number
 	 */
-	virtual int type() const {
-		return _type;
+	virtual int channel_number() const {
+		return _channel;
 	}
 
-	/** Get the type name of this record.
-	 * @return type the type name
+	/** Get the channel name for this record.
+	 * @return the channel name
 	 */
-	std::string type_name() const;
+	std::string channel_name() const;
+
+	/** Determine whether this is an event record.
+	 * Event records have a non-negative channel number.
+	 * @return true if an event record, otherwise false
+	 */
+	bool is_event() const {
+		return _channel >= 0;
+	}
 
 	/** Update sequence number.
 	 * If the record is an event record containing a seqnum attribute

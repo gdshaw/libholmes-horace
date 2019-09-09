@@ -14,8 +14,8 @@ session_end_record::session_end_record(record&& rec):
 	record(std::move(rec)),
 	_timestamp_attr(0) {
 
-	if (type() != REC_SESSION_END) {
-		throw horace_error("incorrect type code for session end record");
+	if (channel_number() != channel_session_end) {
+		throw horace_error("incorrect channel number for session end record");
 	}
 
 	for (auto attr : attributes()) {

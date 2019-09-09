@@ -52,8 +52,8 @@ private:
 	/** The number of outstanding bulk insertions. */
 	unsigned int _bulk_count;
 
-	/** The event type for the current bulk operation. */
-	int _bulk_type;
+	/** The channel number for the current bulk operation. */
+	int _bulk_channel;
 
 	/** Append attribute to BSON document.
 	 * @param bson the BSON document
@@ -68,11 +68,11 @@ private:
 	void _sync();
 
 	/** Write event document as part of bulk operation.
-	 * @param type_code the record type code
-	 * @param type_name the record type name
+	 * @param channel_number the channel number
+	 * @param channel_name the channel name
 	 * @param doc the event document to be written
 	 */
-	void _write_bulk(int type_code, const std::string& type_name,
+	void _write_bulk(int channel_number, const std::string& channel_name,
 		const bson_t& doc);
 protected:
 	virtual void handle_session_start(const session_start_record& srec);

@@ -14,8 +14,8 @@
 
 namespace horace {
 
-record_builder::record_builder(int type):
-	record(type) {}
+record_builder::record_builder(int channel):
+	record(channel) {}
 
 record_builder::record_builder(octet_reader& in):
 	record(in.read_signed_base128()) {
@@ -60,16 +60,16 @@ void record_builder::reset() {
 }
 
 std::unique_ptr<record> record_builder::build() {
-	switch (type()) {
-	case REC_SESSION_START:
+	switch (channel_number()) {
+	case channel_session:
 		return std::make_unique<session_start_record>(std::move(*this));
-	case REC_SESSION_END:
+	case channel_session_end:
 		return std::make_unique<session_end_record>(std::move(*this));
-	case REC_SYNC:
+	case channel_sync:
 		return std::make_unique<sync_record>(std::move(*this));
-	case REC_ACK:
+	case channel_ack:
 		return std::make_unique<ack_record>(std::move(*this));
-	case REC_PACKET:
+	case channel_packet:
 		return std::make_unique<packet_record>(std::move(*this));
 	}
 	return std::make_unique<unrecognised_record>(std::move(*this));

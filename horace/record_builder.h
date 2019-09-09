@@ -18,12 +18,12 @@ class record_builder:
 	public record {
 public:
 	/** Construct record builder with empty attribute list.
-	 * @param type the type of the record to be built
+	 * @param channel the channel number of the record to be built
 	 */
-	explicit record_builder(int type);
+	explicit record_builder(int channel);
 
 	/** Build record from octet reader.
-	 * It is presumed that the type and length fields have not already
+	 * It is presumed that the channel and length fields have not already
 	 * been read.
 	 * @param in the octet reader
 	 */
@@ -55,7 +55,7 @@ public:
 
 	/** Build record.
 	 * The record returned will be of a type appropriate to the
-	 * specified type code.
+	 * specified channel number.
 	 */
 	std::unique_ptr<record> build();
 };

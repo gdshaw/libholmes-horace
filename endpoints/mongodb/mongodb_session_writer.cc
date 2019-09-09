@@ -59,16 +59,18 @@ void mongodb_session_writer::_sync() {
 	mongoc_bulk_operation_destroy(_bulk);
 	_bulk = 0;
 	_bulk_count = 0;
-	_bulk_type = 0;
+	_bulk_channel = 0;
 }
 
-void mongodb_session_writer::_write_bulk(int type, const std::string& type_name, const bson_t& doc) {
-	if (_bulk && (_bulk_type != type)) {
+void mongodb_session_writer::_write_bulk(int channel_number,
+	const std::string& channel_name, const bson_t& doc) {
+
+	if (_bulk && (_bulk_channel != channel_number)) {
 		sync();
 	}
 
 	if (!_bulk) {
-		mongodb_collection& coll = _database.collection(type_name);
+		mongodb_collection& coll = _database.collection(channel_name);
 		_bulk = mongoc_collection_create_bulk_operation_with_opts(coll, &_opts_bulk);
 	}
 
@@ -191,7 +193,7 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	}
 
 	// Append to the next bulk-write operation.
-	_write_bulk(rec.type(), rec.type_name(), bson_event);
+	_write_bulk(rec.channel_number(), rec.channel_name(), bson_event);
 	bson_destroy(&bson_event);
 
 	// Increment the sequence number.
@@ -206,7 +208,7 @@ mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
 	_seqnum(0),
 	_bulk(0),
 	_bulk_count(0),
-	_bulk_type(0) {
+	_bulk_channel(0) {
 
 	_wc = mongoc_write_concern_new();
 	mongoc_write_concern_set_w(_wc, MONGOC_WRITE_CONCERN_W_MAJORITY);

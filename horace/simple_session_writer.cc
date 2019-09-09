@@ -32,7 +32,7 @@ void simple_session_writer::_process_session_end(const session_end_record& erec)
 
 void simple_session_writer::_process_sync(const sync_record& crec) {
 	handle_sync(crec);
-	record_builder builder(record::REC_ACK);
+	record_builder builder(record::channel_ack);
 	for (const attribute* attr : crec.attributes()) {
 		builder.append(*attr);
 	}
@@ -47,18 +47,18 @@ const session_start_record& simple_session_writer::start_record() const {
 }
 
 void simple_session_writer::write(const record& rec) {
-	switch(rec.type()) {
-	case record::REC_SESSION_START:
+	switch(rec.channel_number()) {
+	case record::channel_session:
 		_process_session_start(dynamic_cast<const session_start_record&>(rec));
 		break;
-	case record::REC_SESSION_END:
+	case record::channel_session_end:
 		_process_session_end(dynamic_cast<const session_end_record&>(rec));
 		break;
-	case record::REC_SYNC:
+	case record::channel_sync:
 		_process_sync(dynamic_cast<const sync_record&>(rec));
 		break;
 	default:
-		if (rec.type() >= record::REC_EVENT_MIN) {
+		if (rec.is_event()) {
 			handle_event(rec);
 		}
 	}
