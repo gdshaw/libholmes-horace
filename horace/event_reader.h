@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_EVENT_READER
 #define LIBHOLMES_HORACE_EVENT_READER
 
+#include "horace/counter.h"
+
 namespace horace {
 
 class record;

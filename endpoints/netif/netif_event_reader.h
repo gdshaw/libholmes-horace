@@ -24,13 +24,18 @@ private:
 	/** The endpoint from which to capture. */
 	const netif_endpoint* _ep;
 
+	/** The channel number to use for captured events. */
+	int _channel;
+
 	/** The socket for capturing packets. */
 	std::unique_ptr<basic_packet_socket> _sock;
 public:
 	/** Construct network interface event reader.
 	 * @param ep the endpoint to read from
+	 * @param channel_allocator the allocator for channel numbers
 	 */
-	explicit netif_event_reader(const netif_endpoint& ep);
+	explicit netif_event_reader(const netif_endpoint& ep,
+		counter<int>& channel_allocator);
 
 	virtual const record& read();
 	virtual void attach(const filter& filt);

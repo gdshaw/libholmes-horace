@@ -34,8 +34,8 @@ session_start_record::session_start_record(record&& rec):
 					"duplicate timestamp attribute in start of session record");
 			}
 			_timestamp_attr = &dynamic_cast<const timestamp_attribute&>(*attr);
-		} else if (attr->type() == attribute::ATTR_NETIF) {
-			_netif_attrs.push_back(&dynamic_cast<const compound_attribute&>(*attr));
+		} else if (attr->type() == attribute::attr_channel_def) {
+			_channels.push_back(&dynamic_cast<const compound_attribute&>(*attr));
 		}
 	}
 

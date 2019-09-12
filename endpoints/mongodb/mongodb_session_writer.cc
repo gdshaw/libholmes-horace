@@ -91,6 +91,7 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 void mongodb_session_writer::handle_session_start(const session_start_record& srec) {
 	_session_ts = srec.timestamp().content();
 	_seqnum = 0;
+	_channel_labels.clear();
 
 	bson_t bson_session;
 	bson_init(&bson_session);
@@ -105,20 +106,29 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 	bson_append_document_end(&bson_id, &bson_ts);
 	bson_append_document_end(&bson_session, &bson_id);
 
-	bson_t bson_interfaces;
-	bson_append_document_begin(&bson_session, "netif", -1, &bson_interfaces);
-	for (auto netif_attr : srec.interfaces()) {
-		std::string ifname = netif_attr->content().
-			find_one<string_attribute>(attribute::ATTR_IFNAME).content();
-		bson_t bson_interface;
-		bson_append_document_begin(&bson_interfaces, ifname.c_str(),
-			-1, &bson_interface);
-		for (auto attr : netif_attr->content().attributes()) {
-			_append_bson(bson_interface, *attr);
+
+	bson_t bson_channels;
+	bson_append_document_begin(&bson_session, "channels", -1, &bson_channels);
+	for (auto channel_def : srec.channels()) {
+		uint64_t channel_num = channel_def->content().
+			find_one<unsigned_integer_attribute>(attribute::attr_channel_num).content();
+		std::string channel_label = channel_def->content().
+			find_one<string_attribute>(attribute::attr_channel_label).content();
+		if (_channel_labels.find(channel_num) != _channel_labels.end()) {
+			throw horace_error("dupplicate channel definition");
 		}
-		bson_append_document_end(&bson_interfaces, &bson_interface);
+		_channel_labels[channel_num] = channel_label;
+
+		std::string channel_str = std::string("channel") + std::to_string(channel_num);
+		bson_t bson_channel;
+		bson_append_document_begin(&bson_channels, channel_str.c_str(),
+			-1, &bson_channel);
+		for (auto attr : channel_def->content().attributes()) {
+			_append_bson(bson_channel, *attr);
+		}
+		bson_append_document_end(&bson_channels, &bson_channel);
 	}
-	bson_append_document_end(&bson_session, &bson_interfaces);
+	bson_append_document_end(&bson_session, &bson_channels);
 
 	bson_error_t error;
 	if (!mongoc_collection_insert_one(*_sessions, &bson_session, &_opts_session, 0, &error)) {
@@ -193,7 +203,11 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	}
 
 	// Append to the next bulk-write operation.
-	_write_bulk(rec.channel_number(), rec.channel_name(), bson_event);
+	auto f = _channel_labels.find(rec.channel_number());
+	if (f == _channel_labels.end()) {
+		throw horace_error("missing definition for channel number");
+	}
+	_write_bulk(rec.channel_number(), f->second, bson_event);
 	bson_destroy(&bson_event);
 
 	// Increment the sequence number.

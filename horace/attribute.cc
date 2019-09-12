@@ -17,6 +17,20 @@ namespace horace {
 
 std::string attribute::name() const {
 	switch (_type) {
+	case attr_type_def:
+		return "attr-def";
+	case attr_type_code:
+		return "attr-code";
+	case attr_type_name:
+		return "attr-label";
+	case attr_type_format:
+		return "attr-format";
+	case attr_channel_def:
+		return "channel-def";
+	case attr_channel_num:
+		return "channel-num";
+	case attr_channel_label:
+		return "channel-label";
 	case ATTR_SOURCE:
 		return "source";
 	case ATTR_SEQNUM:
@@ -50,6 +64,20 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 	int type, size_t length) {
 
 	switch (type) {
+	case attr_type_def:
+		return std::make_unique<compound_attribute>(type, length, in);
+	case attr_type_code:
+		return std::make_unique<unsigned_integer_attribute>(type, length, in);
+	case attr_type_name:
+		return std::make_unique<string_attribute>(type, length, in);
+	case attr_type_format:
+		return std::make_unique<unsigned_integer_attribute>(type, length, in);
+	case attr_channel_def:
+		return std::make_unique<compound_attribute>(type, length, in);
+	case attr_channel_num:
+		return std::make_unique<unsigned_integer_attribute>(type, length, in);
+	case attr_channel_label:
+		return std::make_unique<string_attribute>(type, length, in);
 	case ATTR_SOURCE:
 		return std::make_unique<string_attribute>(ATTR_SOURCE, length, in);
 	case ATTR_SEQNUM:

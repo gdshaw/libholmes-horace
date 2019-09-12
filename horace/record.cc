@@ -25,17 +25,6 @@ record::record(record&& that) {
 	_owned_attributes.swap(that._owned_attributes);
 }
 
-std::string record::channel_name() const {
-	switch (_channel) {
-	case channel_packet:
-		return "packet";
-	default:
-		std::ostringstream name;
-		name << "rec" << _channel;
-		return name.str();
-	}
-}
-
 size_t record::length() const {
 	size_t len = 0;
 	for (auto&& attr : _attributes) {
@@ -70,12 +59,12 @@ void record::log(logger& log) const {
 	if (log.enabled(logger::log_info)) {
 		log_message msg(log, logger::log_info);
 		msg << "unrecognised message for channel "
-			<< channel_name();
+			<< _channel;
 	}
 }
 
 std::ostream& operator<<(std::ostream& out, const record& rec) {
-	out << rec.channel_name() << "(";
+	out << "rec" << rec.channel_number() << "(";
 	for (auto&& attr : rec.attributes()) {
 		out << std::endl;
 		out << " " << *attr;

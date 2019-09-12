@@ -33,8 +33,10 @@ netif_endpoint::netif_endpoint(const std::string& name):
 	}
 }
 
-std::unique_ptr<event_reader> netif_endpoint::make_event_reader() {
-	return std::make_unique<netif_event_reader>(*this);
+std::unique_ptr<event_reader> netif_endpoint::make_event_reader(
+	counter<int>& channel_allocator) {
+
+	return std::make_unique<netif_event_reader>(*this, channel_allocator);
 };
 
 } /* namespace horace */

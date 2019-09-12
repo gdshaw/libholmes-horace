@@ -25,8 +25,8 @@ private:
 	/** The timestamp attribute. */
 	const timestamp_attribute* _timestamp_attr;
 
-	/** The network interface attributes. */
-	std::vector<const compound_attribute*> _netif_attrs;
+	/** A list of channel definitons. */
+	std::vector<const compound_attribute*> _channels;
 public:
 	/** Move-construct from generic record.
 	 * @param rec the record
@@ -47,11 +47,11 @@ public:
 		return *_timestamp_attr;
 	}
 
-	/** Get a list of network interface attributes.
-	 * @return the network interface attributes
+	/** Get a list of channel definitions.
+	 * @return the channel definitions
 	 */
-	const std::vector<const compound_attribute*> interfaces() const {
-		return _netif_attrs;
+	const std::vector<const compound_attribute*> channels() const {
+		return _channels;
 	}
 
 	virtual void log(logger& log) const;

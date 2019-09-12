@@ -195,8 +195,9 @@ int main(int argc, char* argv[]) {
 			<< std::endl;
 		exit(1);
 	}
+	counter<int> channel_allocator(0);
 	std::unique_ptr<event_reader> src_er =
-		src_erep->make_event_reader();
+		src_erep->make_event_reader(channel_allocator);
 
 	// Parse destination endpoint.
 	if (optind == argc) {

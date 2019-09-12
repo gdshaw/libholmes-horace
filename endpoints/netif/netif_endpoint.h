@@ -80,7 +80,8 @@ public:
 		return _promiscuous;
 	}
 
-	virtual std::unique_ptr<event_reader> make_event_reader();
+	virtual std::unique_ptr<event_reader> make_event_reader(
+		counter<int>& channel_allocator);
 };
 
 } /* namespace horace */

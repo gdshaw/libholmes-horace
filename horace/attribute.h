@@ -17,6 +17,16 @@ namespace horace {
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
 public:
+	// Reserved attribute type codes.
+	static const int attr_type_def = -1;
+	static const int attr_type_code = -2;
+	static const int attr_type_name = -3;
+	static const int attr_type_format = -4;
+	static const int attr_channel_def = -5;
+	static const int attr_channel_num = -6;
+	static const int attr_channel_label = -7;
+
+	// Reserved attribute type codes (transitional period only).
 	static const int ATTR_SOURCE = 0x00;
 	static const int ATTR_SEQNUM = 0x01;
 	static const int ATTR_PACKET = 0x02;

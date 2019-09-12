@@ -61,11 +61,6 @@ public:
 		return _channel;
 	}
 
-	/** Get the channel name for this record.
-	 * @return the channel name
-	 */
-	std::string channel_name() const;
-
 	/** Determine whether this is an event record.
 	 * Event records have a non-negative channel number.
 	 * @return true if an event record, otherwise false
