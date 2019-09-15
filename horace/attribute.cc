@@ -21,7 +21,7 @@ std::string attribute::name() const {
 		return "attr-def";
 	case attr_type_code:
 		return "attr-code";
-	case attr_type_name:
+	case attr_type_label:
 		return "attr-label";
 	case attr_type_format:
 		return "attr-format";
@@ -68,7 +68,7 @@ std::unique_ptr<attribute> attribute::parse(octet_reader& in,
 		return std::make_unique<compound_attribute>(type, length, in);
 	case attr_type_code:
 		return std::make_unique<unsigned_integer_attribute>(type, length, in);
-	case attr_type_name:
+	case attr_type_label:
 		return std::make_unique<string_attribute>(type, length, in);
 	case attr_type_format:
 		return std::make_unique<unsigned_integer_attribute>(type, length, in);

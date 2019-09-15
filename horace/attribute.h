@@ -20,7 +20,7 @@ public:
 	// Reserved attribute type codes.
 	static const int attr_type_def = -1;
 	static const int attr_type_code = -2;
-	static const int attr_type_name = -3;
+	static const int attr_type_label = -3;
 	static const int attr_type_format = -4;
 	static const int attr_channel_def = -5;
 	static const int attr_channel_num = -6;

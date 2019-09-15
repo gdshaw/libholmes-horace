@@ -9,6 +9,6 @@ namespace horace {
 
 void event_reader::attach(const filter& filt) {}
 
-void event_reader::build_session_start(record_builder& builder) {}
+void event_reader::build_session(session_builder& builder) {}
 
 } /* namespace horace */

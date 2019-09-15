@@ -6,7 +6,6 @@
 #ifndef LIBHOLMES_HORACE_EVENT_READER_ENDPOINT
 #define LIBHOLMES_HORACE_EVENT_READER_ENDPOINT
 
-#include "horace/counter.h"
 #include "horace/event_reader.h"
 
 namespace horace {
@@ -25,8 +24,7 @@ public:
 	 * @param channel_allocator an allocator for channel numbers
 	 * @return the resulting event reader
 	 */
-	virtual std::unique_ptr<event_reader> make_event_reader(
-		counter<int>& channel_allocator) = 0;
+	virtual std::unique_ptr<event_reader> make_event_reader() = 0;
 };
 
 } /* namespace horace */

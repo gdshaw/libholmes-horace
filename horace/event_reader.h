@@ -6,7 +6,7 @@
 #ifndef LIBHOLMES_HORACE_EVENT_READER
 #define LIBHOLMES_HORACE_EVENT_READER
 
-#include "horace/counter.h"
+#include "horace/session_builder.h"
 
 namespace horace {
 
@@ -45,20 +45,13 @@ public:
 	 */
 	virtual void attach(const filter& filt);
 
-	/** Build session start record.
+	/** Build session.
 	 * This function gives each active event reader the opportunity to
-	 * contribute attributes to the session start record which are
-	 * specific to that event reader. For example, an event reader which
-	 * captures traffic from a network interface would add a
-	 * netif_attribute to the record.
-	 *
-	 * Note that implementations of this function are not responsible
-	 * for adding the source attribute, the session timestamp attribute,
-	 * or any other attribute which is not associated with a specific
-	 * event reader. The default implementation does nothing.
-	 * @param builder a record builder for the session start record
+	 * contribute attribute and channel definitions to the session
+	 * start record.
+	 * @param builder a builder object for the session
 	 */
-	virtual void build_session_start(record_builder& builder);
+	virtual void build_session(session_builder& builder);
 };
 
 } /* namespace horace */

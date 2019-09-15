@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "horace/record_builder.h"
 #include "horace/event_reader.h"
 
 #include "basic_packet_socket.h"
@@ -32,14 +31,12 @@ private:
 public:
 	/** Construct network interface event reader.
 	 * @param ep the endpoint to read from
-	 * @param channel_allocator the allocator for channel numbers
 	 */
-	explicit netif_event_reader(const netif_endpoint& ep,
-		counter<int>& channel_allocator);
+	explicit netif_event_reader(const netif_endpoint& ep);
 
 	virtual const record& read();
 	virtual void attach(const filter& filt);
-	virtual void build_session_start(record_builder& builder);
+	virtual void build_session(session_builder& builder);
 };
 
 } /* namespace horace */

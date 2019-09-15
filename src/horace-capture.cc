@@ -26,6 +26,7 @@
 #include "horace/timestamp_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
+#include "horace/session_builder.h"
 #include "horace/event_reader.h"
 #include "horace/session_writer.h"
 #include "horace/endpoint.h"
@@ -55,12 +56,9 @@ void capture(const std::string& source_id, event_reader& src_er,
 		dst_swep.make_session_writer(source_id);
 
 	try {
-		record_builder srecb(record::channel_session);
-		srecb.append(std::make_unique<string_attribute>(
-			attribute::ATTR_SOURCE, source_id));
-		srecb.append(std::make_unique<timestamp_attribute>(attribute::ATTR_TIMESTAMP));
-		src_er.build_session_start(srecb);
-		std::unique_ptr<record> srec = srecb.build();
+		session_builder sbuilder(source_id);
+		src_er.build_session(sbuilder);
+		std::unique_ptr<record> srec = sbuilder.build();
 		try {
 			dst_sw->write(*srec);
 		} catch (terminate_exception&) {
@@ -195,9 +193,8 @@ int main(int argc, char* argv[]) {
 			<< std::endl;
 		exit(1);
 	}
-	counter<int> channel_allocator(0);
 	std::unique_ptr<event_reader> src_er =
-		src_erep->make_event_reader(channel_allocator);
+		src_erep->make_event_reader();
 
 	// Parse destination endpoint.
 	if (optind == argc) {

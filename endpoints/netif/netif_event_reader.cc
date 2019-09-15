@@ -22,10 +22,8 @@ namespace horace {
 
 class record;
 
-netif_event_reader::netif_event_reader(const netif_endpoint& ep,
-	counter<int>& channel_allocator):
-	_ep(&ep),
-	_channel(channel_allocator()) {
+netif_event_reader::netif_event_reader(const netif_endpoint& ep):
+	_ep(&ep) {
 
 	std::string method = ep.method();
 	if (method == "packet") {
@@ -77,23 +75,18 @@ void netif_event_reader::attach(const filter& filt) {
 	_sock->attach(filt);
 }
 
-void netif_event_reader::build_session_start(record_builder& builder) {
-	attribute_list attrlist;
-	attrlist.append(std::make_unique<unsigned_integer_attribute>(
-		attribute::attr_channel_num, _channel));
-	attrlist.append(std::make_unique<string_attribute>(
-		attribute::attr_channel_label, "packets"));
-	attrlist.append(std::make_unique<unsigned_integer_attribute>(
+void netif_event_reader::build_session(session_builder& builder) {
+	attribute_list attrs;
+	attrs.append(std::make_unique<unsigned_integer_attribute>(
 		attribute::ATTR_IFINDEX, _ep->netif()));
-	attrlist.append(std::make_unique<string_attribute>(
+	attrs.append(std::make_unique<string_attribute>(
 		attribute::ATTR_IFNAME, _ep->netifname()));
-	attrlist.append(std::make_unique<unsigned_integer_attribute>(
+	attrs.append(std::make_unique<unsigned_integer_attribute>(
 		attribute::ATTR_LINKTYPE, _ep->netif().linktype()));
-	attrlist.append(std::make_unique<binary_attribute>(
+	attrs.append(std::make_unique<binary_attribute>(
 		attribute::ATTR_EUI, _ep->netif().hwaddr().length(),
 		_ep->netif().hwaddr().data()));
-	builder.append(std::make_unique<compound_attribute>(
-		attribute::attr_channel_def, std::move(attrlist)));
+	_channel = builder.define_channel("packets", std::move(attrs));
 }
 
 } /* namespace horace */
