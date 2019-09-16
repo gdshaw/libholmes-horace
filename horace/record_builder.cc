@@ -8,7 +8,6 @@
 #include "horace/session_end_record.h"
 #include "horace/sync_record.h"
 #include "horace/ack_record.h"
-#include "horace/packet_record.h"
 #include "horace/unrecognised_record.h"
 #include "horace/record_builder.h"
 
@@ -69,8 +68,6 @@ std::unique_ptr<record> record_builder::build() {
 		return std::make_unique<sync_record>(std::move(*this));
 	case channel_ack:
 		return std::make_unique<ack_record>(std::move(*this));
-	case channel_packet:
-		return std::make_unique<packet_record>(std::move(*this));
 	}
 	return std::make_unique<unrecognised_record>(std::move(*this));
 }
