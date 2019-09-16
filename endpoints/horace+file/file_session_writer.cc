@@ -67,7 +67,7 @@ void file_session_writer::handle_session_end(const session_end_record& erec) {
 	_sfw = 0;
 }
 
-void file_session_writer::handle_sync(const sync_record& crec) {
+void file_session_writer::handle_sync(const record& crec) {
 	_sfw->sync();
 }
 

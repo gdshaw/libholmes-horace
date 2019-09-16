@@ -174,7 +174,7 @@ void mongodb_session_writer::handle_session_end(const session_end_record& erec) 
 	}
 }
 
-void mongodb_session_writer::handle_sync(const sync_record& crec) {
+void mongodb_session_writer::handle_sync(const record& crec) {
 	_sync();
 }
 

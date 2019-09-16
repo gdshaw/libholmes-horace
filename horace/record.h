@@ -101,6 +101,23 @@ public:
 	const std::vector<const attribute*> attributes() const {
 		return _attributes;
 	}
+private:
+	/** Find a single instance of a given attribute type.
+	 * It is an error if there are no matching attributes, or if there
+	 * is more than one matching attribute.
+	 * @param type the required attribute type
+	 */
+	const attribute& _find_one(int type) const;
+public:
+	/** Find a single instance of a given attribute type.
+	 * It is an error if there are no matching attributes, or if there
+	 * is more than one matching attribute.
+	 * @param type the required attribute type
+	 */
+	template<class T>
+	const T& find_one(int type) const {
+		return dynamic_cast<const T&>(_find_one(type));
+	}
 
 	/** Write this record to an octet writer.
 	 * @param out the octet writer

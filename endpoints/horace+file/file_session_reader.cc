@@ -15,7 +15,6 @@
 #include "horace/record.h"
 #include "horace/record_builder.h"
 #include "horace/session_start_record.h"
-#include "horace/ack_record.h"
 
 #include "filestore_scanner.h"
 #include "spoolfile.h"
@@ -127,12 +126,13 @@ void file_session_reader::write(const record& rec) {
 
 	// Check that the acknowledgement record matches the outstanding
 	// sync record.
-	const ack_record& crec = dynamic_cast<const ack_record&>(rec);
-	struct timespec crec_ts = crec.timestamp().content();
-	uint64_t crec_seqnum = crec.seqnum().content();
-	if ((crec_ts.tv_sec != _session_ts.tv_sec) ||
-		(crec_ts.tv_nsec != _session_ts.tv_nsec) ||
-		(crec_seqnum != _seqnum)) {
+	struct timespec ack_ts = rec.find_one<timestamp_attribute>(
+		attribute::ATTR_TIMESTAMP).content();
+	uint64_t ack_seqnum = rec.find_one<unsigned_integer_attribute>(
+		attribute::ATTR_SEQNUM).content();
+	if ((ack_ts.tv_sec != _session_ts.tv_sec) ||
+		(ack_ts.tv_nsec != _session_ts.tv_nsec) ||
+		(ack_seqnum != _seqnum)) {
 
 		throw horace_error("acknowledgement record does not match sync record");
 	}

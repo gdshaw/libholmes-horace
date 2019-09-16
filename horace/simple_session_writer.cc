@@ -8,7 +8,6 @@
 #include "horace/record_builder.h"
 #include "horace/session_start_record.h"
 #include "horace/session_end_record.h"
-#include "horace/sync_record.h"
 #include "horace/simple_session_writer.h"
 
 namespace horace {
@@ -30,7 +29,7 @@ void simple_session_writer::_process_session_end(const session_end_record& erec)
 	_srec = 0;
 }
 
-void simple_session_writer::_process_sync(const sync_record& crec) {
+void simple_session_writer::_process_sync(const record& crec) {
 	handle_sync(crec);
 	record_builder builder(record::channel_ack);
 	for (const attribute* attr : crec.attributes()) {
@@ -55,7 +54,7 @@ void simple_session_writer::write(const record& rec) {
 		_process_session_end(dynamic_cast<const session_end_record&>(rec));
 		break;
 	case record::channel_sync:
-		_process_sync(dynamic_cast<const sync_record&>(rec));
+		_process_sync(rec);
 		break;
 	default:
 		if (rec.is_event()) {

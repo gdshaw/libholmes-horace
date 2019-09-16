@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iomanip>
 
+#include "horace/horace_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/unsigned_integer_attribute.h"
@@ -45,6 +46,22 @@ uint64_t record::update_seqnum(uint64_t seqnum) const {
 		}
 	}
 	return seqnum;
+}
+
+const attribute& record::_find_one(int type) const {
+	const attribute* found = 0;
+	for (auto&& attr : _attributes) {
+		if (attr -> type() == type) {
+			if (found) {
+				throw horace_error("unexpected multiple attributes of same type");
+			}
+			found = attr;
+		}
+	}
+	if (!found) {
+		throw horace_error("expected attribute not found");
+	}
+	return *found;
 }
 
 void record::write(octet_writer& out) const {

@@ -58,7 +58,7 @@ private:
 protected:
 	virtual void handle_session_start(const session_start_record& srec);
 	virtual void handle_session_end(const session_end_record& erec);
-	virtual void handle_sync(const sync_record& crec);
+	virtual void handle_sync(const record& crec);
 	virtual void handle_event(const record& rec);
 public:
 	/** Construct filestore session writer.

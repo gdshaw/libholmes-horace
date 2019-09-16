@@ -12,7 +12,6 @@ namespace horace {
 
 class session_start_record;
 class session_end_record;
-class sync_record;
 
 /** A partial implementation of session_writer providing commonly-needed
  * functionality. */
@@ -38,7 +37,7 @@ private:
 	/** Process a sync record.
 	 * @param crec the sync record
 	 */
-	void _process_sync(const sync_record& crec);
+	void _process_sync(const record& crec);
 protected:
 	/** Handle the start of a new session.
 	 * @param srec the start of session record
@@ -53,7 +52,7 @@ protected:
 	/** Handle synchronisation request.
 	 * @param crec the synchronisation record
 	 */
-	virtual void handle_sync(const sync_record& crec) = 0;
+	virtual void handle_sync(const record& crec) = 0;
 
 	/** Handle an event.
 	 * @param rec the event record
