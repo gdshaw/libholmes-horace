@@ -4,7 +4,6 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/horace_error.h"
-#include "horace/unrecognised_record.h"
 #include "horace/record_builder.h"
 
 namespace horace {
@@ -55,7 +54,7 @@ void record_builder::reset() {
 }
 
 std::unique_ptr<record> record_builder::build() {
-	return std::make_unique<unrecognised_record>(std::move(*this));
+	return std::make_unique<record>(std::move(*this));
 }
 
 } /* namespace horace */
