@@ -15,8 +15,6 @@
 #include "horace/address_info.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
-#include "horace/session_start_record.h"
-#include "horace/session_end_record.h"
 
 #include "tcp_endpoint.h"
 #include "tcp_session_writer.h"

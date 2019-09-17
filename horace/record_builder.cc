@@ -4,8 +4,6 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/horace_error.h"
-#include "horace/session_start_record.h"
-#include "horace/session_end_record.h"
 #include "horace/unrecognised_record.h"
 #include "horace/record_builder.h"
 
@@ -57,12 +55,6 @@ void record_builder::reset() {
 }
 
 std::unique_ptr<record> record_builder::build() {
-	switch (channel_number()) {
-	case channel_session:
-		return std::make_unique<session_start_record>(std::move(*this));
-	case channel_session_end:
-		return std::make_unique<session_end_record>(std::move(*this));
-	}
 	return std::make_unique<unrecognised_record>(std::move(*this));
 }
 

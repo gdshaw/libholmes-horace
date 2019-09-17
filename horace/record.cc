@@ -10,6 +10,8 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/string_attribute.h"
+#include "horace/timestamp_attribute.h"
 #include "horace/record.h"
 
 namespace horace {
@@ -87,6 +89,24 @@ std::ostream& operator<<(std::ostream& out, const record& rec) {
 		out << " " << *attr;
 	}
 	out << ")" << std::endl;
+}
+
+bool same_session(const record& lhs, const record& rhs) {
+	std::string lsource = lhs.find_one<string_attribute>(
+		attribute::ATTR_SOURCE).content();
+	std::string rsource = rhs.find_one<string_attribute>(
+		attribute::ATTR_SOURCE).content();
+	if (lsource != rsource) return false;
+
+	struct timespec lts = lhs.find_one<timestamp_attribute>(
+		attribute::ATTR_TIMESTAMP).content();
+	struct timespec rts = rhs.find_one<timestamp_attribute>(
+		attribute::ATTR_TIMESTAMP).content();
+	if ((lts.tv_sec != rts.tv_sec) || (lts.tv_nsec != rts.tv_nsec)) {
+		return false;
+	}
+
+	return true;
 }
 
 } /* namespace horace */

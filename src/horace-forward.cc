@@ -19,8 +19,8 @@
 #include "horace/empty_signal_handler.h"
 #include "horace/terminate_flag.h"
 #include "horace/hostname.h"
+#include "horace/string_attribute.h"
 #include "horace/record.h"
-#include "horace/session_start_record.h"
 #include "horace/session_writer.h"
 #include "horace/endpoint.h"
 #include "horace/session_listener_endpoint.h"
@@ -63,8 +63,8 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 
 	// Create a session writer using the source ID from the
 	// start of session record.
-	std::string source_id = dynamic_cast<session_start_record&>(*srec)
-		.source_attr().content();
+	std::string source_id = srec->find_one<string_attribute>(
+		attribute::ATTR_SOURCE).content();
 	std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(source_id);
 
 	// Attempt to write the start of session record.

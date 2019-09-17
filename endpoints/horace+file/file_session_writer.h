@@ -56,8 +56,8 @@ private:
 	 */
 	std::string _next_pathname();
 protected:
-	virtual void handle_session_start(const session_start_record& srec);
-	virtual void handle_session_end(const session_end_record& erec);
+	virtual void handle_session_start(const record& srec);
+	virtual void handle_session_end(const record& erec);
 	virtual void handle_sync(const record& crec);
 	virtual void handle_event(const record& rec);
 public:

@@ -10,16 +10,13 @@
 
 namespace horace {
 
-class session_start_record;
-class session_end_record;
-
 /** A partial implementation of session_writer providing commonly-needed
  * functionality. */
 class simple_session_writer:
 	public session_writer {
 private:
 	/** The current start of session record, or null if none. */
-	const session_start_record* _srec;
+	const record* _srec;
 
 	/** A record available for reading, or null if none. */
 	std::unique_ptr<record> _reply;
@@ -27,12 +24,12 @@ private:
 	/** Process a start of session record.
 	 * @param srec the start of session record
 	 */
-	void _process_session_start(const session_start_record& srec);
+	void _process_session_start(const record& srec);
 
 	/** Process an end of session record.
 	 * @param erec the end of session record
 	 */
-	void _process_session_end(const session_end_record& erec);
+	void _process_session_end(const record& erec);
 
 	/** Process a sync record.
 	 * @param crec the sync record
@@ -42,12 +39,12 @@ protected:
 	/** Handle the start of a new session.
 	 * @param srec the start of session record
 	 */
-	virtual void handle_session_start(const session_start_record& srec) = 0;
+	virtual void handle_session_start(const record& srec) = 0;
 
 	/** Handle the end of a session.
 	 * @param erec the end of session record
 	 */
-	virtual void handle_session_end(const session_end_record& erec) = 0;
+	virtual void handle_session_end(const record& erec) = 0;
 
 	/** Handle synchronisation request.
 	 * @param crec the synchronisation record
@@ -63,7 +60,7 @@ protected:
 	 * If there is no active start record then an exception is thrown.
 	 * @return the session start record
 	 */
-	const session_start_record& start_record() const;
+	const record& start_record() const;
 public:
 	/** Construct simple session writer.
 	 * @param source_id the required source ID

@@ -132,6 +132,8 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const record& rec);
 };
 
+bool same_session(const record& lhs, const record& rhs);
+
 } /* namespace horace */
 
 #endif

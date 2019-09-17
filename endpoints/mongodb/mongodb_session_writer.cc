@@ -9,8 +9,6 @@
 #include "horace/string_attribute.h"
 #include "horace/binary_ref_attribute.h"
 #include "horace/compound_attribute.h"
-#include "horace/session_start_record.h"
-#include "horace/session_end_record.h"
 
 #include "mongodb_error.h"
 #include "mongodb_endpoint.h"
@@ -88,8 +86,9 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 	}
 }
 
-void mongodb_session_writer::handle_session_start(const session_start_record& srec) {
-	_session_ts = srec.timestamp().content();
+void mongodb_session_writer::handle_session_start(const record& srec) {
+	_session_ts = srec.find_one<timestamp_attribute>(
+		attribute::ATTR_TIMESTAMP).content();
 	_seqnum = 0;
 	_channel_labels.clear();
 
@@ -109,7 +108,13 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 
 	bson_t bson_channels;
 	bson_append_document_begin(&bson_session, "channels", -1, &bson_channels);
-	for (auto channel_def : srec.channels()) {
+	for (auto attr : srec.attributes()) {
+		if (attr->type() != attribute::attr_channel_def) {
+			continue;
+		}
+		const compound_attribute* channel_def =
+			&dynamic_cast<const compound_attribute&>(*attr);
+
 		uint64_t channel_num = channel_def->content().
 			find_one<unsigned_integer_attribute>(attribute::attr_channel_num).content();
 		std::string channel_label = channel_def->content().
@@ -123,8 +128,8 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 		bson_t bson_channel;
 		bson_append_document_begin(&bson_channels, channel_str.c_str(),
 			-1, &bson_channel);
-		for (auto attr : channel_def->content().attributes()) {
-			_append_bson(bson_channel, *attr);
+		for (auto subattr : channel_def->content().attributes()) {
+			_append_bson(bson_channel, *subattr);
 		}
 		bson_append_document_end(&bson_channels, &bson_channel);
 	}
@@ -141,8 +146,9 @@ void mongodb_session_writer::handle_session_start(const session_start_record& sr
 	bson_destroy(&bson_session);
 }
 
-void mongodb_session_writer::handle_session_end(const session_end_record& erec) {
-	struct timespec end_ts = erec.timestamp().content();
+void mongodb_session_writer::handle_session_end(const record& erec) {
+	struct timespec end_ts = erec.find_one<timestamp_attribute>(
+		attribute::ATTR_TIMESTAMP).content();
 
 	bson_t bson_session;
 	bson_t bson_id;

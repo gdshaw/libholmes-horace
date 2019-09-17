@@ -14,7 +14,6 @@
 #include "horace/timestamp_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
-#include "horace/session_start_record.h"
 
 #include "filestore_scanner.h"
 #include "spoolfile.h"
@@ -86,8 +85,8 @@ std::unique_ptr<record> file_session_reader::read() {
 	try {
 		std::unique_ptr<record> rec = _sfr->read();
 		if (rec->channel_number() == record::channel_session) {
-			session_start_record& srec = dynamic_cast<session_start_record&>(*rec);
-			struct timespec new_ts = srec.timestamp().content();
+			struct timespec new_ts = rec->find_one<timestamp_attribute>(
+				attribute::ATTR_TIMESTAMP).content();
 			if ((new_ts.tv_sec != _session_ts.tv_sec) ||
 				(new_ts.tv_nsec != _session_ts.tv_nsec)) {
 

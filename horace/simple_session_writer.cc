@@ -6,8 +6,6 @@
 #include "horace/horace_error.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
-#include "horace/session_start_record.h"
-#include "horace/session_end_record.h"
 #include "horace/simple_session_writer.h"
 
 namespace horace {
@@ -16,15 +14,14 @@ simple_session_writer::simple_session_writer(const std::string& source_id):
 	session_writer(source_id),
 	_srec(0) {}
 
-void simple_session_writer::_process_session_start(const session_start_record& srec) {
-	bool match = _srec && _srec->matches(srec);
-	if (!match) {
+void simple_session_writer::_process_session_start(const record& srec) {
+	if (!_srec || !same_session(*_srec, srec)) {
 		_srec = &srec;
 		handle_session_start(srec);
 	}
 }
 
-void simple_session_writer::_process_session_end(const session_end_record& erec) {
+void simple_session_writer::_process_session_end(const record& erec) {
 	handle_session_end(erec);
 	_srec = 0;
 }
@@ -38,7 +35,7 @@ void simple_session_writer::_process_sync(const record& crec) {
 	_reply = builder.build();
 }
 
-const session_start_record& simple_session_writer::start_record() const {
+const record& simple_session_writer::start_record() const {
 	if (!_srec) {
 		throw horace_error("no session in progress");
 	}
@@ -48,10 +45,10 @@ const session_start_record& simple_session_writer::start_record() const {
 void simple_session_writer::write(const record& rec) {
 	switch(rec.channel_number()) {
 	case record::channel_session:
-		_process_session_start(dynamic_cast<const session_start_record&>(rec));
+		_process_session_start(rec);
 		break;
 	case record::channel_session_end:
-		_process_session_end(dynamic_cast<const session_end_record&>(rec));
+		_process_session_end(rec);
 		break;
 	case record::channel_sync:
 		_process_sync(rec);
