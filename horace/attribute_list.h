@@ -36,10 +36,12 @@ public:
 	/** Build attribute list from octet reader.
 	 * It is presumed that the length field has already been read.
 	 * This function must read exactly the specified number of octets.
+	 * @param session the applicable session context
          * @param in the octet reader
          * @param length the length of the content, in octets
 	 */
-	attribute_list(octet_reader& in, size_t length);
+	attribute_list(session_context& session, octet_reader& in,
+		size_t length);
 
 	/** Determine whether this attribute list is empty.
 	 * @return true if empty, otherwise false

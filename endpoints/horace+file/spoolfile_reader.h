@@ -31,6 +31,9 @@ private:
 
 	/** The pathname of the following spoolfile. */
 	std::string _next_pathname;
+
+	/** The current session context. */
+	session_context* _session;
 protected:
 	virtual size_t _read_direct(void* buf, size_t nbyte);
 public:
@@ -38,9 +41,11 @@ public:
 	 * @param fsr the file session reader which is reading the spoolfile
 	 * @param pathname the pathname of the spoolfile to be read
 	 * @param next_pathname the pathname of the following spoolfile
+	 * @param session the applicable session context
 	 */
 	explicit spoolfile_reader(file_session_reader& fsr,
-		const std::string& pathname, const std::string& next_pathname);
+		const std::string& pathname, const std::string& next_pathname,
+		session_context& session);
 
 	/** Attempt to read record from spoolfile.
 	 * If a record cannot be read immediately then this function will

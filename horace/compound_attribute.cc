@@ -11,9 +11,10 @@ compound_attribute::compound_attribute(int type, attribute_list&& attrlist):
 	attribute(type),
 	_attrlist(std::move(attrlist)) {}
 
-compound_attribute::compound_attribute(int type, size_t length, octet_reader& in):
+compound_attribute::compound_attribute(session_context& session, int type,
+	size_t length, octet_reader& in):
 	attribute(type),
-	_attrlist(in, length) {}
+	_attrlist(session, in, length) {}
 
 size_t compound_attribute::length() const {
 	return _attrlist.length();

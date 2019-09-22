@@ -31,6 +31,9 @@ public:
 
 	/** An octet writer for the socket descriptor. */
 	file_octet_writer _fdow;
+
+	/** The current session context. */
+	session_context _session;
 public:
 	/** Construct TCP session reader.
 	 * @param src_ep the source endpoint

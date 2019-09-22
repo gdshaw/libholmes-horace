@@ -66,7 +66,7 @@ bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
 		for (auto&& attr : rec.attributes()) {
 			builder.append(*attr);
 		}
-		unsigned_integer_attribute seqnum_attr(attribute::ATTR_SEQNUM, seqnum);
+		unsigned_integer_attribute seqnum_attr(ATTR_SEQNUM, seqnum);
 		builder.append(seqnum_attr);
 		std::unique_ptr<record> nrec = builder.build();
 		return write(*nrec);

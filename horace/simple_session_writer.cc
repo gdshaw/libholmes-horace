@@ -18,6 +18,8 @@ void simple_session_writer::_process_session_start(const record& srec) {
 	if (!_srec || !same_session(*_srec, srec)) {
 		_srec = &srec;
 		handle_session_start(srec);
+	} else {
+		_srec = &srec;
 	}
 }
 

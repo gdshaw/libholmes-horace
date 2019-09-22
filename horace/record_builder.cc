@@ -4,6 +4,8 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/horace_error.h"
+#include "horace/session_context.h"
+#include "horace/compound_attribute.h"
 #include "horace/record_builder.h"
 
 namespace horace {
@@ -11,7 +13,7 @@ namespace horace {
 record_builder::record_builder(int channel):
 	record(channel) {}
 
-record_builder::record_builder(octet_reader& in):
+record_builder::record_builder(session_context& session, octet_reader& in):
 	record(in.read_signed_base128()) {
 
 	size_t remaining = in.read_unsigned_base128();
@@ -19,8 +21,22 @@ record_builder::record_builder(octet_reader& in):
 		size_t hdr_len = 0;
 		int attr_type = in.read_signed_base128(hdr_len);
 		int attr_len = in.read_unsigned_base128(hdr_len);
+
 		std::unique_ptr<attribute> attr =
-			attribute::parse(in, attr_type, attr_len);
+			attribute::parse(session, in, attr_type, attr_len);
+		switch (attr->type()) {
+		case attr_type_def:
+			session.handle_attr_type_def(
+				dynamic_cast<compound_attribute&>(*attr));
+			break;
+		case attr_channel_def:
+			session.handle_channel_def(
+				dynamic_cast<compound_attribute&>(*attr));
+			break;
+		default:
+			// no action
+			break;
+		}
 		append(attr);
 
 		size_t length = hdr_len + attr_len;

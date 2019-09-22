@@ -13,6 +13,8 @@
 
 namespace horace {
 
+class session_context;
+
 /** A class for incrementally building HORACE records. */
 class record_builder:
 	public record {
@@ -25,9 +27,10 @@ public:
 	/** Build record from octet reader.
 	 * It is presumed that the channel and length fields have not already
 	 * been read.
+	 * @param session the applicable session information object
 	 * @param in the octet reader
 	 */
-	explicit record_builder(octet_reader& in);
+	record_builder(session_context& session, octet_reader& in);
 
 	/** Append an attribute to this record, with transfer of ownership.
 	 * @param attr the attribute to be appended

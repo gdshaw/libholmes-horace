@@ -11,33 +11,36 @@
 
 #include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
+#include "horace/session_context.h"
 
 namespace horace {
 
+// Attribute format codes.
+static const int attr_format_compound = 0;
+static const int attr_format_unsigned_integer = 1;
+static const int attr_format_binary = 2;
+static const int attr_format_string = 3;
+static const int attr_format_timestamp = 4;
+
+// Reserved attribute type codes.
+static const int attr_type_def = -1;
+static const int attr_type_code = -2;
+static const int attr_type_label = -3;
+static const int attr_type_format = -4;
+static const int attr_channel_def = -5;
+static const int attr_channel_num = -6;
+static const int attr_channel_label = -7;
+
+// Reserved attribute type codes (transitional period only).
+static const int ATTR_SOURCE = -8;
+static const int ATTR_SEQNUM = -9;
+static const int ATTR_PACKET = -10;
+static const int ATTR_PACKET_LENGTH = -11;
+static const int ATTR_TIMESTAMP = -12;
+static const int ATTR_REPEAT = -13;
+
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
-public:
-	// Reserved attribute type codes.
-	static const int attr_type_def = -1;
-	static const int attr_type_code = -2;
-	static const int attr_type_label = -3;
-	static const int attr_type_format = -4;
-	static const int attr_channel_def = -5;
-	static const int attr_channel_num = -6;
-	static const int attr_channel_label = -7;
-
-	// Reserved attribute type codes (transitional period only).
-	static const int ATTR_SOURCE = 0x00;
-	static const int ATTR_SEQNUM = 0x01;
-	static const int ATTR_PACKET = 0x02;
-	static const int ATTR_PACKET_LENGTH = 0x03;
-	static const int ATTR_TIMESTAMP = 0x04;
-	static const int ATTR_REPEAT = 0x0a;
-	static const int ATTR_NETIF = 0x0b;
-	static const int ATTR_IFINDEX = 0x0c;
-	static const int ATTR_IFNAME = 0x0d;
-	static const int ATTR_LINKTYPE = 0x0e;
-	static const int ATTR_EUI = 0x0f;
 private:
 	/** The type code for this attribute. */
 	int _type;
@@ -56,11 +59,6 @@ public:
 	int type() const {
 		return _type;
 	}
-
-	/** Get the name of this attribute.
-	 * @return the name
-	 */
-	std::string name() const;
 
 	/** Get the length of the content of this attribute.
 	 * @return the content length, in octets
@@ -84,21 +82,24 @@ public:
 	 * It is presumed that the type and length fields have already been
 	 * read. This function must read exactly the specified number of
 	 * octets.
+	 * @param session the applicable session context
 	 * @param in the octet reader
 	 * @param type the attribute type
 	 * @param length the length of the content, in octets
 	 * @return the resulting attribute
 	 */
-	static std::unique_ptr<attribute> parse(octet_reader& in,
-		int type, size_t length);
+	static std::unique_ptr<attribute> parse(session_context& session,
+		octet_reader& in, int type, size_t length);
 
 	/** Parse attribute from an octet reader.
 	 * It is presumed that the type and length fields have not already
 	 * been read.
+	 * @param session the applicable session context
 	 * @param in the octet reader
 	 * @return the resulting attribute
 	 */
-	static std::unique_ptr<attribute> parse(octet_reader& in);
+	static std::unique_ptr<attribute> parse(session_context& session,
+		octet_reader& in);
 
 	/** Write an attribute in human-readable form to an output stream.
 	 * @param out the stream to which the output should be written

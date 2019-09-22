@@ -31,8 +31,8 @@ private:
 	/** The current session timestamp. */
 	struct timespec _session_ts;
 
-	/** The current mapping from channel numbers to channel labels. */
-	std::map<int, std::string> _channel_labels;
+	/** The current session context. */
+	session_context _session;
 
 	/** The current sequence number. */
 	uint64_t _seqnum;

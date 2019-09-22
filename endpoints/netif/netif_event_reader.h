@@ -32,11 +32,11 @@ public:
 	/** Construct network interface event reader.
 	 * @param ep the endpoint to read from
 	 */
-	explicit netif_event_reader(const netif_endpoint& ep);
+	explicit netif_event_reader(const netif_endpoint& ep,
+		session_builder& builder);
 
 	virtual const record& read();
 	virtual void attach(const filter& filt);
-	virtual void build_session(session_builder& builder);
 };
 
 } /* namespace horace */

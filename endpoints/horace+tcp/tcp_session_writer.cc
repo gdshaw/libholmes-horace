@@ -86,7 +86,7 @@ void tcp_session_writer::write(const record& rec) {
 
 std::unique_ptr<record> tcp_session_writer::read() {
 	_fdow.flush();
-	record_builder builder(_fdor);
+	record_builder builder(_session, _fdor);
 	return builder.build();
 }
 

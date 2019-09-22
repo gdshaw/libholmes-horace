@@ -49,16 +49,14 @@ void write_help(std::ostream& out) {
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
-void capture(const std::string& source_id, event_reader& src_er,
+void capture(session_builder& session, event_reader& src_er,
 	session_writer_endpoint& dst_swep) {
 
 	std::unique_ptr<session_writer> dst_sw =
-		dst_swep.make_session_writer(source_id);
+		dst_swep.make_session_writer(session.source_id());
 
 	try {
-		session_builder sbuilder(source_id);
-		src_er.build_session(sbuilder);
-		std::unique_ptr<record> srec = sbuilder.build();
+		std::unique_ptr<record> srec = session.build();
 		try {
 			dst_sw->write(*srec);
 		} catch (terminate_exception&) {
@@ -94,20 +92,20 @@ void capture(const std::string& source_id, event_reader& src_er,
 	}
 
 	record_builder erecb(record::channel_session_end);
-	erecb.append(std::make_unique<timestamp_attribute>(attribute::ATTR_TIMESTAMP));
+	erecb.append(std::make_unique<timestamp_attribute>(ATTR_TIMESTAMP));
 	std::unique_ptr<record> erec = erecb.build();
 	dst_sw->write(*erec);
 	erec->log(*log);
 }
 
-void capture_with_retry(const std::string& source_id, event_reader& src_er,
+void capture_with_retry(session_builder& session, event_reader& src_er,
 	session_writer_endpoint& dst_swep) {
 
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(source_id, src_er, dst_swep);
+			capture(session, src_er, dst_swep);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {
@@ -193,8 +191,9 @@ int main(int argc, char* argv[]) {
 			<< std::endl;
 		exit(1);
 	}
+	session_builder session(source_id);
 	std::unique_ptr<event_reader> src_er =
-		src_erep->make_event_reader();
+		src_erep->make_event_reader(session);
 
 	// Parse destination endpoint.
 	if (optind == argc) {
@@ -225,7 +224,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Capture events.
-	std::thread capture_thread(capture_with_retry, source_id,
+	std::thread capture_thread(capture_with_retry, std::ref(session),
 		std::ref(*src_er), std::ref(*dst_swep));
 
 	// Wait for terminating signal to be raised.

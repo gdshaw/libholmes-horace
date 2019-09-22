@@ -19,14 +19,17 @@ attribute_list::attribute_list(attribute_list&& that) {
 	_owned_attributes.swap(that._owned_attributes);
 }
 
-attribute_list::attribute_list(octet_reader& in, size_t length) {
+attribute_list::attribute_list(session_context& session, octet_reader& in,
+	size_t length) {
+
 	size_t remaining = length;
 	while (remaining) {
 		size_t hdr_len = 0;
 		int attr_type = in.read_signed_base128(hdr_len);
 		int attr_len = in.read_unsigned_base128(hdr_len);
+
 		std::unique_ptr<attribute> attr =
-			attribute::parse(in, attr_type, attr_len);
+			attribute::parse(session, in, attr_type, attr_len);
 		append(attr);
 
 		size_t length = hdr_len + attr_len;

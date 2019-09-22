@@ -18,6 +18,9 @@ namespace horace {
 /** A class for building start of session records. */
 class session_builder {
 private:
+	/** The source ID for this session. */
+	std::string _source_id;
+
 	/** A record builder for the start of session record. */
 	record_builder _srecb;
 
@@ -31,6 +34,13 @@ public:
 	 * @param source_id the required source identifier
 	 */
 	explicit session_builder(const std::string& source_id);
+
+	/** Get the source ID for this session.
+	 * @return the source ID
+	 */
+	const std::string& source_id() const {
+		return _source_id;
+	}
 
 	/** Define attribute type.
 	 * If a type is requested which matches a previous definition

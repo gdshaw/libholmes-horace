@@ -31,6 +31,9 @@ private:
 	/** An octet reader for the connection. */
 	file_octet_reader _fdor;
 
+	/** The current session context. */
+	session_context _session;
+
 	/** Open a connection. */
 	void _open();
 public:

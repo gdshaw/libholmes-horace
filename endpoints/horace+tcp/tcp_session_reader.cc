@@ -21,7 +21,7 @@ tcp_session_reader::tcp_session_reader(tcp_endpoint& src_ep,
 }
 
 std::unique_ptr<record> tcp_session_reader::read() {
-	record_builder builder(_fdor);
+	record_builder builder(_session, _fdor);
 	return builder.build();
 }
 

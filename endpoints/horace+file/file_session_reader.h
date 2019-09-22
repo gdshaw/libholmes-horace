@@ -46,6 +46,9 @@ public:
 	/** The minimum permitted width for a filenum, in digits. */
 	unsigned int _minwidth;
 
+	/** The current session context. */
+	session_context _session;
+
 	/** A reader for the current spoolfile. */
 	std::unique_ptr<spoolfile_reader> _sfr;
 

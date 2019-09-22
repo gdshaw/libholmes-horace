@@ -35,13 +35,15 @@ size_t spoolfile_reader::_read_direct(void* buf, size_t nbyte) {
 }
 
 spoolfile_reader::spoolfile_reader(file_session_reader& fsr,
-	const std::string& pathname, const std::string& next_pathname):
+	const std::string& pathname, const std::string& next_pathname,
+	session_context& session):
 	buffer(0x40),
 	octet_reader(buffer_ptr(), buffer_size(), 0),
 	_fsr(&fsr),
 	_fd(pathname, O_RDONLY),
 	_pathname(pathname),
-	_next_pathname(next_pathname) {
+	_next_pathname(next_pathname),
+	_session(&session) {
 
 	if (log->enabled(logger::log_info)) {
 		log_message msg(*log, logger::log_info);
@@ -50,7 +52,7 @@ spoolfile_reader::spoolfile_reader(file_session_reader& fsr,
 }
 
 std::unique_ptr<record> spoolfile_reader::read() {
-	record_builder builder(*this);
+	record_builder builder(*_session, *this);
 	return builder.build();
 }
 

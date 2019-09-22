@@ -44,14 +44,6 @@ public:
 	 * @param filt the filter to be attached
 	 */
 	virtual void attach(const filter& filt);
-
-	/** Build session.
-	 * This function gives each active event reader the opportunity to
-	 * contribute attribute and channel definitions to the session
-	 * start record.
-	 * @param builder a builder object for the session
-	 */
-	virtual void build_session(session_builder& builder);
 };
 
 } /* namespace horace */

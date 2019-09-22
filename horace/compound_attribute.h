@@ -27,11 +27,13 @@ public:
 	/** Construct compound attribute from an octet reader.
 	 * The type and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
+	 * @param session the applicable session context
 	 * @param type the attribute type
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	compound_attribute(int type, size_t length, octet_reader& in);
+	compound_attribute(session_context& session, int type, size_t length,
+		octet_reader& in);
 
 	/** Get the attribute content.
 	 * @return the content

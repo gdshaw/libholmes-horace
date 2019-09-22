@@ -9,6 +9,7 @@
 #include "horace/string_attribute.h"
 #include "horace/binary_ref_attribute.h"
 #include "horace/compound_attribute.h"
+#include "horace/unrecognised_attribute.h"
 
 #include "mongodb_error.h"
 #include "mongodb_endpoint.h"
@@ -17,22 +18,23 @@
 namespace horace {
 
 void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
+	std::string attr_label = _session.get_attr_label(attr.type());
 	if (const unsigned_integer_attribute* _attr = dynamic_cast<const unsigned_integer_attribute*>(&attr)) {
-		bson_append_int64(&bson, _attr->name().c_str(), -1, _attr->content());
+		bson_append_int64(&bson, attr_label.c_str(), -1, _attr->content());
 	} else if (const string_attribute* _attr = dynamic_cast<const string_attribute*>(&attr)) {
-		bson_append_utf8(&bson, _attr->name().c_str(), -1, _attr->content().c_str(), -1);
+		bson_append_utf8(&bson, attr_label.c_str(), -1, _attr->content().c_str(), -1);
 	} else if (const binary_ref_attribute* _attr = dynamic_cast<const binary_ref_attribute*>(&attr)) {
-		bson_append_binary(&bson, _attr->name().c_str(), -1, BSON_SUBTYPE_BINARY,
+		bson_append_binary(&bson, attr_label.c_str(), -1, BSON_SUBTYPE_BINARY,
 			reinterpret_cast<const uint8_t*>(_attr->content()), _attr->length());
 	} else if (const timestamp_attribute* _attr = dynamic_cast<const timestamp_attribute*>(&attr)) {
 		bson_t bson_ts;
-		bson_append_document_begin(&bson, _attr->name().c_str(), -1, &bson_ts);
+		bson_append_document_begin(&bson, attr_label.c_str(), -1, &bson_ts);
 		bson_append_int64(&bson_ts, "sec", -1, _attr->content().tv_sec);
 		bson_append_int32(&bson_ts, "nsec", -1, _attr->content().tv_nsec);
 		bson_append_document_end(&bson, &bson_ts);
 	} else if (const compound_attribute* _attr = dynamic_cast<const compound_attribute*>(&attr)) {
 		bson_t bson_compound;
-		bson_append_document_begin(&bson, _attr->name().c_str(), -1, &bson_compound);
+		bson_append_document_begin(&bson, attr_label.c_str(), -1, &bson_compound);
 		for (auto subattr : _attr->content().attributes()) {
 			_append_bson(bson_compound, *subattr);
 		}
@@ -88,9 +90,9 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 
 void mongodb_session_writer::handle_session_start(const record& srec) {
 	_session_ts = srec.find_one<timestamp_attribute>(
-		attribute::ATTR_TIMESTAMP).content();
+		ATTR_TIMESTAMP).content();
 	_seqnum = 0;
-	_channel_labels.clear();
+	_session = session_context();
 
 	bson_t bson_session;
 	bson_init(&bson_session);
@@ -105,30 +107,31 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 	bson_append_document_end(&bson_id, &bson_ts);
 	bson_append_document_end(&bson_session, &bson_id);
 
-
 	bson_t bson_channels;
 	bson_append_document_begin(&bson_session, "channels", -1, &bson_channels);
 	for (auto attr : srec.attributes()) {
-		if (attr->type() != attribute::attr_channel_def) {
+		if (attr->type() == attr_type_def) {
+			_session.handle_attr_type_def(
+				dynamic_cast<const compound_attribute&>(*attr));
+			continue;
+		} else	if (attr->type() != attr_channel_def) {
 			continue;
 		}
-		const compound_attribute* channel_def =
-			&dynamic_cast<const compound_attribute&>(*attr);
 
-		uint64_t channel_num = channel_def->content().
-			find_one<unsigned_integer_attribute>(attribute::attr_channel_num).content();
-		std::string channel_label = channel_def->content().
-			find_one<string_attribute>(attribute::attr_channel_label).content();
-		if (_channel_labels.find(channel_num) != _channel_labels.end()) {
-			throw horace_error("dupplicate channel definition");
-		}
-		_channel_labels[channel_num] = channel_label;
+		const compound_attribute& channel_def =
+			dynamic_cast<const compound_attribute&>(*attr);
+		_session.handle_channel_def(channel_def);
+
+		uint64_t channel_num = channel_def.content().
+			find_one<unsigned_integer_attribute>(attr_channel_num).content();
+		std::string channel_label = channel_def.content().
+			find_one<string_attribute>(attr_channel_label).content();
 
 		std::string channel_str = std::string("channel") + std::to_string(channel_num);
 		bson_t bson_channel;
 		bson_append_document_begin(&bson_channels, channel_str.c_str(),
 			-1, &bson_channel);
-		for (auto subattr : channel_def->content().attributes()) {
+		for (auto subattr : channel_def.content().attributes()) {
 			_append_bson(bson_channel, *subattr);
 		}
 		bson_append_document_end(&bson_channels, &bson_channel);
@@ -148,7 +151,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 
 void mongodb_session_writer::handle_session_end(const record& erec) {
 	struct timespec end_ts = erec.find_one<timestamp_attribute>(
-		attribute::ATTR_TIMESTAMP).content();
+		ATTR_TIMESTAMP).content();
 
 	bson_t bson_session;
 	bson_t bson_id;
@@ -209,11 +212,8 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	}
 
 	// Append to the next bulk-write operation.
-	auto f = _channel_labels.find(rec.channel_number());
-	if (f == _channel_labels.end()) {
-		throw horace_error("missing definition for channel number");
-	}
-	_write_bulk(rec.channel_number(), f->second, bson_event);
+	std::string label = _session.get_channel_label(rec.channel_number());
+	_write_bulk(rec.channel_number(), label, bson_event);
 	bson_destroy(&bson_event);
 
 	// Increment the sequence number.
