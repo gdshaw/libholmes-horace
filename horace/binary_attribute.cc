@@ -31,6 +31,11 @@ binary_attribute::binary_attribute(int type, size_t length, octet_reader& in):
 	}
 }
 
+std::unique_ptr<attribute> binary_attribute::clone() const {
+	return std::make_unique<binary_attribute>(
+		type(), length(), content());
+}
+
 binary_attribute::~binary_attribute() {
 	// Note that the underlying binary_ref_attribute still has a
 	// pointer to the content as this point, however it does not

@@ -29,4 +29,8 @@ void string_attribute::write(octet_writer& out) const {
 	out.write_string(_content);
 }
 
+std::unique_ptr<attribute> string_attribute::clone() const {
+	return std::make_unique<string_attribute>(type(), _content);
+}
+
 } /* namespace horace */

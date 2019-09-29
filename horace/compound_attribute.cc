@@ -20,6 +20,12 @@ size_t compound_attribute::length() const {
 	return _attrlist.length();
 }
 
+std::unique_ptr<attribute> compound_attribute::clone() const {
+	attribute_list attrlist(_attrlist);
+	return std::make_unique<compound_attribute>(
+		type(), std::move(attrlist));
+}
+
 void compound_attribute::write(std::ostream& out) const {
 	out << "attr" << type() << _attrlist;
 }

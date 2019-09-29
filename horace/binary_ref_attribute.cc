@@ -29,4 +29,9 @@ void binary_ref_attribute::write(octet_writer& out) const {
 	out.write(_content, _length);
 }
 
+std::unique_ptr<attribute> binary_ref_attribute::clone() const {
+	return std::make_unique<binary_ref_attribute>(
+		type(), _length, _content);
+}
+
 } /* namespace horace */

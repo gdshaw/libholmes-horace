@@ -65,6 +65,11 @@ public:
 	 */
 	virtual size_t length() const = 0;
 
+	/** Create a deep copy of this attribute.
+	 * @return the cloned copy
+	 */
+	virtual std::unique_ptr<attribute> clone() const = 0;
+
 	/** Write this attribute in human-readable form to an output stream.
 	 * This functionality can also be accessed via operator<<,
 	 * however a virtual member function is needed so that the

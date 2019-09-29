@@ -4,6 +4,7 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include <iomanip>
+#include <cstring>
 
 #include "horace/unrecognised_attribute.h"
 
@@ -24,6 +25,13 @@ unrecognised_attribute::unrecognised_attribute(int type,
 	attribute(type),
 	_content(move(content)),
 	_length(length) {}
+
+std::unique_ptr<attribute> unrecognised_attribute::clone() const {
+	std::unique_ptr<char[]> content = std::make_unique<char[]>(_length);
+	memcpy(content.get(), _content.get(), _length);
+	std::unique_ptr<const char[]> const_content = std::move(content);
+	return std::make_unique<unrecognised_attribute>(type(), const_content, _length);
+}
 
 void unrecognised_attribute::write(std::ostream& out) const {
 	out << "attr" << std::dec << type() << "(";

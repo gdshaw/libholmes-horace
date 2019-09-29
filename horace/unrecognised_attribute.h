@@ -51,6 +51,7 @@ public:
 		return _length;
 	}
 
+	virtual std::unique_ptr<attribute> clone() const;
 	virtual void write(std::ostream& out) const;
 	virtual void write(octet_writer& out) const;
 };

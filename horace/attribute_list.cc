@@ -14,6 +14,14 @@ attribute_list::~attribute_list() {
 	}
 }
 
+attribute_list::attribute_list(const attribute_list& that) {
+	for (auto attr : that._attributes) {
+		auto attr_copy = attr->clone();
+		_attributes.push_back(attr_copy.get());
+		_owned_attributes.push_back(attr_copy.release());
+	}
+}
+
 attribute_list::attribute_list(attribute_list&& that) {
 	_attributes.swap(that._attributes);
 	_owned_attributes.swap(that._owned_attributes);

@@ -53,6 +53,10 @@ size_t timestamp_attribute::length() const {
 	return len;
 }
 
+std::unique_ptr<attribute> timestamp_attribute::clone() const {
+	return std::make_unique<timestamp_attribute>(type(), _content);
+}
+
 void timestamp_attribute::write(std::ostream& out) const {
 	out << "attr" << type() << "(" <<
 		_content.tv_sec << "." <<

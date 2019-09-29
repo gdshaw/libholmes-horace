@@ -29,6 +29,11 @@ size_t unsigned_integer_attribute::length() const {
 	return len;
 }
 
+std::unique_ptr<attribute> unsigned_integer_attribute::clone() const {
+	return std::make_unique<unsigned_integer_attribute>(
+		type(), _content);
+}
+
 void unsigned_integer_attribute::write(std::ostream& out) const {
 	out << "attr" << type() << "(" << std::dec << _content << ")";
 }

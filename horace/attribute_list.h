@@ -27,7 +27,7 @@ public:
 	attribute_list() = default;
 	virtual ~attribute_list();
 
-	attribute_list(const attribute_list&) = delete;
+	attribute_list(const attribute_list&);
 	attribute_list(attribute_list&& that);
 
 	attribute_list& operator=(const attribute_list&) = delete;

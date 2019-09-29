@@ -36,6 +36,7 @@ public:
 	binary_attribute(int type, size_t length, octet_reader& in);
 
 	virtual ~binary_attribute();
+	virtual std::unique_ptr<attribute> clone() const;
 };
 
 } /* namespace horace */
