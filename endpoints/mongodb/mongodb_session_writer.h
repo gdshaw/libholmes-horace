@@ -9,6 +9,7 @@
 #include <memory>
 #include <map>
 
+#include "horace/session_context.h"
 #include "horace/simple_session_writer.h"
 
 #include "mongodb_database.h"

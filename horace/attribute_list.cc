@@ -27,6 +27,37 @@ attribute_list::attribute_list(attribute_list&& that) {
 	_owned_attributes.swap(that._owned_attributes);
 }
 
+attribute_list& attribute_list::operator=(const attribute_list& that) {
+	if (this != &that) {
+		_attributes.clear();
+		for (const attribute* attr : _owned_attributes) {
+			delete attr;
+		}
+		_owned_attributes.clear();
+
+		for (auto attr : that._attributes) {
+			auto attr_copy = attr->clone();
+			_attributes.push_back(attr_copy.get());
+			_owned_attributes.push_back(attr_copy.release());
+		}
+	}
+	return *this;
+}
+
+attribute_list& attribute_list::operator=(attribute_list&& that) {
+	if (this != &that) {
+		_attributes.clear();
+		for (const attribute* attr : _owned_attributes) {
+			delete attr;
+		}
+		_owned_attributes.clear();
+
+		_attributes.swap(that._attributes);
+		_owned_attributes.swap(that._owned_attributes);
+	}
+	return *this;
+}
+
 attribute_list::attribute_list(session_context& session, octet_reader& in,
 	size_t length) {
 

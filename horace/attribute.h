@@ -11,9 +11,10 @@
 
 #include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
-#include "horace/session_context.h"
 
 namespace horace {
+
+class session_context;
 
 // Attribute format codes.
 static const int attr_format_compound = 0;

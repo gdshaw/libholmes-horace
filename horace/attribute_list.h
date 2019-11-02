@@ -30,8 +30,8 @@ public:
 	attribute_list(const attribute_list&);
 	attribute_list(attribute_list&& that);
 
-	attribute_list& operator=(const attribute_list&) = delete;
-	attribute_list& operator=(attribute_list&&) = delete;
+	attribute_list& operator=(const attribute_list&);
+	attribute_list& operator=(attribute_list&&);
 
 	/** Build attribute list from octet reader.
 	 * It is presumed that the length field has already been read.

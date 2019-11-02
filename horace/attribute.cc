@@ -12,6 +12,7 @@
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/compound_attribute.h"
 #include "horace/unrecognised_attribute.h"
+#include "horace/session_context.h"
 
 namespace horace {
 

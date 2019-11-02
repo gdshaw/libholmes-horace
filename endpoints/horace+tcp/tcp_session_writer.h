@@ -9,6 +9,7 @@
 #include "horace/socket_descriptor.h"
 #include "horace/file_octet_writer.h"
 #include "horace/file_octet_reader.h"
+#include "horace/session_context.h"
 #include "horace/session_writer.h"
 
 namespace horace {

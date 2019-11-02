@@ -7,6 +7,7 @@
 #define LIBHOLMES_HORACE_FILE_SESSION_READER
 
 #include "horace/record.h"
+#include "horace/session_context.h"
 #include "horace/session_reader.h"
 
 #include "directory_maker.h"
