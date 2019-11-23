@@ -113,7 +113,7 @@ std::unique_ptr<record> file_session_reader::read() {
 void file_session_reader::write(const record& rec) {
 	// The only type of record which should be written is an
 	// acknowledgement record.
-	if (rec.channel_number() != record::channel_ack) {
+	if (rec.channel_number() != record::channel_sync) {
 		throw horace_error("unexpected record type sent to session reader");
 	}
 

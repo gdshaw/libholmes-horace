@@ -43,7 +43,6 @@ public:
 
 	// Reserved channel numbers (transitional period only).
 	static const int channel_session_end = -4;
-	static const int channel_ack = -5;
 
 	virtual ~record();
 

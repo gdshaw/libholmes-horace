@@ -30,7 +30,7 @@ void simple_session_writer::_process_session_end(const record& erec) {
 
 void simple_session_writer::_process_sync(const record& crec) {
 	handle_sync(crec);
-	record_builder builder(record::channel_ack);
+	record_builder builder(record::channel_sync);
 	for (const attribute* attr : crec.attributes()) {
 		builder.append(*attr);
 	}
