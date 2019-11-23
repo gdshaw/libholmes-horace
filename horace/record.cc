@@ -42,7 +42,7 @@ size_t record::length() const {
 uint64_t record::update_seqnum(uint64_t seqnum) const {
 	if (is_event()) {
 		for (auto&& attr : _attributes) {
-			if (attr->type() == ATTR_SEQNUM) {
+			if (attr->type() == attr_seqnum) {
 				return dynamic_cast<const unsigned_integer_attribute&>(*attr).content();
 			}
 		}
@@ -93,15 +93,15 @@ std::ostream& operator<<(std::ostream& out, const record& rec) {
 
 bool same_session(const record& lhs, const record& rhs) {
 	std::string lsource = lhs.find_one<string_attribute>(
-		ATTR_SOURCE).content();
+		attr_source).content();
 	std::string rsource = rhs.find_one<string_attribute>(
-		ATTR_SOURCE).content();
+		attr_source).content();
 	if (lsource != rsource) return false;
 
 	struct timespec lts = lhs.find_one<timestamp_attribute>(
-		ATTR_TIMESTAMP).content();
+		attr_timestamp).content();
 	struct timespec rts = rhs.find_one<timestamp_attribute>(
-		ATTR_TIMESTAMP).content();
+		attr_timestamp).content();
 	if ((lts.tv_sec != rts.tv_sec) || (lts.tv_nsec != rts.tv_nsec)) {
 		return false;
 	}

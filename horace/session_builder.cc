@@ -18,9 +18,9 @@ session_builder::session_builder(const std::string& source_id):
 	_chan_count(0) {
 
 	_srecb.append(std::make_unique<string_attribute>(
-		ATTR_SOURCE, source_id));
+		attr_source, source_id));
 	_srecb.append(std::make_unique<timestamp_attribute>
-		(ATTR_TIMESTAMP));
+		(attr_timestamp));
 }
 
 int session_builder::define_attribute_type(const std::string& label,

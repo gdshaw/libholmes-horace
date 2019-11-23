@@ -92,7 +92,7 @@ void capture(session_builder& session, event_reader& src_er,
 	}
 
 	record_builder erecb(record::channel_session_end);
-	erecb.append(std::make_unique<timestamp_attribute>(ATTR_TIMESTAMP));
+	erecb.append(std::make_unique<timestamp_attribute>(attr_timestamp));
 	std::unique_ptr<record> erec = erecb.build();
 	dst_sw->write(*erec);
 	erec->log(*log);

@@ -90,7 +90,7 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 
 void mongodb_session_writer::handle_session_start(const record& srec) {
 	_session_ts = srec.find_one<timestamp_attribute>(
-		ATTR_TIMESTAMP).content();
+		attr_timestamp).content();
 	_seqnum = 0;
 	_session = session_context();
 
@@ -151,7 +151,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 
 void mongodb_session_writer::handle_session_end(const record& erec) {
 	struct timespec end_ts = erec.find_one<timestamp_attribute>(
-		ATTR_TIMESTAMP).content();
+		attr_timestamp).content();
 
 	bson_t bson_session;
 	bson_t bson_id;

@@ -8,7 +8,7 @@
 namespace horace {
 
 packet_record_builder::packet_record_builder(session_builder& session):
-	_ts_attr(session.define_attribute_type("ts", attr_format_timestamp), 0, 0),
+	_ts_attr(attr_timestamp, 0, 0),
 	_pkt_attr(session.define_attribute_type("packet", attr_format_binary), 0, 0),
 	_origlen_attr(session.define_attribute_type("origlen", attr_format_unsigned_integer), 0),
 	_rpt_attr(session.define_attribute_type("repeat", attr_format_unsigned_integer), 0),

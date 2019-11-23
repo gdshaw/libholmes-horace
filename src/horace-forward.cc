@@ -64,7 +64,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	// Create a session writer using the source ID from the
 	// start of session record.
 	std::string source_id = srec->find_one<string_attribute>(
-		ATTR_SOURCE).content();
+		attr_source).content();
 	std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(source_id);
 
 	// Attempt to write the start of session record.

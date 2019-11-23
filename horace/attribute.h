@@ -31,11 +31,9 @@ static const int attr_type_format = -4;
 static const int attr_channel_def = -5;
 static const int attr_channel_num = -6;
 static const int attr_channel_label = -7;
-
-// Reserved attribute type codes (transitional period only).
-static const int ATTR_SOURCE = -8;
-static const int ATTR_SEQNUM = -9;
-static const int ATTR_TIMESTAMP = -12;
+static const int attr_source = -8;
+static const int attr_timestamp = -9;
+static const int attr_seqnum = -10;
 
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
