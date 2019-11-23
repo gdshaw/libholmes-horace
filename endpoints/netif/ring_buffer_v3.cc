@@ -18,7 +18,9 @@
 
 namespace horace {
 
-ring_buffer_v3::ring_buffer_v3(size_t snaplen, size_t buffer_size):
+ring_buffer_v3::ring_buffer_v3(packet_record_builder& builder, size_t snaplen,
+	size_t buffer_size):
+	_builder(&builder),
 	_tpreq({0}),
 	_block_idx(0),
 	_frame_idx(0),
@@ -76,7 +78,7 @@ ring_buffer_v3::ring_buffer_v3(size_t snaplen, size_t buffer_size):
 }
 
 const record& ring_buffer_v3::read() {
-	if (const record* rec = _builder.next()) {
+	if (const record* rec = _builder->next()) {
 		return *rec;
 	}
 
@@ -113,8 +115,8 @@ const record& ring_buffer_v3::read() {
 				if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
 					throw libc_error();
 				}
-				_builder.build_dropped(&ts, count);
-				return *_builder.next();
+				_builder->build_dropped(&ts, count);
+				return *_builder->next();
 			}
 		}
 	}
@@ -146,8 +148,8 @@ const record& ring_buffer_v3::read() {
 		_frame = (struct tpacket3_hdr*)(frame_ptr + _frame->tp_next_offset);
 	}
 
-	_builder.build_packet(&ts, content, pkt_snaplen, pkt_origlen, 0);
-	return *_builder.next();
+	_builder->build_packet(&ts, content, pkt_snaplen, pkt_origlen, 0);
+	return *_builder->next();
 }
 
 unsigned int ring_buffer_v3::drops() const {

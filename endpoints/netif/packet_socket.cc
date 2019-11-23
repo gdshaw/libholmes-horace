@@ -14,7 +14,9 @@
 
 namespace horace {
 
-packet_socket::packet_socket(size_t snaplen, size_t buffer_size) {
+packet_socket::packet_socket(packet_record_builder& builder, size_t snaplen,
+	size_t buffer_size):
+	_builder(&builder) {
 
 	// Set receive buffer size.
 	if (buffer_size > INT_MAX) {
@@ -56,7 +58,7 @@ packet_socket::packet_socket(size_t snaplen, size_t buffer_size) {
 const record& packet_socket::read() {
 	// If there are any records remaining from the last call to this
 	// function then return the next one.
-	if (const record* rec = _builder.next()) {
+	if (const record* rec = _builder->next()) {
 		return *rec;
 	}
 
@@ -90,9 +92,9 @@ const record& packet_socket::read() {
 		}
 	}
 
-	_builder.build_packet(ts, _buffer.get(), pkt_snaplen, pkt_origlen,
+	_builder->build_packet(ts, _buffer.get(), pkt_snaplen, pkt_origlen,
 		drop_diff);
-	return *_builder.next();
+	return *_builder->next();
 }
 
 } /* namespace horace */

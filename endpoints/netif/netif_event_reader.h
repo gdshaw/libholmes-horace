@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "horace/event_reader.h"
+#include "horace/packet_record_builder.h"
 
 #include "basic_packet_socket.h"
 
@@ -25,6 +26,9 @@ private:
 
 	/** The channel number to use for captured events. */
 	int _channel;
+
+	/** A builder for making packet records. */
+	std::unique_ptr<packet_record_builder> _builder;
 
 	/** The socket for capturing packets. */
 	std::unique_ptr<basic_packet_socket> _sock;

@@ -36,14 +36,16 @@ private:
 	/** The tpacket_hdr structure for the last frame to be read. */
 	struct tpacket_hdr* _last_tphdr;
 
-	/** A packet record builder for returning packet records. */
-	packet_record_builder _builder;
+        /** A builder for making packet records. */
+        packet_record_builder* _builder;
 public:
 	/** Create an AF_PACKET socket with a ring buffer.
+	 * @param builder a builder for making packet records
 	 * @param snaplen the required link layer snaplen, in octets
 	 * @param buffer_size the required ring buffer size, in octets
 	 */
-	ring_buffer_v1(size_t snaplen, size_t buffer_size);
+	ring_buffer_v1(packet_record_builder& builder, size_t snaplen,
+		size_t buffer_size);
 
 	virtual const record& read();
 };

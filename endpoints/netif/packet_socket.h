@@ -44,14 +44,15 @@ private:
 	/** The most recently observed dropped packet counter. */
 	uint32_t _drop_count;
 
-	/** A packet record builder for returning packet records. */
-	packet_record_builder _builder;
+	/** A builder for making packet records. */
+	packet_record_builder* _builder;
 public:
 	/** Open packet socket.
+	 * @param builder a builder for making packet records
 	 * @param snaplen the required link layer snaplen, in octets
 	 * @param buffer_size the required ring buffer size, in octets
 	 */
-	packet_socket(size_t snaplen, size_t buffer_size);
+	packet_socket(packet_record_builder& builder, size_t snaplen, size_t buffer_size);
 
 	virtual const record& read();
 };

@@ -41,15 +41,16 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 		_ep->netif().hwaddr().length(), _ep->netif().hwaddr().data()));
 	_channel = session.define_channel("packets", std::move(attrs));
 
+	_builder = std::make_unique<packet_record_builder>(session);
 	std::string method = ep.method();
 	if (method == "packet") {
-		_sock = std::make_unique<packet_socket>(ep.snaplen(), ep.capacity());
+		_sock = std::make_unique<packet_socket>(*_builder, ep.snaplen(), ep.capacity());
 	} else if (method == "ringv1") {
-		_sock = std::make_unique<ring_buffer_v1>(ep.snaplen(), ep.capacity());
+		_sock = std::make_unique<ring_buffer_v1>(*_builder, ep.snaplen(), ep.capacity());
 	} else if (method == "ringv2") {
-		_sock = std::make_unique<ring_buffer_v2>(ep.snaplen(), ep.capacity());
+		_sock = std::make_unique<ring_buffer_v2>(*_builder, ep.snaplen(), ep.capacity());
 	} else if (method == "ringv3") {
-		_sock = std::make_unique<ring_buffer_v3>(ep.snaplen(), ep.capacity());
+		_sock = std::make_unique<ring_buffer_v3>(*_builder, ep.snaplen(), ep.capacity());
 	} else {
 		throw endpoint_error("interface capture method not recognised");
 	}

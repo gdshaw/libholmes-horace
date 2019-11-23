@@ -14,6 +14,7 @@
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/record.h"
 #include "horace/record_builder.h"
+#include "horace/session_builder.h"
 
 namespace horace {
 
@@ -40,8 +41,10 @@ private:
 	/** The number of remaining records in the buffer. */
 	unsigned int _count;
 public:
-	/** Construct empty packet record builder. */
-	packet_record_builder();
+	/** Construct empty packet record builder.
+	 * @param session the applicable session builder
+	 */
+	packet_record_builder(session_builder& session);
 
 	/** Build packet record, with optional dropped packets.
 	 * If drop_diff is non-zero then two records are built: one for

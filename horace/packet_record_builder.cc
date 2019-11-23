@@ -7,11 +7,11 @@
 
 namespace horace {
 
-packet_record_builder::packet_record_builder():
-	_ts_attr(ATTR_TIMESTAMP, 0, 0),
-	_pkt_attr(ATTR_PACKET, 0, 0),
-	_origlen_attr(ATTR_PACKET_LENGTH, 0),
-	_rpt_attr(ATTR_REPEAT, 0),
+packet_record_builder::packet_record_builder(session_builder& session):
+	_ts_attr(session.define_attribute_type("ts", attr_format_timestamp), 0, 0),
+	_pkt_attr(session.define_attribute_type("packet", attr_format_binary), 0, 0),
+	_origlen_attr(session.define_attribute_type("origlen", attr_format_unsigned_integer), 0),
+	_rpt_attr(session.define_attribute_type("repeat", attr_format_unsigned_integer), 0),
 	_count(0) {
 
 	_buffer.emplace_back(0 + record::channel_packet);
@@ -27,11 +27,11 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 	record_builder& pkt_builder = _buffer[_count];
 	pkt_builder.reset();
 	if (ts) {
-		pkt_builder.append(_ts_attr = timestamp_attribute(ATTR_TIMESTAMP, *ts));
+		pkt_builder.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
 	}
-	pkt_builder.append(_pkt_attr = binary_ref_attribute(ATTR_PACKET, snaplen, content));
+	pkt_builder.append(_pkt_attr = binary_ref_attribute(_pkt_attr.type(), snaplen, content));
 	if (snaplen != origlen) {
-		pkt_builder.append(_origlen_attr = unsigned_integer_attribute(ATTR_PACKET_LENGTH, origlen));
+		pkt_builder.append(_origlen_attr = unsigned_integer_attribute(_origlen_attr.type(), origlen));
 	}
 	_count += 1;
 
@@ -41,7 +41,7 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 		if (ts) {
 			drop_builder.append(_ts_attr);
 		}
-		drop_builder.append(_rpt_attr = unsigned_integer_attribute(ATTR_REPEAT, dropped));
+		drop_builder.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
 		_count += 1;
 	}
 }
@@ -55,9 +55,9 @@ void packet_record_builder::build_dropped(const struct timespec* ts,
 		record_builder& drop_builder = _buffer[_count];
 		drop_builder.reset();
 		if (ts) {
-			drop_builder.append(_ts_attr = timestamp_attribute(ATTR_TIMESTAMP, *ts));
+			drop_builder.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
 		}
-		drop_builder.append(_rpt_attr = unsigned_integer_attribute(ATTR_REPEAT, dropped));
+		drop_builder.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
 		_count += 1;
 	}
 }

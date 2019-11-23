@@ -21,10 +21,7 @@ session_context::session_context() {
 	_attr_labels[attr_channel_label] = "label";
 	_attr_labels[ATTR_SOURCE] = "source";
 	_attr_labels[ATTR_SEQNUM] = "seqnum";
-	_attr_labels[ATTR_PACKET] = "packet";
-	_attr_labels[ATTR_PACKET_LENGTH] = "origlen";
 	_attr_labels[ATTR_TIMESTAMP] = "timestamp";
-	_attr_labels[ATTR_REPEAT] = "repeat";
 
 	_attr_formats[attr_type_def] = attr_format_compound;
 	_attr_formats[attr_type_code] = attr_format_unsigned_integer;
@@ -35,10 +32,7 @@ session_context::session_context() {
 	_attr_formats[attr_channel_label] = attr_format_string;
 	_attr_formats[ATTR_SOURCE] = attr_format_string;
 	_attr_formats[ATTR_SEQNUM] = attr_format_unsigned_integer;
-	_attr_formats[ATTR_PACKET] = attr_format_binary;
-	_attr_formats[ATTR_PACKET_LENGTH] = attr_format_unsigned_integer;
 	_attr_formats[ATTR_TIMESTAMP] = attr_format_timestamp;
-	_attr_formats[ATTR_REPEAT] = attr_format_unsigned_integer;
 }
 
 void session_context::handle_attr_type_def(const compound_attribute& attr) {
