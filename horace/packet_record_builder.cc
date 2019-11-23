@@ -7,15 +7,16 @@
 
 namespace horace {
 
-packet_record_builder::packet_record_builder(session_builder& session):
+packet_record_builder::packet_record_builder(session_builder& session, int channel):
+	_channel(channel),
 	_ts_attr(attr_timestamp, 0, 0),
 	_pkt_attr(session.define_attribute_type("packet", attr_format_binary), 0, 0),
 	_origlen_attr(session.define_attribute_type("origlen", attr_format_unsigned_integer), 0),
 	_rpt_attr(session.define_attribute_type("repeat", attr_format_unsigned_integer), 0),
 	_count(0) {
 
-	_buffer.emplace_back(0 + record::channel_packet);
-	_buffer.emplace_back(0 + record::channel_packet);
+	_buffer.emplace_back(_channel);
+	_buffer.emplace_back(_channel);
 }
 
 void packet_record_builder::build_packet(const struct timespec* ts,

@@ -21,6 +21,9 @@ namespace horace {
 /** A class for building HORACE packet records. */
 class packet_record_builder {
 private:
+	/** The channel number. */
+	int _channel;
+
 	/** The timestamp attribute. */
 	timestamp_attribute _ts_attr;
 
@@ -43,8 +46,9 @@ private:
 public:
 	/** Construct empty packet record builder.
 	 * @param session the applicable session builder
+	 * @param channel the applicable channel number
 	 */
-	packet_record_builder(session_builder& session);
+	packet_record_builder(session_builder& session, int channel);
 
 	/** Build packet record, with optional dropped packets.
 	 * If drop_diff is non-zero then two records are built: one for

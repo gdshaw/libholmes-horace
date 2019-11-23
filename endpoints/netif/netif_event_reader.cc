@@ -41,7 +41,7 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 		_ep->netif().hwaddr().length(), _ep->netif().hwaddr().data()));
 	_channel = session.define_channel("packets", std::move(attrs));
 
-	_builder = std::make_unique<packet_record_builder>(session);
+	_builder = std::make_unique<packet_record_builder>(session, _channel);
 	std::string method = ep.method();
 	if (method == "packet") {
 		_sock = std::make_unique<packet_socket>(*_builder, ep.snaplen(), ep.capacity());
