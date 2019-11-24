@@ -92,7 +92,7 @@ void capture(session_builder& session, event_reader& src_er,
 	}
 
 	// Write end of session timestamp to session channel.
-	record_builder erecb(record::channel_session);
+	record_builder erecb(channel_session);
 	erecb.append(srec->find_one<string_attribute>(attr_source).clone());
 	erecb.append(srec->find_one<timestamp_attribute>(attr_ts_begin).clone());
 	erecb.append(std::make_unique<timestamp_attribute>(attr_ts_end));

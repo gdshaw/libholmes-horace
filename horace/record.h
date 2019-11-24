@@ -17,6 +17,11 @@ namespace horace {
 class logger;
 class record_builder;
 
+// Reserved channel numbers.
+static const int channel_error = -1;
+static const int channel_session = -2;
+static const int channel_sync = -3;
+
 /** An abstract base class to represent a HORACE record. */
 class record {
 	friend record_builder;
@@ -36,11 +41,6 @@ protected:
 	explicit record(int channel):
 		_channel(channel) {}
 public:
-	// Reserved channel numbers.
-	static const int channel_error = -1;
-	static const int channel_session = -2;
-	static const int channel_sync = -3;
-
 	virtual ~record();
 
 	record(const record&) = delete;

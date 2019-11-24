@@ -13,7 +13,7 @@ namespace horace {
 
 session_builder::session_builder(const std::string& source_id):
 	_source_id(source_id),
-	_srecb(record::channel_session),
+	_srecb(channel_session),
 	_attr_count(0),
 	_chan_count(0) {
 

@@ -29,7 +29,7 @@ void simple_session_writer::_process_session_record(const record& srec) {
 
 void simple_session_writer::_process_sync_record(const record& crec) {
 	handle_sync(crec);
-	record_builder builder(record::channel_sync);
+	record_builder builder(channel_sync);
 	for (const attribute* attr : crec.attributes()) {
 		builder.append(*attr);
 	}
@@ -45,10 +45,10 @@ const record& simple_session_writer::session_record() const {
 
 void simple_session_writer::write(const record& rec) {
 	switch(rec.channel_number()) {
-	case record::channel_session:
+	case channel_session:
 		_process_session_record(rec);
 		break;
-	case record::channel_sync:
+	case channel_sync:
 		_process_sync_record(rec);
 		break;
 	default:

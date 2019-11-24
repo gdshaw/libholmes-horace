@@ -84,7 +84,7 @@ std::unique_ptr<record> file_session_reader::read() {
 	// end of file error.
 	try {
 		std::unique_ptr<record> rec = _sfr->read();
-		if (rec->channel_number() == record::channel_session) {
+		if (rec->channel_number() == channel_session) {
 			struct timespec new_ts = rec->find_one<timestamp_attribute>(
 				attr_ts_begin).content();
 			if ((new_ts.tv_sec != _session_ts.tv_sec) ||
@@ -103,7 +103,7 @@ std::unique_ptr<record> file_session_reader::read() {
 		// and a subsequent spoolfile has been detected) then
 		// return a sync record.
 		_syncing = true;
-		record_builder builder(record::channel_sync);
+		record_builder builder(channel_sync);
 		builder.append(std::make_unique<timestamp_attribute>(attr_ts_begin, _session_ts));
 		builder.append(std::make_unique<unsigned_integer_attribute>(attr_seqnum, _seqnum));
 		return builder.build();
@@ -113,7 +113,7 @@ std::unique_ptr<record> file_session_reader::read() {
 void file_session_reader::write(const record& rec) {
 	// The only type of record which should be written is an
 	// acknowledgement record.
-	if (rec.channel_number() != record::channel_sync) {
+	if (rec.channel_number() != channel_sync) {
 		throw horace_error("unexpected record type sent to session reader");
 	}
 

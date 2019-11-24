@@ -56,7 +56,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	// unless/until it is superseded by another start of
 	// session record.
 	std::unique_ptr<record> srec = src_sr.read();
-	if (srec->channel_number() != record::channel_session) {
+	if (srec->channel_number() != channel_session) {
 		throw horace_error("start of session record expected");
 	}
 	srec->log(*log);
@@ -119,7 +119,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		// Perform any special handling required by specific
 		// record types.
 		switch (rec->channel_number()) {
-		case record::channel_session:
+		case channel_session:
 			// Keep a copy of the most recent start of
 			// session record.
 			// Note: must not make any further reference to rec
@@ -127,7 +127,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 			srec = std::move(rec);
 			current_seqnum = 0;
 			break;
-		case record::channel_sync:
+		case channel_sync:
 			// Sync records must be acknowledged.
 			{
 				std::unique_ptr<record> arec;
