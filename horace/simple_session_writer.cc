@@ -14,21 +14,20 @@ simple_session_writer::simple_session_writer(const std::string& source_id):
 	session_writer(source_id),
 	_srec(0) {}
 
-void simple_session_writer::_process_session_start(const record& srec) {
+void simple_session_writer::_process_session_record(const record& srec) {
 	if (!_srec || !same_session(*_srec, srec)) {
 		_srec = &srec;
 		handle_session_start(srec);
 	} else {
 		_srec = &srec;
 	}
+	if (srec.contains(attr_ts_end)) {
+		handle_session_end(srec);
+		_srec = 0;
+	}
 }
 
-void simple_session_writer::_process_session_end(const record& erec) {
-	handle_session_end(erec);
-	_srec = 0;
-}
-
-void simple_session_writer::_process_sync(const record& crec) {
+void simple_session_writer::_process_sync_record(const record& crec) {
 	handle_sync(crec);
 	record_builder builder(record::channel_sync);
 	for (const attribute* attr : crec.attributes()) {
@@ -37,7 +36,7 @@ void simple_session_writer::_process_sync(const record& crec) {
 	_reply = builder.build();
 }
 
-const record& simple_session_writer::start_record() const {
+const record& simple_session_writer::session_record() const {
 	if (!_srec) {
 		throw horace_error("no session in progress");
 	}
@@ -47,13 +46,10 @@ const record& simple_session_writer::start_record() const {
 void simple_session_writer::write(const record& rec) {
 	switch(rec.channel_number()) {
 	case record::channel_session:
-		_process_session_start(rec);
-		break;
-	case record::channel_session_end:
-		_process_session_end(rec);
+		_process_session_record(rec);
 		break;
 	case record::channel_sync:
-		_process_sync(rec);
+		_process_sync_record(rec);
 		break;
 	default:
 		if (rec.is_event()) {

@@ -59,8 +59,8 @@ void file_session_writer::handle_session_start(const record& srec) {
 	_fd.fsync();
 }
 
-void file_session_writer::handle_session_end(const record& erec) {
-	_sfw->write(erec);
+void file_session_writer::handle_session_end(const record& srec) {
+	_sfw->write(srec);
 	_sfw->sync();
 	_sfw = 0;
 }
@@ -85,7 +85,7 @@ void file_session_writer::handle_event(const record& rec) {
 	if (!written) {
 		_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
 			_dst_ep->filesize());
-		_sfw->write(start_record());
+		_sfw->write(session_record());
 		_fd.fsync();
 		written = _sfw->write(_seqnum, rec);
 	}

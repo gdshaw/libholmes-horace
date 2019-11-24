@@ -20,7 +20,7 @@ session_builder::session_builder(const std::string& source_id):
 	_srecb.append(std::make_unique<string_attribute>(
 		attr_source, source_id));
 	_srecb.append(std::make_unique<timestamp_attribute>
-		(attr_timestamp));
+		(attr_ts_begin));
 }
 
 int session_builder::define_attribute_type(const std::string& label,

@@ -32,8 +32,9 @@ static const int attr_channel_def = -5;
 static const int attr_channel_num = -6;
 static const int attr_channel_label = -7;
 static const int attr_source = -8;
-static const int attr_timestamp = -9;
-static const int attr_seqnum = -10;
+static const int attr_seqnum = -9;
+static const int attr_ts_begin = -10;
+static const int attr_ts_end = -11;
 
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {

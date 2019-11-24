@@ -55,8 +55,8 @@ void capture(session_builder& session, event_reader& src_er,
 	std::unique_ptr<session_writer> dst_sw =
 		dst_swep.make_session_writer(session.source_id());
 
+	std::unique_ptr<record> srec = session.build();
 	try {
-		std::unique_ptr<record> srec = session.build();
 		try {
 			dst_sw->write(*srec);
 		} catch (terminate_exception&) {
@@ -91,8 +91,11 @@ void capture(session_builder& session, event_reader& src_er,
 		std::cerr << ex.what() << std::endl;
 	}
 
-	record_builder erecb(record::channel_session_end);
-	erecb.append(std::make_unique<timestamp_attribute>(attr_timestamp));
+	// Write end of session timestamp to session channel.
+	record_builder erecb(record::channel_session);
+	erecb.append(srec->find_one<string_attribute>(attr_source).clone());
+	erecb.append(srec->find_one<timestamp_attribute>(attr_ts_begin).clone());
+	erecb.append(std::make_unique<timestamp_attribute>(attr_ts_end));
 	std::unique_ptr<record> erec = erecb.build();
 	dst_sw->write(*erec);
 	erec->log(*log);

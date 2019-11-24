@@ -41,9 +41,6 @@ public:
 	static const int channel_session = -2;
 	static const int channel_sync = -3;
 
-	// Reserved channel numbers (transitional period only).
-	static const int channel_session_end = -4;
-
 	virtual ~record();
 
 	record(const record&) = delete;
@@ -99,6 +96,13 @@ public:
 	const std::vector<const attribute*> attributes() const {
 		return _attributes;
 	}
+
+	/** Determine whether there are any instances of a given attribute
+	 * type.
+	 * @param type the required attribute type
+	 * @return true if there are one or more instances, otherwise false
+	 */
+	bool contains(int type) const;
 private:
 	/** Find a single instance of a given attribute type.
 	 * It is an error if there are no matching attributes, or if there

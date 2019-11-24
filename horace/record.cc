@@ -50,6 +50,15 @@ uint64_t record::update_seqnum(uint64_t seqnum) const {
 	return seqnum;
 }
 
+bool record::contains(int type) const {
+	for (auto&& attr : _attributes) {
+		if (attr -> type() == type) {
+			return true;
+		}
+	}
+	return false;
+}
+
 const attribute& record::_find_one(int type) const {
 	const attribute* found = 0;
 	for (auto&& attr : _attributes) {
@@ -99,9 +108,9 @@ bool same_session(const record& lhs, const record& rhs) {
 	if (lsource != rsource) return false;
 
 	struct timespec lts = lhs.find_one<timestamp_attribute>(
-		attr_timestamp).content();
+		attr_ts_begin).content();
 	struct timespec rts = rhs.find_one<timestamp_attribute>(
-		attr_timestamp).content();
+		attr_ts_begin).content();
 	if ((lts.tv_sec != rts.tv_sec) || (lts.tv_nsec != rts.tv_nsec)) {
 		return false;
 	}

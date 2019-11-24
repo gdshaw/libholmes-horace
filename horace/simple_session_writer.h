@@ -21,30 +21,25 @@ private:
 	/** A record available for reading, or null if none. */
 	std::unique_ptr<record> _reply;
 private:
-	/** Process a start of session record.
-	 * @param srec the start of session record
+	/** Process a session record.
+	 * @param srec the session record
 	 */
-	void _process_session_start(const record& srec);
-
-	/** Process an end of session record.
-	 * @param erec the end of session record
-	 */
-	void _process_session_end(const record& erec);
+	void _process_session_record(const record& srec);
 
 	/** Process a sync record.
 	 * @param crec the sync record
 	 */
-	void _process_sync(const record& crec);
+	void _process_sync_record(const record& crec);
 protected:
 	/** Handle the start of a new session.
-	 * @param srec the start of session record
+	 * @param srec the session record
 	 */
 	virtual void handle_session_start(const record& srec) = 0;
 
 	/** Handle the end of a session.
-	 * @param erec the end of session record
+	 * @param srec the session record
 	 */
-	virtual void handle_session_end(const record& erec) = 0;
+	virtual void handle_session_end(const record& srec) = 0;
 
 	/** Handle synchronisation request.
 	 * @param crec the synchronisation record
@@ -56,11 +51,11 @@ protected:
 	 */
 	virtual void handle_event(const record& rec) = 0;
 protected:
-	/** Get the current session start record.
-	 * If there is no active start record then an exception is thrown.
-	 * @return the session start record
+	/** Get the current session record.
+	 * If there is no session in progress then an exception is thrown.
+	 * @return the current session record
 	 */
-	const record& start_record() const;
+	const record& session_record() const;
 public:
 	/** Construct simple session writer.
 	 * @param source_id the required source ID

@@ -20,8 +20,9 @@ session_context::session_context() {
 	_attr_labels[attr_channel_num] = "channel";
 	_attr_labels[attr_channel_label] = "label";
 	_attr_labels[attr_source] = "source";
-	_attr_labels[attr_timestamp] = "timestamp";
 	_attr_labels[attr_seqnum] = "seqnum";
+	_attr_labels[attr_ts_begin] = "ts_begin";
+	_attr_labels[attr_ts_end] = "ts_end";
 
 	_attr_formats[attr_type_def] = attr_format_compound;
 	_attr_formats[attr_type_code] = attr_format_unsigned_integer;
@@ -31,8 +32,9 @@ session_context::session_context() {
 	_attr_formats[attr_channel_num] = attr_format_unsigned_integer;
 	_attr_formats[attr_channel_label] = attr_format_string;
 	_attr_formats[attr_source] = attr_format_string;
-	_attr_formats[attr_timestamp] = attr_format_timestamp;
 	_attr_formats[attr_seqnum] = attr_format_unsigned_integer;
+	_attr_formats[attr_ts_begin] = attr_format_timestamp;
+	_attr_formats[attr_ts_end] = attr_format_timestamp;
 }
 
 void session_context::handle_attr_type_def(const compound_attribute& attr) {
