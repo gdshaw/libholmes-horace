@@ -42,7 +42,7 @@ horace.so: $(HORACE:%.cc=%.o)
 clean: $(EPDIRS:%=%/clean)
 	rm -f horace/*.d horace/*.o
 	rm -f src/*.d src/*.o
-	rm -f *.a
+	rm -f *.so
 	rm -rf bin
 
 %/clean: always
