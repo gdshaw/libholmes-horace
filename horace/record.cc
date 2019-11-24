@@ -86,8 +86,24 @@ void record::write(octet_writer& out) const {
 void record::log(logger& log) const {
 	if (log.enabled(logger::log_info)) {
 		log_message msg(log, logger::log_info);
-		msg << "unrecognised message for channel "
-			<< _channel;
+		switch (_channel) {
+		case channel_error:
+			msg << "error record";
+			break;
+		case channel_session:
+			msg << "session record";
+			break;
+		case channel_sync:
+			msg << "sync record";
+			break;
+		default:
+			if (_channel >= 0) {
+				msg << "event";
+			} else {
+				msg << "unrecognised";
+			}
+			msg << " record for channel " << _channel;
+		}
 	}
 }
 
