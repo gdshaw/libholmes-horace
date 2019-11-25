@@ -154,9 +154,9 @@ const record& ring_buffer_v3::read() {
 }
 
 unsigned int ring_buffer_v3::drops() const {
-        struct tpacket_stats_v3 stats;
-        getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
-        return stats.tp_drops;
+	struct tpacket_stats_v3 stats;
+	getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
+	return stats.tp_drops;
 }
 
 } /* namespace horace */

@@ -39,8 +39,8 @@ private:
 	/** The current frame, or 0 if waiting for a block. */
 	struct tpacket3_hdr* _frame;
 
-        /** A builder for making packet records. */
-        packet_record_builder* _builder;
+	/** A builder for making packet records. */
+	packet_record_builder* _builder;
 public:
 	/** Create an AF_PACKET socket with a ring buffer.
 	 * @param builder a builder for making packet records

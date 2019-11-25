@@ -35,8 +35,8 @@ private:
 	/** The tpacket2_hdr structure for the last frame to be read. */
 	struct tpacket2_hdr* _last_tphdr;
 
-        /** A builder for making packet records. */
-        packet_record_builder* _builder;
+	/** A builder for making packet records. */
+	packet_record_builder* _builder;
 public:
 	/** Create an AF_PACKET socket with a ring buffer.
 	 * @param builder a builder for making packet records

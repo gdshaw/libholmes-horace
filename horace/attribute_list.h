@@ -38,8 +38,8 @@ public:
 	 * It is presumed that the length field has already been read.
 	 * This function must read exactly the specified number of octets.
 	 * @param session the applicable session context
-         * @param in the octet reader
-         * @param length the length of the content, in octets
+	 * @param in the octet reader
+	 * @param length the length of the content, in octets
 	 */
 	attribute_list(session_context& session, octet_reader& in,
 		size_t length);

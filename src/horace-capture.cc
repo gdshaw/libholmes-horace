@@ -67,9 +67,9 @@ void capture(session_builder& session, event_reader& src_er,
 		srec->log(*log);
 
 		while (true) {
-                        // Ensure that termination is picked up, even if
-                        // the thread never blocks.
-                        terminating.poll();
+			// Ensure that termination is picked up, even if
+			// the thread never blocks.
+			terminating.poll();
 
 			// Read record from source.
 			const record& rec = src_er.read();
