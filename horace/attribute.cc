@@ -17,7 +17,7 @@
 namespace horace {
 
 std::unique_ptr<attribute> attribute::parse(session_context& session,
-	octet_reader& in, int type, size_t length) {
+	int type, size_t length, octet_reader& in) {
 
 	int format = session.get_attr_format(type);
 	switch (format) {
@@ -33,7 +33,7 @@ std::unique_ptr<attribute> attribute::parse(session_context& session,
 		return std::make_unique<timestamp_attribute>(type, length, in);
 	default:
 		return std::make_unique<unrecognised_attribute>(
-			in, type, length);
+			type, length, in);
 	}
 }
 
@@ -42,7 +42,7 @@ std::unique_ptr<attribute> attribute::parse(session_context& session,
 
 	int type = in.read_signed_base128();
 	size_t length = in.read_unsigned_base128();
-	return parse(session, in, type, length);
+	return parse(session, type, length, in);
 }
 
 } /* namespace horace */

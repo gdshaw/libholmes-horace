@@ -85,13 +85,13 @@ public:
 	 * read. This function must read exactly the specified number of
 	 * octets.
 	 * @param session the applicable session context
-	 * @param in the octet reader
 	 * @param type the attribute type
 	 * @param length the length of the content, in octets
+	 * @param in the octet reader
 	 * @return the resulting attribute
 	 */
 	static std::unique_ptr<attribute> parse(session_context& session,
-		octet_reader& in, int type, size_t length);
+		int type, size_t length, octet_reader& in);
 
 	/** Parse attribute from an octet reader.
 	 * It is presumed that the type and length fields have not already

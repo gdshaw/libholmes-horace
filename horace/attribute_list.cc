@@ -68,7 +68,7 @@ attribute_list::attribute_list(session_context& session, octet_reader& in,
 		int attr_len = in.read_unsigned_base128(hdr_len);
 
 		std::unique_ptr<attribute> attr =
-			attribute::parse(session, in, attr_type, attr_len);
+			attribute::parse(session, attr_type, attr_len, in);
 		append(attr);
 
 		size_t length = hdr_len + attr_len;

@@ -25,11 +25,11 @@ public:
 	/** Construct unrecognised attribute from an octet reader.
 	 * The type and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
-	 * @param in the octet reader
 	 * @param type the attribute type
 	 * @param length the length of the content, in octets
+	 * @param in the octet reader
 	 */
-	unrecognised_attribute(octet_reader& in, int type, size_t length);
+	unrecognised_attribute(int type, size_t length, octet_reader& in);
 
 	/** Construct unrecognised attribute.
 	 * Ownership of the content passes to the attribute.

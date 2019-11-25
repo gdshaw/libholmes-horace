@@ -10,8 +10,8 @@
 
 namespace horace {
 
-unrecognised_attribute::unrecognised_attribute(octet_reader& in,
-	int type, size_t length):
+unrecognised_attribute::unrecognised_attribute(int type, size_t length,
+	octet_reader& in):
 	attribute(type),
 	_length(length) {
 

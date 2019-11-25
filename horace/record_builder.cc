@@ -23,7 +23,7 @@ record_builder::record_builder(session_context& session, octet_reader& in):
 		int attr_len = in.read_unsigned_base128(hdr_len);
 
 		std::unique_ptr<attribute> attr =
-			attribute::parse(session, in, attr_type, attr_len);
+			attribute::parse(session, attr_type, attr_len, in);
 		switch (attr->type()) {
 		case attr_type_def:
 			session.handle_attr_type_def(
