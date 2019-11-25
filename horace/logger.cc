@@ -13,6 +13,7 @@ logger::logger():
 logger& logger::operator<<(const std::string& msg) {
 	std::lock_guard<std::mutex> lock(_log_mutex);
 	write(msg);
+	return *this;
 }
 
 std::unique_ptr<logger> log;
