@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+#include "horace/file_descriptor.h"
 #include "horace/file_octet_writer.h"
 
 namespace horace {

@@ -5,6 +5,7 @@
 
 #include "mongodb_error.h"
 #include "mongodb_uri.h"
+#include "mongodb_collection.h"
 #include "mongodb_database.h"
 
 namespace horace {

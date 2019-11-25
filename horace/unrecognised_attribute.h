@@ -6,8 +6,6 @@
 #ifndef LIBHOLMES_HORACE_UNRECOGNISED_ATTRIBUTE
 #define LIBHOLMES_HORACE_UNRECOGNISED_ATTRIBUTE
 
-#include <memory>
-
 #include "horace/attribute.h"
 
 namespace horace {

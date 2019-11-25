@@ -4,7 +4,9 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/query_string.h"
+#include "horace/packet_record_builder.h"
 
+#include "basic_packet_socket.h"
 #include "netif_endpoint.h"
 #include "netif_event_reader.h"
 

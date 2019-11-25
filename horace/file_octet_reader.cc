@@ -7,6 +7,7 @@
 #include <fcntl.h>
 
 #include "horace/libc_error.h"
+#include "horace/file_descriptor.h"
 #include "horace/file_octet_reader.h"
 
 namespace horace {

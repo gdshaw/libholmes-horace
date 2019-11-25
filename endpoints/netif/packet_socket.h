@@ -13,11 +13,11 @@
 #include <sys/socket.h>
 #include <linux/if_packet.h>
 
-#include "horace/packet_record_builder.h"
-
 #include "basic_packet_socket.h"
 
 namespace horace {
+
+class packet_record_builder;
 
 /** A class for reading traffic from an AF_PACKET socket. */
 class packet_socket:

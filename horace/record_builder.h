@@ -8,11 +8,12 @@
 
 #include <memory>
 
-#include "horace/attribute.h"
 #include "horace/record.h"
 
 namespace horace {
 
+class octet_reader;
+class attribute;
 class session_context;
 
 /** A class for incrementally building HORACE records. */

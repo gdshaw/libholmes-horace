@@ -5,6 +5,8 @@
 
 #include <iomanip>
 
+#include "horace/octet_reader.h"
+#include "horace/octet_writer.h"
 #include "horace/unsigned_integer_attribute.h"
 
 namespace horace {

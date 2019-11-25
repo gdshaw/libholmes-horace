@@ -6,9 +6,9 @@
 #ifndef LIBHOLMES_HORACE_SESSION_LISTENER_ENDPOINT
 #define LIBHOLMES_HORACE_SESSION_LISTENER_ENDPOINT
 
-#include "horace/session_listener.h"
-
 namespace horace {
+
+class session_listener;
 
 /** An endpoint mixin class to represent an endpoint which can listen for
  * and accept multiple concurrent sessions. */

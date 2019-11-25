@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <cstring>
 
+#include "horace/octet_reader.h"
+#include "horace/octet_writer.h"
 #include "horace/unrecognised_attribute.h"
 
 namespace horace {

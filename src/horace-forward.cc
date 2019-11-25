@@ -21,6 +21,8 @@
 #include "horace/hostname.h"
 #include "horace/string_attribute.h"
 #include "horace/record.h"
+#include "horace/session_listener.h"
+#include "horace/session_reader.h"
 #include "horace/session_writer.h"
 #include "horace/endpoint.h"
 #include "horace/session_listener_endpoint.h"

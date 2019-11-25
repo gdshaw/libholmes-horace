@@ -6,17 +6,15 @@
 #ifndef LIBHOLMES_HORACE_MONGODB_SESSION_WRITER
 #define LIBHOLMES_HORACE_MONGODB_SESSION_WRITER
 
-#include <memory>
-#include <map>
-
 #include "horace/session_context.h"
 #include "horace/simple_session_writer.h"
 
 #include "mongodb_database.h"
-#include "mongodb_collection.h"
 
 namespace horace {
 
+class attribute;
+class mongodb_collection;
 class mongodb_endpoint;
 
 /** A class for writing sessions to a MongoDB database. */

@@ -6,8 +6,6 @@
 #ifndef LIBHOLMES_HORACE_EVENT_READER
 #define LIBHOLMES_HORACE_EVENT_READER
 
-#include "horace/session_builder.h"
-
 namespace horace {
 
 class record;

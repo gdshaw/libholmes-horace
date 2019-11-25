@@ -9,12 +9,12 @@
 #include <memory>
 
 #include "horace/event_reader.h"
-#include "horace/packet_record_builder.h"
-
-#include "basic_packet_socket.h"
 
 namespace horace {
 
+class packet_record_builder;
+
+class basic_packet_socket;
 class netif_endpoint;
 
 /** A class for reading events from a network interface endpoint. */

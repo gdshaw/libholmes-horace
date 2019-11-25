@@ -8,11 +8,11 @@
 
 #include "horace/socket_descriptor.h"
 
-#include "interface.h"
-
 namespace horace {
 
 class record;
+
+class interface;
 
 /** An abstract base class to represent an AF_PACKET socket.
  * This class does not by itself provide the means to read packets from the

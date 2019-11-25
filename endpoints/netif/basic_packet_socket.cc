@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include "linux/if_packet.h"
 
+#include "interface.h"
 #include "basic_packet_socket.h"
 
 namespace horace {

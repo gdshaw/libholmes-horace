@@ -3,8 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
-#include "libc_error.h"
-#include "signal_set.h"
+#include "horace/libc_error.h"
+#include "horace/signal_set.h"
 
 namespace horace {
 

@@ -6,7 +6,7 @@
 #include <cerrno>
 #include <cstring>
 
-#include "libc_error.h"
+#include "horace/libc_error.h"
 
 namespace horace {
 

@@ -5,6 +5,7 @@
 
 #include <sstream>
 
+#include "horace/octet_reader.h"
 #include "horace/attribute.h"
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"

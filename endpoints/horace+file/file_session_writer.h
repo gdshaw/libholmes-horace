@@ -12,10 +12,10 @@
 
 #include "directory_maker.h"
 #include "lockfile.h"
-#include "spoolfile_writer.h"
 
 namespace horace {
 
+class spoolfile_writer;
 class file_endpoint;
 
 /** A class for writing sessions to a filestore. */

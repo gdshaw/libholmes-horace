@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <netdb.h>
 
-#include "hostname.h"
+#include "horace/hostname.h"
 
 namespace horace {
 

@@ -6,11 +6,12 @@
 #ifndef LIBHOLMES_HORACE_FILE_OCTET_WRITER
 #define LIBHOLMES_HORACE_FILE_OCTET_WRITER
 
-#include "horace/file_descriptor.h"
 #include "horace/buffer.h"
 #include "horace/octet_writer.h"
 
 namespace horace {
+
+class file_descriptor;
 
 /** An octet writer class for writing to a file descriptor. */
 class file_octet_writer:

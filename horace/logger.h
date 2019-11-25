@@ -10,8 +10,6 @@
 #include <string>
 #include <mutex>
 
-#include <syslog.h>
-
 namespace horace {
 
 /** An abstract base class for handling log messages.

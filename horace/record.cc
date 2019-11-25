@@ -9,6 +9,7 @@
 #include "horace/horace_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
+#include "horace/octet_writer.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"

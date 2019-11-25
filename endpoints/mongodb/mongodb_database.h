@@ -11,9 +11,9 @@
 
 #include <mongoc.h>
 
-#include "mongodb_collection.h"
-
 namespace horace {
+
+class mongodb_collection;
 
 /** An class to represent a MongoDB database.
  * Separate instances of this class may be used by different threads,

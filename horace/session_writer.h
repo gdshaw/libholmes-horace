@@ -6,11 +6,12 @@
 #ifndef LIBHOLMES_HORACE_SESSION_WRITER
 #define LIBHOLMES_HORACE_SESSION_WRITER
 
+#include <memory>
 #include <string>
 
-#include "record.h"
-
 namespace horace {
+
+class record;
 
 /** A class for writing sessions to an endpoint. */
 class session_writer {

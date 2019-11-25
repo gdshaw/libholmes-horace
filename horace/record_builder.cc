@@ -4,6 +4,8 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/horace_error.h"
+#include "horace/octet_reader.h"
+#include "horace/attribute.h"
 #include "horace/session_context.h"
 #include "horace/compound_attribute.h"
 #include "horace/record_builder.h"

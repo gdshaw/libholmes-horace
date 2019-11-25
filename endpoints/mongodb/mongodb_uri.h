@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_MONGODB_URI
 #define LIBHOLMES_HORACE_MONGODB_URI
 
+#include <string>
+
 #include <mongoc.h>
 
 namespace horace {

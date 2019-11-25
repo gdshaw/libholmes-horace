@@ -9,6 +9,7 @@
 #include "horace/record.h"
 
 #include "spoolfile.h"
+#include "spoolfile_writer.h"
 #include "filestore_scanner.h"
 #include "file_endpoint.h"
 #include "file_session_writer.h"

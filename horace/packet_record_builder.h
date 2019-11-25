@@ -6,17 +6,15 @@
 #ifndef LIBHOLMES_HORACE_PACKET_RECORD_BUILDER
 #define LIBHOLMES_HORACE_PACKET_RECORD_BUILDER
 
-#include <memory>
-#include <cstdint>
-
 #include "horace/timestamp_attribute.h"
 #include "horace/binary_ref_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
-#include "horace/record.h"
 #include "horace/record_builder.h"
-#include "horace/session_builder.h"
 
 namespace horace {
+
+class record;
+class session_builder;
 
 /** A class for building HORACE packet records. */
 class packet_record_builder {

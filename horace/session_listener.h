@@ -8,9 +8,9 @@
 
 #include <memory>
 
-#include "horace/session_reader.h"
-
 namespace horace {
+
+class session_reader;
 
 /** A class able to listen for and accept multiple concurrent sessions
  * from an endpoint. */

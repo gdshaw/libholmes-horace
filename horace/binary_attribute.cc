@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <cstring>
 
+#include "horace/octet_reader.h"
 #include "horace/binary_attribute.h"
 
 namespace horace {

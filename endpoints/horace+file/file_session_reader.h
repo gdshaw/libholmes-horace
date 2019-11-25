@@ -6,17 +6,18 @@
 #ifndef LIBHOLMES_HORACE_FILE_SESSION_READER
 #define LIBHOLMES_HORACE_FILE_SESSION_READER
 
-#include "horace/record.h"
 #include "horace/session_context.h"
 #include "horace/session_reader.h"
 
 #include "directory_maker.h"
 #include "directory_watcher.h"
 #include "lockfile.h"
-#include "spoolfile_reader.h"
 
 namespace horace {
 
+class record;
+
+class spoolfile_reader;
 class file_endpoint;
 
 /** A class for reading sessions from a file endpoint. */

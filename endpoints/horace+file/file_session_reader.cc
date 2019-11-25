@@ -17,6 +17,7 @@
 
 #include "filestore_scanner.h"
 #include "spoolfile.h"
+#include "spoolfile_reader.h"
 #include "file_endpoint.h"
 #include "file_session_reader.h"
 

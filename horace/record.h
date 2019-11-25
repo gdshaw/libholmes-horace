@@ -7,14 +7,13 @@
 #define LIBHOLMES_HORACE_RECORD
 
 #include <vector>
-#include <iostream>
-
-#include "horace/octet_writer.h"
-#include "horace/attribute.h"
+#include <iosfwd>
 
 namespace horace {
 
 class logger;
+class octet_writer;
+class attribute;
 class record_builder;
 
 // Reserved channel numbers.

@@ -9,11 +9,12 @@
 #include <memory>
 #include <string>
 
-#include "horace/attribute_list.h"
-#include "horace/record.h"
 #include "horace/record_builder.h"
 
 namespace horace {
+
+class attribute_list;
+class record;
 
 /** A class for building start of session records. */
 class session_builder {

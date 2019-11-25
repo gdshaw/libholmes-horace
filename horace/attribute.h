@@ -7,13 +7,12 @@
 #define LIBHOLMES_HORACE_ATTRIBUTE
 
 #include <memory>
-#include <iostream>
-
-#include "horace/octet_reader.h"
-#include "horace/octet_writer.h"
+#include <iosfwd>
 
 namespace horace {
 
+class octet_reader;
+class octet_writer;
 class session_context;
 
 // Attribute format codes.

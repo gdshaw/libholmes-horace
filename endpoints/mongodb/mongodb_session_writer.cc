@@ -10,8 +10,10 @@
 #include "horace/binary_ref_attribute.h"
 #include "horace/compound_attribute.h"
 #include "horace/unrecognised_attribute.h"
+#include "horace/record.h"
 
 #include "mongodb_error.h"
+#include "mongodb_collection.h"
 #include "mongodb_endpoint.h"
 #include "mongodb_session_writer.h"
 

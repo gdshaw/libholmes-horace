@@ -5,7 +5,10 @@
 
 #include <fcntl.h>
 
+#include "horace/session_context.h"
+
 #include "directory.h"
+#include "spoolfile_reader.h"
 #include "file_endpoint.h"
 #include "file_session_reader.h"
 #include "file_session_listener.h"

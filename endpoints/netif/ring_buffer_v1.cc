@@ -4,6 +4,7 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include <unistd.h>
+#include <poll.h>
 #include <net/ethernet.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
@@ -11,8 +12,8 @@
 #include "horace/endpoint_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
-#include "horace/record.h"
 #include "horace/libc_error.h"
+#include "horace/packet_record_builder.h"
 
 #include "ring_buffer_v1.h"
 

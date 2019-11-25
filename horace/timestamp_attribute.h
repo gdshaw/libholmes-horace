@@ -6,8 +6,6 @@
 #ifndef LIBHOLMES_HORACE_TIMESTAMP_ATTRIBUTE
 #define LIBHOLMES_HORACE_TIMESTAMP_ATTRIBUTE
 
-#include <cstdint>
-
 #include "horace/attribute.h"
 
 namespace horace {

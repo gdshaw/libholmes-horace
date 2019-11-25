@@ -6,9 +6,9 @@
 #ifndef LIBHOLMES_HORACE_SESSION_WRITER_ENDPOINT
 #define LIBHOLMES_HORACE_SESSION_WRITER_ENDPOINT
 
-#include "horace/session_writer.h"
-
 namespace horace {
+
+class session_writer;
 
 /** An endpoint mixin class to represent a destination for sessions. */
 class session_writer_endpoint {

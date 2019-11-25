@@ -7,13 +7,14 @@
 #define LIBHOLMES_HORACE_ATTRIBUTE_LIST
 
 #include <vector>
-#include <iostream>
-
-#include "horace/octet_reader.h"
-#include "horace/octet_writer.h"
-#include "horace/attribute.h"
+#include <iosfwd>
 
 namespace horace {
+
+class octet_reader;
+class octet_writer;
+class attribute;
+class session_context;
 
 /** A class to represent an ordered list of attributes. */
 class attribute_list {

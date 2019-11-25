@@ -3,7 +3,12 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <iostream>
+
 #include "horace/horace_error.h"
+#include "horace/octet_reader.h"
+#include "horace/octet_writer.h"
+#include "horace/attribute.h"
 #include "horace/attribute_list.h"
 
 namespace horace {

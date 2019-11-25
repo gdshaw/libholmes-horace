@@ -6,11 +6,12 @@
 #ifndef LIBHOLMES_HORACE_FILE_OCTET_READER
 #define LIBHOLMES_HORACE_FILE_OCTET_READER
 
-#include "horace/file_descriptor.h"
 #include "horace/buffer.h"
 #include "horace/octet_reader.h"
 
 namespace horace {
+
+class file_descriptor;
 
 /** An octet reader class for reading from a file descriptor. */
 class file_octet_reader:

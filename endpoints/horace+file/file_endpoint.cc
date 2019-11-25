@@ -8,7 +8,9 @@
 #include <fcntl.h>
 
 #include "horace/query_string.h"
+#include "horace/record.h"
 
+#include "spoolfile_writer.h"
 #include "file_session_listener.h"
 #include "file_session_writer.h"
 #include "file_endpoint.h"

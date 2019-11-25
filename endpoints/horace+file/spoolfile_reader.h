@@ -9,10 +9,10 @@
 #include "horace/file_descriptor.h"
 #include "horace/buffer.h"
 #include "horace/octet_reader.h"
-#include "horace/record.h"
 
 namespace horace {
 
+class record;
 class file_session_reader;
 
 /** An octet reader class for reading from a spoolfile. */

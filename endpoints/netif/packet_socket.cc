@@ -8,7 +8,7 @@
 #include "horace/endpoint_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
-#include "horace/record.h"
+#include "horace/packet_record_builder.h"
 
 #include "packet_socket.h"
 

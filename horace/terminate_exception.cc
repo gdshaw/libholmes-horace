@@ -3,7 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
-#include "terminate_exception.h"
+#include "horace/terminate_exception.h"
 
 namespace horace {
 

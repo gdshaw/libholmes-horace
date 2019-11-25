@@ -7,6 +7,8 @@
 
 #include "horace/libc_error.h"
 #include "horace/horace_error.h"
+#include "horace/octet_reader.h"
+#include "horace/octet_writer.h"
 #include "horace/timestamp_attribute.h"
 
 namespace horace {

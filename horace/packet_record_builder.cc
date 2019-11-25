@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/session_builder.h"
 #include "horace/packet_record_builder.h"
 
 namespace horace {

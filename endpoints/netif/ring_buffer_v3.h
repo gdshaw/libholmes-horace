@@ -6,14 +6,13 @@
 #ifndef LIBHOLMES_HORACE_RING_BUFFER_V3
 #define LIBHOLMES_HORACE_RING_BUFFER_V3
 
-#include <poll.h>
 #include <linux/if_packet.h>
-
-#include "horace/packet_record_builder.h"
 
 #include "basic_packet_socket.h"
 
 namespace horace {
+
+class packet_record_builder;
 
 /** A class to represent an AF_PACKET socket with a TPACKET_V3 ring buffer. */
 class ring_buffer_v3:

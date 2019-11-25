@@ -9,11 +9,12 @@
 #include "horace/socket_descriptor.h"
 #include "horace/file_octet_reader.h"
 #include "horace/file_octet_writer.h"
-#include "horace/record.h"
 #include "horace/session_context.h"
 #include "horace/session_reader.h"
 
 namespace horace {
+
+class record;
 
 class tcp_endpoint;
 

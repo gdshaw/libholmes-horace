@@ -10,7 +10,6 @@
 
 #include "horace/session_listener.h"
 
-#include "directory_maker.h"
 #include "directory_watcher.h"
 
 namespace horace {
