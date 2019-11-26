@@ -15,7 +15,7 @@ namespace horace {
 socket_descriptor::socket_descriptor(int domain, int type, int protocol):
 	file_descriptor(::socket(domain, type, protocol)) {
 
-	if (*this == -1) {
+	if (!*this) {
 		throw libc_error();
 	}
 }
