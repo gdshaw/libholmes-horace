@@ -48,6 +48,9 @@ public:
 	/** Construct logger. */
 	logger();
 
+	/** Destroy logger. */
+	virtual ~logger() = default;
+
 	/** Get the severity threshold.
 	 * @return the severity
 	 */

@@ -13,6 +13,9 @@ namespace horace {
 /** An abstract base class to represent a packet filter. */
 class filter {
 public:
+	/** Destroy filter. */
+	virtual ~filter() = default;
+
 	/** Test whether this filter is empty.
 	 * @return true if this filter has no effect, otherwise false
 	 */
