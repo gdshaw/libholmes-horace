@@ -31,9 +31,8 @@ private:
 	struct timespec _content;
 public:
 	/** Construct timestamp attribute from an octet reader.
-	 * It is presumed that the type and length fields have already been
-	 * read. This function must read exactly the specified number of
-	 * octets.
+	 * The type and length fields must already have been read. This
+	 * constructor must read exactly the specified number of octets.
 	 * @param type the attribute type
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader

@@ -26,8 +26,7 @@ public:
 	explicit record_builder(int channel);
 
 	/** Build record from octet reader.
-	 * It is presumed that the channel and length fields have not already
-	 * been read.
+	 * The channel and length fields must not already have been read.
 	 * @param session the applicable session information object
 	 * @param in the octet reader
 	 */

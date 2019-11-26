@@ -80,9 +80,8 @@ public:
 	virtual void write(octet_writer& out) const = 0;
 
 	/** Parse attribute from an octet reader.
-	 * It is presumed that the type and length fields have already been
-	 * read. This function must read exactly the specified number of
-	 * octets.
+	 * The type and length fields must already have been read. This
+	 * function must read exactly the specified number of octets.
 	 * @param session the applicable session context
 	 * @param type the attribute type
 	 * @param length the length of the content, in octets
@@ -93,8 +92,7 @@ public:
 		int type, size_t length, octet_reader& in);
 
 	/** Parse attribute from an octet reader.
-	 * It is presumed that the type and length fields have not already
-	 * been read.
+	 * The type and length fields must not already have been read.
 	 * @param session the applicable session context
 	 * @param in the octet reader
 	 * @return the resulting attribute

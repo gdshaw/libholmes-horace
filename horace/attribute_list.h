@@ -35,8 +35,8 @@ public:
 	attribute_list& operator=(attribute_list&&);
 
 	/** Build attribute list from octet reader.
-	 * It is presumed that the length field has already been read.
-	 * This function must read exactly the specified number of octets.
+	 * The length field must already have been read. This function must
+	 * read exactly the specified number of octets.
 	 * @param session the applicable session context
 	 * @param in the octet reader
 	 * @param length the length of the content, in octets
