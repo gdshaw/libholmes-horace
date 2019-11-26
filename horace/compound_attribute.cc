@@ -17,7 +17,7 @@ compound_attribute::compound_attribute(int type, attribute_list&& attrlist):
 compound_attribute::compound_attribute(session_context& session, int type,
 	size_t length, octet_reader& in):
 	attribute(type),
-	_attrlist(session, in, length) {}
+	_attrlist(session, length, in) {}
 
 size_t compound_attribute::length() const {
 	return _attrlist.length();

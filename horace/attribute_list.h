@@ -16,13 +16,20 @@ class octet_writer;
 class attribute;
 class session_context;
 
-/** A class to represent an ordered list of attributes. */
+/** A class to represent an ordered list of attributes.
+ * When an attribute is added to a list of this type, ownership may
+ * optionally be transferred to the list on a case-by-case basis.
+ * This may be helpful when processing attributes with a mixture of
+ * dynamic and non-dynamic storage duration. For attributes parsed
+ * from an octet stream, or copied from another attribute list,
+ * ownership necessarily passes to the list.
+ */
 class attribute_list {
 private:
-	/** All attributes of this record. */
+	/** All attributes in this list. */
 	std::vector<const attribute*> _attributes;
 
-	/** The attribute owned by this record. */
+	/** The attributes owned by this list. */
 	std::vector<const attribute*> _owned_attributes;
 public:
 	attribute_list() = default;
@@ -35,14 +42,14 @@ public:
 	attribute_list& operator=(attribute_list&&);
 
 	/** Build attribute list from octet reader.
-	 * The length field must already have been read. This function must
-	 * read exactly the specified number of octets.
+	 * The length field must already have been read. This constructor
+	 * must read exactly the specified number of octets.
 	 * @param session the applicable session context
-	 * @param in the octet reader
 	 * @param length the length of the content, in octets
+	 * @param in the octet reader
 	 */
-	attribute_list(session_context& session, octet_reader& in,
-		size_t length);
+	attribute_list(session_context& session, size_t length,
+		octet_reader& in);
 
 	/** Determine whether this attribute list is empty.
 	 * @return true if empty, otherwise false
@@ -51,13 +58,15 @@ public:
 		return _attributes.empty();
 	}
 
-	/** Get the length of the content of the attributes.
+	/** Get the encoded length of the content of this list.
+	 * The result includes a type and length field for each attribute,
+	 * but not for the list as a whole.
 	 * @return the content length, in octets
 	 */
 	size_t length() const;
 
-	/** Get the attribute list for this record.
-	 * @return the attribute list
+	/** Get this attribute list as a standard container.
+	 * @return the container
 	 */
 	const std::vector<const attribute*>& attributes() const {
 		return _attributes;
@@ -102,13 +111,15 @@ public:
 	attribute_list& append(const attribute& attr);
 
 	/** Write this attribute list to an octet writer.
+	 * A type and length field are written for each attribute, but not
+	 * for the list as a whole.
 	 * @param out the octet writer
 	 */
 	void write(octet_writer& out) const;
 
-	/** Write a record in human-readable form to an output stream.
+	/** Write attributes in human-readable form to an output stream.
 	 * @param out the stream to which the output should be written
-	 * @param attr the record to be written
+	 * @param attrlist the list of attributes to be written
 	 * @return a reference to the output stream
 	 */
 	friend std::ostream& operator<<(std::ostream& out,

@@ -4,6 +4,7 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include <iostream>
+#include <sstream>
 
 #include "horace/horace_error.h"
 #include "horace/octet_reader.h"
@@ -63,8 +64,8 @@ attribute_list& attribute_list::operator=(attribute_list&& that) {
 	return *this;
 }
 
-attribute_list::attribute_list(session_context& session, octet_reader& in,
-	size_t length) {
+attribute_list::attribute_list(session_context& session, size_t length,
+	octet_reader& in) {
 
 	size_t remaining = length;
 	while (remaining) {
@@ -79,7 +80,7 @@ attribute_list::attribute_list(session_context& session, octet_reader& in,
 		size_t length = hdr_len + attr_len;
 		if (length > remaining) {
 			throw horace_error(
-				"attribute extends beyond length of record");
+				"overrun while parsing attribute list");
 		}
 		remaining -= length;
 	}
@@ -101,13 +102,18 @@ const attribute& attribute_list::_find_one(int type) const {
 	for (auto&& attr : _attributes) {
 		if (attr -> type() == type) {
 			if (found) {
-				throw horace_error("unexpected multiple attributes of same type");
+				std::ostringstream msg;
+				msg << "unexpected multiple attributes of type "
+					<< type;
+				throw horace_error(msg.str());
 			}
 			found = attr;
 		}
 	}
 	if (!found) {
-		throw horace_error("expected attribute not found");
+		std::ostringstream msg;
+		msg << "expected attribute of type " << type;
+		throw horace_error(msg.str());
 	}
 	return *found;
 }
