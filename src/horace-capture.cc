@@ -62,7 +62,7 @@ void capture(session_builder& session, event_reader& src_er,
 		} catch (terminate_exception&) {
 			throw;
 		} catch (std::exception& ex) {
-			throw retry_exception(ex);
+			throw retry_exception();
 		}
 		srec->log(*log);
 
@@ -80,7 +80,7 @@ void capture(session_builder& session, event_reader& src_er,
 			} catch (terminate_exception&) {
 				throw;
 			} catch (std::exception& ex) {
-				throw retry_exception(ex);
+				throw retry_exception();
 			}
 		}
 	} catch (retry_exception&) {

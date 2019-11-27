@@ -10,16 +10,13 @@
 
 namespace horace {
 
-/** An exception class for retrying a failed data transfer. */
+/** An exception class for indicating that a failed data transfer
+ * should be retried. */
 class retry_exception:
 	public std::exception {
 public:
 	/** Construct retry exception. */
 	retry_exception() {}
-
-	/** Construct chained retry exception. */
-	retry_exception(const std::exception& that):
-		std::exception(that) {}
 
 	virtual const char* what() const noexcept;
 };

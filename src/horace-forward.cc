@@ -75,7 +75,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	} catch (terminate_exception&) {
 		throw;
 	} catch (std::exception& ex) {
-		throw retry_exception(ex);
+		throw retry_exception();
 	}
 
 	// Copy records from source to destination. Watch for
@@ -115,7 +115,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		} catch (terminate_exception&) {
 			throw;
 		} catch (std::exception& ex) {
-			throw retry_exception(ex);
+			throw retry_exception();
 		}
 
 		// Perform any special handling required by specific
@@ -138,7 +138,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 				} catch (terminate_exception&) {
 					throw;
 				} catch (std::exception& ex) {
-					throw retry_exception(ex);
+					throw retry_exception();
 				}
 				src_sr.write(*arec);
 				arec->log(*log);
