@@ -10,7 +10,8 @@
 
 namespace horace {
 
-/** An exception class for terminating a thread. */
+/** An exception class for indicating to a thread that it
+ * should terminate. */
 class terminate_exception:
 	public std::exception {
 public:

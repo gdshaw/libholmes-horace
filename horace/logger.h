@@ -38,9 +38,11 @@ private:
 	std::mutex _log_mutex;
 protected:
 	/** Write a message to the log.
-	 * Implementations of this function are not required to be
-	 * thread-safe, therefore the mutex must be locked before
-	 * this function is called.
+	 * Implementations of this function:
+	 * - must not throw any exceptions, because it is called indirectly
+	 *   by the destructor of log message; and
+	 * - are not required to be thread-safe, therefore the mutex must
+	 *   be locked before this function is called.
 	 * @param msg the message to be written
 	 */
 	virtual void write(const std::string& msg) = 0;
@@ -76,7 +78,7 @@ public:
 	}
 
 	/** Write a message to the log.
-	 * This operator is thread-safe.
+	 * This operator is thread-safe, and does not throw any exceptions.
 	 * @param msg the message to be written
 	 */
 	logger& operator<<(const std::string& msg);

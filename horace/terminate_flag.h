@@ -12,7 +12,9 @@
 
 namespace horace {
 
-/** A class for indicating that the process is terminating. */
+/** A class for indicating that the process is terminating.
+ * The member functions in this class are thread-safe.
+ */
 class terminate_flag {
 private:
 	/** True if process terminating, otherwise false. */

@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_TIMESTAMP_ATTRIBUTE
 #define LIBHOLMES_HORACE_TIMESTAMP_ATTRIBUTE
 
+#include <time.h>
+
 #include "horace/attribute.h"
 
 namespace horace {
@@ -44,10 +46,10 @@ public:
 	 */
 	explicit timestamp_attribute(int type);
 
-	/** Construct timestamp attribute.
+	/** Construct timestamp attribute from seconds and nanoseconds.
 	 * @param type the attribute type
 	 * @param sec the number of whole seconds since the epoch
-	 * @param nsec the number of nanoseconds since the
+	 * @param nsec the number of additional nanoseconds
 	 */
 	timestamp_attribute(int type, time_t sec, long nsec);
 

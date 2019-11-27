@@ -19,7 +19,7 @@ private:
 	attribute_list _attrlist;
 public:
 	/** Construct compound attribute.
-	 * @param type the attribute type
+	 * @param type the required attribute type
 	 * @param attrlist the required attributes
 	 */
 	compound_attribute(int type, attribute_list&& attrlist);

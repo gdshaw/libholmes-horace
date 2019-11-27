@@ -40,7 +40,7 @@ std::unique_ptr<attribute> binary_attribute::clone() const {
 binary_attribute::~binary_attribute() {
 	// Note that the underlying binary_ref_attribute still has a
 	// pointer to the content as this point, however it does not
-	// and has no reason to dereference it during destruction.
+	// (and has no reason to) dereference it during destruction.
 	char* _content = const_cast<char*>(
 		static_cast<const char*>(content()));
 	delete[] _content;
