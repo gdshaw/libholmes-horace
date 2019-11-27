@@ -5,6 +5,7 @@
 
 #include <iomanip>
 
+#include "horace/horace_error.h"
 #include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
 #include "horace/unsigned_integer_attribute.h"
@@ -18,8 +19,14 @@ unsigned_integer_attribute::unsigned_integer_attribute(int type,
 
 unsigned_integer_attribute::unsigned_integer_attribute(int type,
 	size_t length, octet_reader& in):
-	attribute(type),
-	_content(in.read_unsigned(length)) {}
+	attribute(type) {
+
+	if ((length < 1) || (length > 8)) {
+		throw horace_error(
+			"invalid length for unsigned integer attribute");
+	}
+	_content = in.read_unsigned(length);
+}
 
 size_t unsigned_integer_attribute::length() const {
 	size_t len = 1;

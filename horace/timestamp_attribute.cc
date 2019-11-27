@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <limits>
 #include <iomanip>
 
 #include "horace/libc_error.h"
@@ -17,12 +18,22 @@ timestamp_attribute::timestamp_attribute(int type,
 	size_t length, octet_reader& in):
 	attribute(type) {
 
-	if (length < 5) {
+	if ((length < 5) || (length > 12)) {
 		throw horace_error(
 			"invalid length for timestamp attribute");
 	}
-	_content.tv_sec = in.read_unsigned(length - 4);
-	_content.tv_nsec = in.read_unsigned(4);
+	uint64_t sec = in.read_unsigned(length - 4);
+	uint32_t nsec = in.read_unsigned(4);
+	if (sec > std::numeric_limits<time_t>::max()) {
+		throw horace_error(
+			"invalid sec field in timestamp attribute");
+	}
+	if (nsec >= 2000000000) {
+		throw horace_error(
+			"invalid nsec field in timestamp attribute");
+	}
+	_content.tv_sec = sec;
+	_content.tv_nsec = nsec;
 }
 
 timestamp_attribute::timestamp_attribute(int type):
@@ -36,6 +47,10 @@ timestamp_attribute::timestamp_attribute(int type):
 timestamp_attribute::timestamp_attribute(int type, time_t sec, long nsec):
 	attribute(type) {
 
+	if (nsec >= 2000000000) {
+		throw horace_error(
+			"invalid nsec field in timestamp attribute");
+	}
 	_content.tv_sec = sec;
 	_content.tv_nsec = nsec;
 }
@@ -43,6 +58,11 @@ timestamp_attribute::timestamp_attribute(int type, time_t sec, long nsec):
 timestamp_attribute::timestamp_attribute(int type, const timespec& content):
 	attribute(type),
 	_content(content) {
+
+	if (_content.tv_nsec >= 2000000000) {
+		throw horace_error(
+			"invalid nsec field in timestamp attribute");
+	}
 }
 
 size_t timestamp_attribute::length() const {
