@@ -35,8 +35,8 @@ public:
 	 * @param content the required content
 	 * @param length the required length, in octets
 	 */
-	unrecognised_attribute(int type, std::unique_ptr<const char[]>& content,
-		size_t length);
+	unrecognised_attribute(int type, size_t length,
+		std::unique_ptr<const char[]>& content);
 
 	/** Get the content of this attribute.
 	 * @return the content
@@ -45,10 +45,7 @@ public:
 		return _content.get();
 	}
 
-	virtual size_t length() const {
-		return _length;
-	}
-
+	virtual size_t length() const;
 	virtual std::unique_ptr<attribute> clone() const;
 	virtual void write(std::ostream& out) const;
 	virtual void write(octet_writer& out) const;

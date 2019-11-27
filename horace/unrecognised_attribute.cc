@@ -22,17 +22,21 @@ unrecognised_attribute::unrecognised_attribute(int type, size_t length,
 	_content = std::move(content);
 }
 
-unrecognised_attribute::unrecognised_attribute(int type,
-	std::unique_ptr<const char[]>& content, size_t length):
+unrecognised_attribute::unrecognised_attribute(int type, size_t length,
+	std::unique_ptr<const char[]>& content):
 	attribute(type),
-	_content(move(content)),
+	_content(std::move(content)),
 	_length(length) {}
+
+size_t unrecognised_attribute::length() const {
+	return _length;
+}
 
 std::unique_ptr<attribute> unrecognised_attribute::clone() const {
 	std::unique_ptr<char[]> content = std::make_unique<char[]>(_length);
 	memcpy(content.get(), _content.get(), _length);
 	std::unique_ptr<const char[]> const_content = std::move(content);
-	return std::make_unique<unrecognised_attribute>(type(), const_content, _length);
+	return std::make_unique<unrecognised_attribute>(type(), _length, const_content);
 }
 
 void unrecognised_attribute::write(std::ostream& out) const {

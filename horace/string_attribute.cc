@@ -23,6 +23,10 @@ size_t string_attribute::length() const {
 	return _content.length();
 }
 
+std::unique_ptr<attribute> string_attribute::clone() const {
+	return std::make_unique<string_attribute>(type(), _content);
+}
+
 void string_attribute::write(std::ostream& out) const {
 	out << "attr" << type() << "(" << _content << ")";
 }
@@ -31,10 +35,6 @@ void string_attribute::write(octet_writer& out) const {
 	out.write_signed_base128(type());
 	out.write_unsigned_base128(length());
 	out.write_string(_content);
-}
-
-std::unique_ptr<attribute> string_attribute::clone() const {
-	return std::make_unique<string_attribute>(type(), _content);
 }
 
 } /* namespace horace */
