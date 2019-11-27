@@ -22,7 +22,7 @@ public:
 	/** Construct session writer.
 	 * @param source_id the required source ID
 	 */
-	session_writer(const std::string& source_id);
+	explicit session_writer(const std::string& source_id);
 
 	virtual ~session_writer() = default;
 

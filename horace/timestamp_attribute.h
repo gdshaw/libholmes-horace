@@ -42,7 +42,7 @@ public:
 	/** Construct timestamp attribute for current time.
 	 * @param type the attribute type
 	 */
-	timestamp_attribute(int type);
+	explicit timestamp_attribute(int type);
 
 	/** Construct timestamp attribute.
 	 * @param type the attribute type

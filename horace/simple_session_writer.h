@@ -60,7 +60,7 @@ public:
 	/** Construct simple session writer.
 	 * @param source_id the required source ID
 	 */
-	simple_session_writer(const std::string& source_id);
+	explicit simple_session_writer(const std::string& source_id);
 
 	virtual void write(const record& rec);
 	virtual std::unique_ptr<record> read();

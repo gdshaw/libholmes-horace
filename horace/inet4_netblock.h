@@ -22,7 +22,7 @@ public:
 	/** Construct netblock from string.
 	 * @param str the netblock as a string
 	 */
-	inet4_netblock(const std::string& str);
+	explicit inet4_netblock(const std::string& str);
 
 	/** Get the prefix for this netblock.
 	 * @return the prefix

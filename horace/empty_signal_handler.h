@@ -35,7 +35,7 @@ public:
 	/** Install empty signal handler.
 	 * @param the required signal number
 	 */
-	empty_signal_handler(int signum);
+	explicit empty_signal_handler(int signum);
 
 	/** Restore signal handler. */
 	~empty_signal_handler();
