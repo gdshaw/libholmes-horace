@@ -110,7 +110,7 @@ public:
 	 * @param optlen the size of the value
 	 */
 	void setsockopt(int level, int optname, const void* optval,
-		socklen_t optlen) const;
+		socklen_t optlen);
 
 	/** Get socket option.
 	 * @param level the socket option level
@@ -131,11 +131,12 @@ public:
 	 * @param optval the required value
 	 */
 	template<class T>
-	void setsockopt(int level, int optname, const T& optval) const {
+	void setsockopt(int level, int optname, const T& optval) {
 		setsockopt(level, optname, &optval, sizeof(optval));
 	}
 
 	/** Attach a BPF filter to this socket descriptor.
+	 * @param filt the filter to be attached
 	 */
 	void attach(const filter& filt);
 };

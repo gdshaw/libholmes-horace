@@ -114,6 +114,7 @@ public:
 	 * a suitable exception will be thrown.
 	 * @param buf a buffer to receive the result
 	 * @param nbyte the maximum number of octets to be read
+	 * @return the number of octets read
 	 */
 	size_t read(void* buf, size_t nbyte);
 
@@ -131,6 +132,8 @@ public:
 	void fsync() const;
 
 	/** Try to establish an exclusive file lock.
+	 * If a lock cannot be established immediately then this function
+	 * will return without blocking.
 	 * @return true if successful, otherwise false
 	 */
 	bool lock();

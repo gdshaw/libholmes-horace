@@ -87,7 +87,7 @@ void socket_descriptor::getsockopt(int level, int optname,
 }
 
 void socket_descriptor::setsockopt(int level, int optname,
-	const void* optval, socklen_t optlen) const {
+	const void* optval, socklen_t optlen) {
 
 	if (::setsockopt(*this, level, optname, optval, optlen) == -1) {
 		throw libc_error();
