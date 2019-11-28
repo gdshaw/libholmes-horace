@@ -19,7 +19,9 @@ public:
 	/** Construct hostname. */
 	hostname();
 
-	/** Get hostname. */
+	/** Get hostname.
+	 * @return
+	 */
 	operator const std::string&() const {
 		return _hostname;
 	}
