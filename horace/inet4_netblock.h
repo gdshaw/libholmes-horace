@@ -10,11 +10,18 @@
 
 namespace horace {
 
-/** A class to represent an IPv4 netblock. */
+/** A class to represent an IPv4 netblock.
+ * The textual representation accepted by this class consists of an IPv4
+ * address in dotted decimal format, optionally followed by a slash character
+ * and a decimal prefix length.
+ * Leading zeros are not permitted in the address or prefix length. This is
+ * to avoid misinterpreting values which might have been intended as octal
+ * (which is how inet_addr would interpret them).
+ */
 class inet4_netblock {
 private:
 	/** The IPv4 prefix. */
-	char _prefix[4];
+	unsigned char _prefix[4];
 
 	/** The prefix length, in bits. */
 	unsigned int _prefix_length;
