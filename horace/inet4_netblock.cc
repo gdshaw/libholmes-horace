@@ -96,7 +96,7 @@ inet4_netblock::inet4_netblock(const std::string& str) {
 
 	// Parse optional prefix length.
 	if ((srcidx != srclen) && (str[srcidx] == '/')) {
-		// Found slash character, therefore prefix length is present.
+		// Found slash character, therefore prefix length is expected.
 		srcidx += 1;
 
 		// Iterate over the source string, parsing the prefix length.

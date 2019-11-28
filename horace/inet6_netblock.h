@@ -10,11 +10,14 @@
 
 namespace horace {
 
-/** A class to represent an IPv6 netblock. */
+/** A class to represent an IPv6 netblock.
+ * This class accepts any of the textual formats defined in RFC 4291 for
+ * an IPv6 address or an address prefix.
+ */
 class inet6_netblock {
 private:
 	/** The IPv6 prefix. */
-	char _prefix[16];
+	unsigned char _prefix[16];
 
 	/** The prefix length, in bits. */
 	unsigned int _prefix_length;
