@@ -26,7 +26,7 @@ private:
 	 */
 	char* _buffer;
 
-	/** A pointer the first location beyond the end of the buffer. */
+	/** A pointer to the first location beyond the end of the buffer. */
 	char* _limit;
 
 	/** A pointer to the first unread octet in the buffer, or equal to
@@ -37,21 +37,29 @@ private:
 	 * region of the buffer. */
 	char* _end;
 
-	/** Refill the buffer. */
+	/** Refill the buffer.
+	 * Any existing content of the buffer will be discarded. If there
+	 * are no octets immediately available then this function will
+	 * block until either some have been read into the buffer, or
+	 * there is no further prospect of reading any in which case a
+	 * suitable exception will be thrown.
+	 *
+	 * It follows that if this function returns normally then the
+	 * buffer will not be empty (but nor will it necessarily be full).
+	 */
 	void _refill();
 
 	/** Read a given number of octets from the stream.
-	 * The required behaviour for this function is the same as for the
-	 * read function. It is intended as a fallback in the case where the
-	 * number of octets immediately available in the buffer is
-	 * insufficient to satisfy the request. This allows the relevant
-	 * functionality to be split between inline and non-inline code.
+	 * This is a non-inline equivalent of the read function. It is
+	 * expected that the read function will implement some of its
+	 * functionality inline, then delegate the remainder to this
+	 * function.
 	 * @param buf a buffer to receive the octets
-	 * @param nbyte the number of octets to write
+	 * @param nbyte the number of octets to be read
 	 */
 	void _read(void* buf, size_t nbyte);
 protected:
-	/** Read up to a given number of octets directly to the stream.
+	/** Read up to a given number of octets directly from the stream.
 	 * This function is intended for internal use by the class
 	 * implementation, either for refilling the buffer, or for
 	 * performing direct reads which bypass the buffer.
@@ -61,9 +69,10 @@ protected:
 	 *
 	 * If there are no octets immediately available for reading then
 	 * this function will block until either some octets have been read,
-	 * or there is no further prospect of reading any.
+	 * or there is no further prospect of reading any in which case a
+	 * suitable exception will be thrown.
 	 * @param buf a buffer to receive the octets
-	 * @param nbyte the number of octets to write
+	 * @param nbyte the number of octets to be read
 	 * @return the number of octets read
 	 */
 	virtual size_t _read_direct(void* buf, size_t nbyte);
@@ -77,7 +86,7 @@ public:
 
 	/** Construct octet reader with given buffer.
 	 * @param buffer the buffer
-	 * @param size the buffer size
+	 * @param size the buffer size, in octets
 	 * @param count the number of octets initially available for reading
 	 */
 	octet_reader(void* buffer, size_t size, size_t count):

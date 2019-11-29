@@ -33,11 +33,10 @@ private:
 	char* _ptr;
 
 	/** Write a given number of octets to the stream.
-	 * The required behaviour for this function is the same as for the
-	 * write function. It is intended as a fallback in the case where
-	 * the space immediately available in the buffer is insufficient to
-	 * satisfy the request. This allows the relevant functionality to
-	 * be split between inline and non-inline code.
+	 * This is a non-inline equivalent of the write function. It is
+	 * expected that the write function will implement some of its
+	 * functionality inline, then delegate the remainder to this
+	 * function.
 	 * @param buf the octets to be written
 	 * @param nbyte the number of octets to write
 	 */
@@ -63,7 +62,7 @@ public:
 
 	/** Construct octet writer with given buffer.
 	 * @param buffer the required buffer
-	 * @param size the required buffer size
+	 * @param size the required buffer size, in octets
 	 */
 	octet_writer(void* buffer, size_t size):
 		_buffer(static_cast<char*>(buffer)),
@@ -139,7 +138,10 @@ public:
 		}
 	}
 
-	/** Flush any unwritten octets buffered by this class. */
+	/** Flush any unwritten octets buffered by this class.
+	 * If this function returns without throwing an exception
+	 * then the buffer must be empty.
+	 */
 	void flush();
 
 	/** Write an unsigned integer of given width to the stream.

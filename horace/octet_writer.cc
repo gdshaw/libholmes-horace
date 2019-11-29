@@ -24,7 +24,7 @@ void octet_writer::_write(const void* buf, size_t nbyte) {
 		}
 
 		// Now either copy the new data into the buffer, or if
-		// it would fill more than half of the buffer, writer it
+		// it would fill more than half of the buffer, write it
 		// directly.
 		if (nbyte * 2 >= _limit - _ptr) {
 			_write_direct(buf, nbyte);
