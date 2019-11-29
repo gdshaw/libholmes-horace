@@ -54,7 +54,7 @@ void octet_writer::write_unsigned(uint64_t value, size_t width) {
 }
 
 void octet_writer::write_unsigned_base128(uint64_t value) {
-	int size = 7;
+	unsigned int size = 7;
 	while ((value >> size) != 0) {
 		size += 7;
 	}
@@ -67,7 +67,7 @@ void octet_writer::write_unsigned_base128(uint64_t value) {
 
 void octet_writer::write_signed_base128(int64_t value) {
 	int64_t term = (value >= 0) ? 0 : -1;
-	int size = 6;
+	unsigned int size = 6;
 	while ((value >> size) != term) {
 		size += 7;
 	}
@@ -92,7 +92,7 @@ void octet_writer::write_string(const std::string& s) {
 }
 
 size_t octet_writer::unsigned_base128_length(uint64_t value) {
-	int size = 7;
+	unsigned int size = 7;
 	size_t count = 1;
 	while ((value >> size) != 0) {
 		size += 7;
@@ -103,7 +103,7 @@ size_t octet_writer::unsigned_base128_length(uint64_t value) {
 
 size_t octet_writer::signed_base128_length(int64_t value) {
 	int64_t term = (value >= 0) ? 0 : -1;
-	int size = 6;
+	unsigned int size = 6;
 	size_t count = 1;
 	while ((value >> size) != term) {
 		size += 7;
