@@ -27,9 +27,14 @@ public:
 	file_octet_reader() = default;
 
 	/** Construct file octet reader.
+         * A larger buffer can be expected to reduce the number of system
+         * calls performed, but increase the amount of copying (due to fewer
+         * direct reads).
 	 * @param fd the file descriptor to be read from
+	 * @param bufsize the required buffer size, in octets
 	 */
-	explicit file_octet_reader(file_descriptor& fd);
+	explicit file_octet_reader(file_descriptor& fd,
+		size_t bufsize = 0x40);
 };
 
 } /* namespace horace */

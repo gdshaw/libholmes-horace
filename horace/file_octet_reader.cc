@@ -16,8 +16,8 @@ size_t file_octet_reader::_read_direct(void* buf, size_t nbyte) {
 	return _fd->read(buf, nbyte);
 }
 
-file_octet_reader::file_octet_reader(file_descriptor& fd):
-	buffer(0x40),
+file_octet_reader::file_octet_reader(file_descriptor& fd, size_t bufsize):
+	buffer(bufsize),
 	octet_reader(buffer_ptr(), buffer_size(), 0),
 	_fd(&fd) {}
 

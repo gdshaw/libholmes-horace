@@ -27,9 +27,14 @@ public:
 	file_octet_writer() = default;
 
 	/** Construct file octet writer.
+	 * A larger buffer can be expected to reduce the number of system
+	 * calls performed, but increase the amount of copying (due to fewer
+	 * direct writes).
 	 * @param fd the file descriptor to be written to
+	 * @param bufsize the required buffer size, in octets
 	 */
-	explicit file_octet_writer(file_descriptor& fd);
+	explicit file_octet_writer(file_descriptor& fd,
+		size_t bufsize = 0x40);
 
 	file_octet_writer(const file_octet_writer& that) = delete;
 	file_octet_writer& operator=(const file_octet_writer& that) = delete;
