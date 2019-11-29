@@ -102,15 +102,17 @@ public:
 	 * @return a reference to this
 	 */
 	octet_writer& operator=(octet_writer&& that) {
-		// Copy from old object to new.
-		_buffer = that._buffer;
-		_limit = that._limit;
-		_ptr = that._ptr;
+		if (this != &that) {
+			// Copy from old object to new.
+			_buffer = that._buffer;
+			_limit = that._limit;
+			_ptr = that._ptr;
 
-		// Null the old object for safety.
-		that._buffer = 0;
-		that._limit = 0;
-		that._ptr = 0;
+			// Null the old object for safety.
+			that._buffer = 0;
+			that._limit = 0;
+			that._ptr = 0;
+		}
 		return *this;
 	}
 
