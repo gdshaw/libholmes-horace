@@ -62,6 +62,11 @@ size_t octet_reader::_read_direct(void* buf, size_t nbyte) {
 uint64_t octet_reader::read_unsigned(size_t width) {
 	uint64_t result = 0;
 	while (width--) {
+		// The result can be shifted without overflow if the top
+		// 8 bits are all zeros.
+		if (result >> 56) {
+			throw std::runtime_error("integer overflow");
+		}
 		result <<= 8;
 		result |= read() & 0xff;
 	}
@@ -72,6 +77,11 @@ uint64_t octet_reader::read_unsigned_base128() {
 	uint8_t byte = read();
 	uint64_t result = byte & 0x7f;
 	while (byte & 0x80) {
+		// The result can be shifted without overflow if the top
+		// 7 bits are all zeros.
+		if (result >> 57) {
+			throw std::runtime_error("integer overflow");
+		}
 		result <<= 7;
 		byte = read();
 		result |= byte & 0x7f;
@@ -84,6 +94,11 @@ uint64_t octet_reader::read_unsigned_base128(size_t& count) {
 	count += 1;
 	uint64_t result = byte & 0x7f;
 	while (byte & 0x80) {
+		// The result can be shifted without overflow if the top
+		// 7 bits are all zeros.
+		if (result >> 57) {
+			throw std::runtime_error("integer overflow");
+		}
 		result <<= 7;
 		byte = read();
 		count += 1;
@@ -96,6 +111,11 @@ int64_t octet_reader::read_signed_base128() {
 	uint8_t byte = read();
 	int64_t result = (byte & 0x3f) - (byte & 0x40);
 	while (byte & 0x80) {
+		// The result can be shifted without overflow if the top
+		// 8 bits are either all ones or all zeros.
+		if (((result >> 56) + 1) >> 1) {
+			throw std::runtime_error("integer overflow");
+		}
 		result <<= 7;
 		byte = read();
 		result |= byte & 0x7f;
@@ -108,6 +128,11 @@ int64_t octet_reader::read_signed_base128(size_t& count) {
 	count += 1;
 	int64_t result = (byte & 0x3f) - (byte & 0x40);
 	while (byte & 0x80) {
+		// The result can be shifted without overflow if the top
+		// 8 bits are either all ones or all zeros.
+		if (((result >> 56) + 1) >> 1) {
+			throw std::runtime_error("integer overflow");
+		}
 		result <<= 7;
 		byte = read();
 		count += 1;
