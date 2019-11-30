@@ -31,6 +31,7 @@ public:
 	 * parameter. The only types currently supported are:
 	 * - bool (taking a string "true" or "false")
 	 * - long (taking a decimal string)
+	 * - long long (also taking a decimal string)
 	 * - std::string
 	 * @param name the name of the parameter to be found
 	 */
