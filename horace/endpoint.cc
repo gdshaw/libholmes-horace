@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <cctype>
 #include <dlfcn.h>
 
 #include "horace/endpoint_error.h"
@@ -19,6 +20,14 @@ std::unique_ptr<endpoint> endpoint::make(const std::string& name) {
 		throw endpoint_error("missing prefix in endpoint " + name);
 	}
 	std::string prefix = name.substr(0, index);
+	if (prefix.empty() || !isalpha(prefix[0])) {
+		throw endpoint_error("invalid prefix in endpoint " + name);
+	}
+	for (char& c : prefix) {
+		if (!isalnum(c) && (c != '+') && (c != '.') && (c != '-')) {
+			throw endpoint_error("invalid prefix in endpoint " + name);
+		}
+	}
 
 	std::string pathname = std::string(
 		LIBEXECDIR "/" PKGNAME "/endpoints/") + prefix + ".so";
