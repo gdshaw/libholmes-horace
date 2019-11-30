@@ -12,8 +12,8 @@
 #include "horace/endpoint_error.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
+#include "horace/attribute_list.h"
 #include "horace/record.h"
-#include "horace/record_builder.h"
 
 #include "filestore_scanner.h"
 #include "spoolfile.h"
@@ -104,10 +104,10 @@ std::unique_ptr<record> file_session_reader::read() {
 		// and a subsequent spoolfile has been detected) then
 		// return a sync record.
 		_syncing = true;
-		record_builder builder(channel_sync);
-		builder.append(std::make_unique<timestamp_attribute>(attr_ts_begin, _session_ts));
-		builder.append(std::make_unique<unsigned_integer_attribute>(attr_seqnum, _seqnum));
-		return builder.build();
+		attribute_list attrs;
+		attrs.append(std::make_unique<timestamp_attribute>(attr_ts_begin, _session_ts));
+		attrs.append(std::make_unique<unsigned_integer_attribute>(attr_seqnum, _seqnum));
+		return std::make_unique<record>(channel_sync, std::move(attrs));
 	}
 }
 

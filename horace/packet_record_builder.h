@@ -6,10 +6,13 @@
 #ifndef LIBHOLMES_HORACE_PACKET_RECORD_BUILDER
 #define LIBHOLMES_HORACE_PACKET_RECORD_BUILDER
 
+#include <vector>
+
+#include "horace/attribute_list.h"
+#include "horace/record.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/binary_ref_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
-#include "horace/record_builder.h"
 
 namespace horace {
 
@@ -37,7 +40,7 @@ private:
 	/** The record buffer.
 	 * Records are returned in reverse order.
 	 */
-	std::vector<record_builder> _buffer;
+	std::vector<record> _buffer;
 
 	/** The number of remaining records in the buffer. */
 	unsigned int _count;

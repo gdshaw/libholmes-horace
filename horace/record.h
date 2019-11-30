@@ -6,15 +6,17 @@
 #ifndef LIBHOLMES_HORACE_RECORD
 #define LIBHOLMES_HORACE_RECORD
 
-#include <vector>
 #include <iosfwd>
+
+#include "horace/attribute_list.h"
 
 namespace horace {
 
 class logger;
+class octet_reader;
 class octet_writer;
 class attribute;
-class record_builder;
+class session_context;
 
 // Reserved channel numbers.
 static const int channel_error = -1;
@@ -23,30 +25,42 @@ static const int channel_sync = -3;
 
 /** An abstract base class to represent a HORACE record. */
 class record {
-	friend record_builder;
 private:
 	/** The channel number. */
 	int _channel;
 
-	/** All attributes of this record. */
-	std::vector<const attribute*> _attributes;
-
-	/** The attribute owned by this record. */
-	std::vector<const attribute*> _owned_attributes;
-protected:
-	/** Construct record with empty attribute list.
-	 * @param channel the channel number
-	 */
-	explicit record(int channel):
-		_channel(channel) {}
+	/** The attribute list. */
+	attribute_list _attributes;
 public:
-	virtual ~record();
+	/** Construct empty record.
+	 * This is provided so that a record can be a member of a
+	 * standard container.
+	 */
+	record():
+		_channel(0) {}
 
-	record(const record&) = delete;
-	record(record&& that);
+	/** Construct record from attribute list.
+	 * @param channel the channel number
+	 * @param attributes the list of attributes
+	 */
+	record(int channel, const attribute_list& attributes):
+		_channel(channel),
+		_attributes(attributes) {}
 
-	record& operator=(const record&) = delete;
-	record& operator=(record&&) = delete;
+	/** Construct record from attribute list.
+	 * @param channel the channel number
+	 * @param attributes the list of attributes
+	 */
+	record(int channel, attribute_list&& attributes):
+		_channel(channel),
+		_attributes(std::move(attributes)) {}
+
+	/** Construct record from octet reader.
+	 * The channel and length fields must not already have been read.
+	 * @param session the applicable session information object
+	 * @param in the octet reader
+	 */
+	record(session_context& session, octet_reader& in);
 
 	/** Get the channel number for this record.
 	 * @return the channel number
@@ -84,32 +98,22 @@ public:
 		return _attributes.empty();
 	}
 
-	/** Get the length of the content of this record.
-	 * @return the content length, in octets
-	 */
-	size_t length() const;
-
 	/** Get the attribute list for this record.
 	 * @return the attribute list
 	 */
-	const std::vector<const attribute*> attributes() const {
+	const attribute_list& attributes() const {
 		return _attributes;
 	}
 
-	/** Determine whether there are any instances of a given attribute
-	 * type.
+	/** Determine whether this record contains any instances of a given
+	 * attribute type.
 	 * @param type the required attribute type
 	 * @return true if there are one or more instances, otherwise false
 	 */
-	bool contains(int type) const;
-private:
-	/** Find a single instance of a given attribute type.
-	 * It is an error if there are no matching attributes, or if there
-	 * is more than one matching attribute.
-	 * @param type the required attribute type
-	 */
-	const attribute& _find_one(int type) const;
-public:
+	bool contains(int type) const {
+		return _attributes.contains(type);
+	}
+
 	/** Find a single instance of a given attribute type.
 	 * It is an error if there are no matching attributes, or if there
 	 * is more than one matching attribute.
@@ -117,7 +121,7 @@ public:
 	 */
 	template<class T>
 	const T& find_one(int type) const {
-		return dynamic_cast<const T&>(_find_one(type));
+		return _attributes.find_one<T>(type);
 	}
 
 	/** Write this record to an octet writer.

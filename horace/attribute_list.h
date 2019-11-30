@@ -6,6 +6,7 @@
 #ifndef LIBHOLMES_HORACE_ATTRIBUTE_LIST
 #define LIBHOLMES_HORACE_ATTRIBUTE_LIST
 
+#include <memory>
 #include <vector>
 #include <iosfwd>
 
@@ -65,12 +66,33 @@ public:
 	 */
 	size_t length() const;
 
+	/** Get iterator for start of list.
+	 * @return the iterator
+	 */
+	auto begin() const {
+		return _attributes.begin();
+	}
+
+	/** Get iterator for end of list.
+	 * @return the iterator
+	 */
+	auto end() const {
+		return _attributes.end();
+	}
+
 	/** Get this attribute list as a standard container.
 	 * @return the container
 	 */
 	const std::vector<const attribute*>& attributes() const {
 		return _attributes;
 	}
+
+       /** Determine whether this list contains any instances of a given
+         * attribute type.
+         * @param type the required attribute type
+         * @return true if there are one or more instances, otherwise false
+         */
+        bool contains(int type) const;
 private:
 	/** Find a single instance of a given attribute type.
 	 * It is an error if there are no matching attributes, or if there

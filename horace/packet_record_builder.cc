@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/record.h"
 #include "horace/session_builder.h"
 #include "horace/packet_record_builder.h"
 
@@ -16,34 +17,33 @@ packet_record_builder::packet_record_builder(session_builder& session, int chann
 	_rpt_attr(session.define_attribute_type("repeat", attr_format_unsigned_integer), 0),
 	_count(0) {
 
-	_buffer.emplace_back(_channel);
-	_buffer.emplace_back(_channel);
+	_buffer.emplace_back();
+	_buffer.emplace_back();
 }
 
 void packet_record_builder::build_packet(const struct timespec* ts,
 	const void* content, size_t origlen, size_t snaplen,
 	unsigned int dropped) {
 
+	attribute_list attrs;
 	_count = 0;
-
-	record_builder& pkt_builder = _buffer[_count];
-	pkt_builder.reset();
 	if (ts) {
-		pkt_builder.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
+		attrs.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
 	}
-	pkt_builder.append(_pkt_attr = binary_ref_attribute(_pkt_attr.type(), snaplen, content));
+	attrs.append(_pkt_attr = binary_ref_attribute(_pkt_attr.type(), snaplen, content));
 	if (snaplen != origlen) {
-		pkt_builder.append(_origlen_attr = unsigned_integer_attribute(_origlen_attr.type(), origlen));
+		attrs.append(_origlen_attr = unsigned_integer_attribute(_origlen_attr.type(), origlen));
 	}
+	_buffer[_count] = record(_channel, std::move(attrs));
 	_count += 1;
 
 	if (dropped != 0) {
-		record_builder& drop_builder = _buffer[_count];
-		drop_builder.reset();
+		attribute_list attrs;
 		if (ts) {
-			drop_builder.append(_ts_attr);
+			attrs.append(_ts_attr);
 		}
-		drop_builder.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
+		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
+		_buffer[_count] = record(_channel, std::move(attrs));
 		_count += 1;
 	}
 }
@@ -51,15 +51,14 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 void packet_record_builder::build_dropped(const struct timespec* ts,
 	unsigned int dropped) {
 
+	attribute_list attrs;
 	_count = 0;
-
 	if (dropped != 0) {
-		record_builder& drop_builder = _buffer[_count];
-		drop_builder.reset();
 		if (ts) {
-			drop_builder.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
+			attrs.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
 		}
-		drop_builder.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
+		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
+		_buffer[_count] = record(_channel, std::move(attrs));
 		_count += 1;
 	}
 }

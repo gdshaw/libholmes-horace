@@ -8,8 +8,8 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/attribute_list.h"
 #include "horace/record.h"
-#include "horace/record_builder.h"
 
 #include "spoolfile_writer.h"
 
@@ -42,7 +42,7 @@ void spoolfile_writer::sync() const {
 bool spoolfile_writer::write(const record& rec) {
 	// Calculate the number of octets required for this record,
 	// including the channel and length fields.
-	size_t content_len = rec.length();
+	size_t content_len = rec.attributes().length();
 	size_t full_len = octet_writer::signed_base128_length(rec.channel_number()) +
 		octet_writer::unsigned_base128_length(content_len) + content_len;
 
@@ -62,14 +62,11 @@ bool spoolfile_writer::write(const record& rec) {
 
 bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
 	if (seqnum != _seqnum) {
-		record_builder builder(rec.channel_number());
-		for (auto&& attr : rec.attributes()) {
-			builder.append(*attr);
-		}
+		attribute_list attrs = rec.attributes();
 		unsigned_integer_attribute seqnum_attr(attr_seqnum, seqnum);
-		builder.append(seqnum_attr);
-		std::unique_ptr<record> nrec = builder.build();
-		return write(*nrec);
+		attrs.append(seqnum_attr);
+		record nrec(rec.channel_number(), std::move(attrs));
+		return write(nrec);
 	} else {
 		return write(rec);
 	}

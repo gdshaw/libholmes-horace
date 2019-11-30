@@ -97,6 +97,15 @@ size_t attribute_list::length() const {
 	return len;
 }
 
+bool attribute_list::contains(int type) const {
+	for (auto&& attr : _attributes) {
+		if (attr -> type() == type) {
+			return true;
+		}
+	}
+	return false;
+}
+
 const attribute& attribute_list::_find_one(int type) const {
 	const attribute* found = 0;
 	for (auto&& attr : _attributes) {

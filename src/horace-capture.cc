@@ -25,7 +25,6 @@
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/record.h"
-#include "horace/record_builder.h"
 #include "horace/session_builder.h"
 #include "horace/event_reader.h"
 #include "horace/session_writer.h"
@@ -92,11 +91,11 @@ void capture(session_builder& session, event_reader& src_er,
 	}
 
 	// Write end of session timestamp to session channel.
-	record_builder erecb(channel_session);
-	erecb.append(srec->find_one<string_attribute>(attr_source).clone());
-	erecb.append(srec->find_one<timestamp_attribute>(attr_ts_begin).clone());
-	erecb.append(std::make_unique<timestamp_attribute>(attr_ts_end));
-	std::unique_ptr<record> erec = erecb.build();
+	attribute_list attrs;
+	attrs.append(srec->find_one<string_attribute>(attr_source).clone());
+	attrs.append(srec->find_one<timestamp_attribute>(attr_ts_begin).clone());
+	attrs.append(std::make_unique<timestamp_attribute>(attr_ts_end));
+	std::unique_ptr<record> erec = std::make_unique<record>(channel_session, attrs);
 	dst_sw->write(*erec);
 	erec->log(*log);
 }

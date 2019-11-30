@@ -3,7 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
-#include "horace/record_builder.h"
+#include "horace/record.h"
 
 #include "tcp_endpoint.h"
 #include "tcp_session_reader.h"
@@ -21,8 +21,7 @@ tcp_session_reader::tcp_session_reader(tcp_endpoint& src_ep,
 }
 
 std::unique_ptr<record> tcp_session_reader::read() {
-	record_builder builder(_session, _fdor);
-	return builder.build();
+	return std::make_unique<record>(_session, _fdor);
 }
 
 void tcp_session_reader::write(const record& rec) {

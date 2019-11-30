@@ -9,11 +9,10 @@
 #include <memory>
 #include <string>
 
-#include "horace/record_builder.h"
+#include "horace/attribute_list.h"
 
 namespace horace {
 
-class attribute_list;
 class record;
 
 /** A class for building start of session records. */
@@ -22,8 +21,8 @@ private:
 	/** The source ID for this session. */
 	std::string _source_id;
 
-	/** A record builder for the start of session record. */
-	record_builder _srecb;
+	/** An attribute list for the session record. */
+	attribute_list _attributes;
 
 	/** The number of attribute types defineds. */
 	int _attr_count;
@@ -57,10 +56,11 @@ public:
 	 * defined with a distinct channel number, regardless of whether
 	 * an equivalent one already exists.
 	 * @param label the required channel label
-	 * @param attrs a list of additional attributes
+	 * @param subattrs a list of additional attributes
 	 * @return the allocated channel number
 	 */
-	int define_channel(const std::string& label, attribute_list&& attrs);
+	int define_channel(const std::string& label,
+		attribute_list&& subattrs);
 
 	/** Build start of session record.
 	 * @return the resulting record

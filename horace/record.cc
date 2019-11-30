@@ -9,35 +9,49 @@
 #include "horace/horace_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
+#include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
+#include "horace/compound_attribute.h"
 #include "horace/record.h"
+#include "horace/session_context.h"
 
 namespace horace {
 
-record::~record() {
-	for (const attribute* attr : _owned_attributes) {
-		delete attr;
-	}
-}
+record::record(session_context& session, octet_reader& in) {
+	_channel = in.read_signed_base128();
+	size_t remaining = in.read_unsigned_base128();
+	while (remaining) {
+		size_t hdr_len = 0;
+		int attr_type = in.read_signed_base128(hdr_len);
+		int attr_len = in.read_unsigned_base128(hdr_len);
 
-record::record(record&& that) {
-	_channel = that._channel;
-	_attributes.swap(that._attributes);
-	_owned_attributes.swap(that._owned_attributes);
-}
+		std::unique_ptr<attribute> attr =
+			attribute::parse(session, attr_type, attr_len, in);
+		switch (attr->type()) {
+		case attr_type_def:
+			session.handle_attr_type_def(
+				dynamic_cast<compound_attribute&>(*attr));
+			break;
+		case attr_channel_def:
+			session.handle_channel_def(
+				dynamic_cast<compound_attribute&>(*attr));
+			break;
+		default:
+			// no action
+			break;
+		}
+		_attributes.append(attr);
 
-size_t record::length() const {
-	size_t len = 0;
-	for (auto&& attr : _attributes) {
-		size_t attr_len = attr->length();
-		len += octet_writer::signed_base128_length(attr->type());
-		len += octet_writer::unsigned_base128_length(attr_len);
-		len += attr_len;
+		size_t length = hdr_len + attr_len;
+		if (length > remaining) {
+			throw horace_error(
+				"attribute extends beyond length of record");
+		}
+		remaining -= length;
 	}
-	return len;
 }
 
 uint64_t record::update_seqnum(uint64_t seqnum) const {
@@ -51,37 +65,10 @@ uint64_t record::update_seqnum(uint64_t seqnum) const {
 	return seqnum;
 }
 
-bool record::contains(int type) const {
-	for (auto&& attr : _attributes) {
-		if (attr -> type() == type) {
-			return true;
-		}
-	}
-	return false;
-}
-
-const attribute& record::_find_one(int type) const {
-	const attribute* found = 0;
-	for (auto&& attr : _attributes) {
-		if (attr -> type() == type) {
-			if (found) {
-				throw horace_error("unexpected multiple attributes of same type");
-			}
-			found = attr;
-		}
-	}
-	if (!found) {
-		throw horace_error("expected attribute not found");
-	}
-	return *found;
-}
-
 void record::write(octet_writer& out) const {
-	out.write_signed_base128(channel_number());
-	out.write_unsigned_base128(length());
-	for (auto&& attr : _attributes) {
-		attr->write(out);
-	}
+	out.write_signed_base128(_channel);
+	out.write_unsigned_base128(_attributes.length());
+	_attributes.write(out);
 }
 
 void record::log(logger& log) const {

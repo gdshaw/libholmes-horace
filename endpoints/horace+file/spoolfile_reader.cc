@@ -9,7 +9,7 @@
 #include "horace/libc_error.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
-#include "horace/record_builder.h"
+#include "horace/record.h"
 
 #include "spoolfile_reader.h"
 #include "file_session_reader.h"
@@ -52,8 +52,7 @@ spoolfile_reader::spoolfile_reader(file_session_reader& fsr,
 }
 
 std::unique_ptr<record> spoolfile_reader::read() {
-	record_builder builder(*_session, *this);
-	return builder.build();
+	return std::make_unique<record>(*_session, *this);
 }
 
 void spoolfile_reader::unlink() {

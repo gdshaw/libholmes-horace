@@ -6,7 +6,6 @@
 #include "horace/horace_error.h"
 #include "horace/attribute.h"
 #include "horace/record.h"
-#include "horace/record_builder.h"
 #include "horace/simple_session_writer.h"
 
 namespace horace {
@@ -30,11 +29,7 @@ void simple_session_writer::_process_session_record(const record& srec) {
 
 void simple_session_writer::_process_sync_record(const record& crec) {
 	handle_sync(crec);
-	record_builder builder(channel_sync);
-	for (const attribute* attr : crec.attributes()) {
-		builder.append(*attr);
-	}
-	_reply = builder.build();
+	_reply = std::make_unique<record>(channel_sync, crec.attributes());
 }
 
 const record& simple_session_writer::session_record() const {

@@ -14,7 +14,6 @@
 #include "horace/log_message.h"
 #include "horace/address_info.h"
 #include "horace/record.h"
-#include "horace/record_builder.h"
 
 #include "tcp_endpoint.h"
 #include "tcp_session_writer.h"
@@ -86,8 +85,7 @@ void tcp_session_writer::write(const record& rec) {
 
 std::unique_ptr<record> tcp_session_writer::read() {
 	_fdow.flush();
-	record_builder builder(_session, _fdor);
-	return builder.build();
+	return std::make_unique<record>(_session, _fdor);
 }
 
 } /* namespace horace */
