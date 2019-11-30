@@ -42,7 +42,7 @@ private:
 	 */
 	std::vector<record> _buffer;
 
-	/** The number of remaining records in the buffer. */
+	/** The number of pending records in the buffer. */
 	unsigned int _count;
 public:
 	/** Construct empty packet record builder.
@@ -52,8 +52,8 @@ public:
 	packet_record_builder(session_builder& session, int channel);
 
 	/** Build packet record, with optional dropped packets.
-	 * If drop_diff is non-zero then two records are built: one for
-	 * the missing packet(s) and one for the captured packet.
+	 * If the dropped argument is non-zero then two records are built:
+	 * one for the missing packet(s) and one for the captured packet.
 	 * Otherwise, only one record is built.
 	 * @param ts the timestamp, or 0 if unavailable
 	 * @param content the packet content
@@ -71,8 +71,6 @@ public:
 	void build_dropped(const struct timespec* ts, unsigned int dropped);
 
 	/** Get the next available record.
-	 * Note that for efficiency, this will take the form of a
-	 * record_builder as opposed to a packet_record.
 	 * @return the next record, or null if none
 	 */
 	const record* next();
