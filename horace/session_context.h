@@ -25,9 +25,6 @@ private:
 	/** The channel labels for this session, indexed by number. */
 	std::map<int, std::string> _chan_labels;
 public:
-	/** Construct session context. */
-	session_context();
-
 	/** Handle an attribute type definition.
 	 * @param attr the attribute to be handled
 	 */
