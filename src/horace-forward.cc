@@ -54,22 +54,22 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	uint64_t expected_seqnum = 0;
 	bool initial_seqnum = true;
 
-	// Read the start of session record. Keep a copy of it,
+	// Read the session record. Keep a copy of it,
 	// unless/until it is superseded by another start of
 	// session record.
 	std::unique_ptr<record> srec = src_sr.read();
 	if (srec->channel_number() != channel_session) {
-		throw horace_error("start of session record expected");
+		throw horace_error("session record expected");
 	}
 	srec->log(*log);
 
 	// Create a session writer using the source ID from the
-	// start of session record.
+	// session record.
 	std::string source_id = srec->find_one<string_attribute>(
 		attr_source).content();
 	std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(source_id);
 
-	// Attempt to write the start of session record.
+	// Attempt to write the session record.
 	try {
 		dst_sw->write(*srec);
 	} catch (terminate_exception&) {
@@ -79,8 +79,8 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	}
 
 	// Copy records from source to destination. Watch for
-	// start of session records and sync records, which
-	// require special handling.
+	// session records and sync records, which require special
+	// handling.
 	while (true) {
 		// Ensure that termination is picked up, even if
 		// the thread never blocks.

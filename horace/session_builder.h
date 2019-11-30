@@ -15,7 +15,7 @@ namespace horace {
 
 class record;
 
-/** A class for building start of session records. */
+/** A class for building session records. */
 class session_builder {
 private:
 	/** The source ID for this session. */
@@ -62,7 +62,7 @@ public:
 	int define_channel(const std::string& label,
 		attribute_list&& subattrs);
 
-	/** Build start of session record.
+	/** Build session record.
 	 * @return the resulting record
 	 */
 	std::unique_ptr<record> build();

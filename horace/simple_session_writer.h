@@ -15,7 +15,7 @@ namespace horace {
 class simple_session_writer:
 	public session_writer {
 private:
-	/** The current start of session record, or null if none. */
+	/** The current session record, or null if none. */
 	const record* _srec;
 
 	/** A record available for reading, or null if none. */
