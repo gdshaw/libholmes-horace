@@ -10,8 +10,17 @@ namespace horace {
 
 class session_listener;
 
-/** An endpoint mixin class to represent an endpoint which can listen for
- * and accept multiple concurrent sessions. */
+/** An endpoint mixin class to represent a source of an arbitrary number
+ * of concurrent sessions.
+ * This class is intended for use by endpoints which may be required to
+ * handle sessions originating from multiple concurrent sources. An
+ * example would be a server socket to which multiple HORACE clients can
+ * connect.
+ *
+ * It provides a single member function which allows a session listener
+ * to be created. That in turn allows sessions to be accepted from the
+ * endpoint.
+ */
 class session_listener_endpoint {
 public:
 	/** Make a listener for this endpoint.

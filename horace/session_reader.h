@@ -32,6 +32,11 @@ public:
 	virtual void write(const record& rec) = 0;
 
 	/** Attempt to reset this session reader.
+	 * Following a successful reset, a session reader should behave as
+	 * it would do if it were destroyed and then recreated. In
+	 * particular, any event records which were read since the most
+	 * recently acknowledged syncrhonisation point should be replayed.
+	 *
 	 * Session readers are not required to have a reset capability, in
 	 * which case they should unconditionally return false. This is the
 	 * default behaviour if the reset function is not overridden.

@@ -10,7 +10,16 @@ namespace horace {
 
 class session_writer;
 
-/** An endpoint mixin class to represent a destination for sessions. */
+/** An endpoint mixin class to represent a destination to which multiple
+ * concurrent sessions can be sent.
+ * This class is intended for use in endpoints which handle inbound
+ * connections. An example would be a server socket to which multiple
+ * HORACE clients can connect.
+ *
+ * It provides a single member function which allows a session listener
+ * to be created. That in turn allows sessions to be accepted from the
+ * endpoint.
+ */
 class session_writer_endpoint {
 public:
 	/** Make a session writer for this endpoint.
