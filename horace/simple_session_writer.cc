@@ -11,15 +11,14 @@
 namespace horace {
 
 simple_session_writer::simple_session_writer(const std::string& source_id):
-	session_writer(source_id),
-	_srec(0) {}
+	session_writer(source_id) {}
 
 void simple_session_writer::_process_session_record(const record& srec) {
 	if (!_srec || !same_session(*_srec, srec)) {
-		_srec = &srec;
+		_srec = std::make_unique<record>(srec);
 		handle_session_start(srec);
 	} else {
-		_srec = &srec;
+		_srec = std::make_unique<record>(srec);
 	}
 	if (srec.contains(attr_ts_end)) {
 		handle_session_end(srec);

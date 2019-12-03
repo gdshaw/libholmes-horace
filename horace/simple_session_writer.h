@@ -16,7 +16,7 @@ class simple_session_writer:
 	public session_writer {
 private:
 	/** The current session record, or null if none. */
-	const record* _srec;
+	std::unique_ptr<const record> _srec;
 
 	/** A record available for reading, or null if none. */
 	std::unique_ptr<record> _reply;

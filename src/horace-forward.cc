@@ -54,9 +54,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	uint64_t expected_seqnum = 0;
 	bool initial_seqnum = true;
 
-	// Read the session record. Keep a copy of it,
-	// unless/until it is superseded by another start of
-	// session record.
+	// Read the session record.
 	std::unique_ptr<record> srec = src_sr.read();
 	if (srec->channel_number() != channel_session) {
 		throw horace_error("session record expected");
@@ -122,11 +120,6 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		// record types.
 		switch (rec->channel_number()) {
 		case channel_session:
-			// Keep a copy of the most recent start of
-			// session record.
-			// Note: must not make any further reference to rec
-			// following this statement.
-			srec = std::move(rec);
 			current_seqnum = 0;
 			break;
 		case channel_sync:
