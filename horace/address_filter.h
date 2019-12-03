@@ -16,10 +16,10 @@
 namespace horace {
 
 /** A filter class for filtering out a list of IP netblocks.
- * Currently only IPv4 netblocks are supported. Frames are filtered out if
- * they contain an IPv4 datagram with either a source or destination address
- * which matches one of the supplied netblocks. All other traffic is allowed
- * to pass, including frames which do not contain IPv4 datagrams.
+ * Frames are filtered out if they contain an IPv4 or IPv6 datagram with
+ * either a source or destination address which matches one of the supplied
+ * netblocks. All other traffic is allowed to pass, including frames which
+ * do not contain IP datagrams.
  */
 class address_filter:
 	public filter {

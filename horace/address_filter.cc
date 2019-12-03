@@ -29,19 +29,25 @@ void address_filter::_compile() const {
 	// would additionally be possible to consolidate the return
 	// instructions.
 
-	// In the current implementation, each netblock requires 4
+	// In the current implementation, each IPv4 netblock requires 4
 	// instructions to test the source address and 4 to test the
-	// destination address. In addition to this, 3 instructions are
-	// needed for initially testing the EtherType, and 1 instruction
-	// to return if none of the netblocks match.
-	uint32_t inet4_count = 1;
+	// destination address, except in the case where the netblock is
+	// a /32 (single address) in which case it requires 3 instructions
+	// for each. Additionally, it requires 1 instruction to return if
+	// none of the netblocks match.
+	uint32_t inet4_count = _inet4_netblocks.size() * 6 + 1;
 	for (auto&& nb : _inet4_netblocks) {
-		inet4_count += 6;
 		if (nb.prefix_length() != 32) {
 			inet4_count += 2;
 		}
 	}
+
+	// Each IPv6 netblock requires 13 instructions to test the source
+	// address and 13 to test the destination address.
 	uint32_t inet6_count = _inet6_netblocks.size() * 26 + 1;
+
+	// A further 4 instructions are needed for initial testing of the
+	// Ethertype.
 	uint32_t count = 4 + inet4_count + inet6_count;
 	if (1 + inet4_count > 0xff) {
 		throw std::invalid_argument("too many addresses in filter");
@@ -50,7 +56,7 @@ void address_filter::_compile() const {
 	_filter = std::make_unique<sock_filter[]>(count);
 	unsigned int idx = 0;
 
-	// If ethertype != 0x0800 then accept frame.
+	// If ethertype != 0x0800 (IPv4) or 0x86dd (IPv6) then accept frame.
 	_filter[idx++] = { BPF_LD | BPF_H | BPF_ABS, 0, 0, 12 };
 	_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 2, 0, 0x0800 };
 	_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, static_cast<uint8_t>(1 + inet4_count), 0, 0x86dd };
@@ -104,7 +110,7 @@ void address_filter::_compile() const {
 		_filter[idx++] = { BPF_RET, 0, 0, 0 };
 	}
 
-	// If IPv4 frame not already rejected then accept it.
+	// If IPv6 frame not already rejected then accept it.
 	_filter[idx++] = { BPF_RET, 0, 0, 0xffffffff };
 
 	_fprog.len = idx;
