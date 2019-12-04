@@ -12,14 +12,14 @@
 
 namespace horace {
 
-unsigned_integer_attribute::unsigned_integer_attribute(int type,
+unsigned_integer_attribute::unsigned_integer_attribute(int attrid,
 	uint64_t content):
-	attribute(type),
+	attribute(attrid),
 	_content(content) {}
 
-unsigned_integer_attribute::unsigned_integer_attribute(int type,
+unsigned_integer_attribute::unsigned_integer_attribute(int attrid,
 	size_t length, octet_reader& in):
-	attribute(type) {
+	attribute(attrid) {
 
 	if ((length < 1) || (length > 8)) {
 		throw horace_error(
@@ -40,16 +40,16 @@ size_t unsigned_integer_attribute::length() const {
 
 std::unique_ptr<attribute> unsigned_integer_attribute::clone() const {
 	return std::make_unique<unsigned_integer_attribute>(
-		type(), _content);
+		attrid(), _content);
 }
 
 void unsigned_integer_attribute::write(std::ostream& out) const {
-	out << "attr" << type() << "(" << std::dec << _content << ")";
+	out << "attr" << attrid() << "(" << std::dec << _content << ")";
 }
 
 void unsigned_integer_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_signed_base128(type());
+	out.write_signed_base128(attrid());
 	out.write_unsigned_base128(len);
 	out.write_unsigned(_content, len);
 }

@@ -11,8 +11,8 @@
 
 namespace horace {
 
-binary_ref_attribute::binary_ref_attribute(int type, size_t length, const void* content):
-	attribute(type),
+binary_ref_attribute::binary_ref_attribute(int attrid, size_t length, const void* content):
+	attribute(attrid),
 	_content(static_cast<const char*>(content)),
 	_length(length) {}
 
@@ -22,11 +22,11 @@ size_t binary_ref_attribute::length() const {
 
 std::unique_ptr<attribute> binary_ref_attribute::clone() const {
 	return std::make_unique<binary_ref_attribute>(
-		type(), _length, _content);
+		attrid(), _length, _content);
 }
 
 void binary_ref_attribute::write(std::ostream& out) const {
-	out << "attr" << type() << "(" << std::hex << std::setfill('0');
+	out << "attr" << attrid() << "(" << std::hex << std::setfill('0');
 	for (size_t i = 0; i != _length; ++i) {
 		out << std::setw(2) << (_content[i] & 0xff);
 	}
@@ -34,7 +34,7 @@ void binary_ref_attribute::write(std::ostream& out) const {
 }
 
 void binary_ref_attribute::write(octet_writer& out) const {
-	out.write_signed_base128(type());
+	out.write_signed_base128(attrid());
 	out.write_unsigned_base128(_length);
 	out.write(_content, _length);
 }

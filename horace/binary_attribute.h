@@ -20,20 +20,20 @@ public:
 	/** Construct binary attribute.
 	 * The supplied content is copied, allowing the original to be
 	 * discarded once the attribute has been constructed.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param content the required content
 	 */
-	binary_attribute(int type, size_t length, const void* content);
+	binary_attribute(int attrid, size_t length, const void* content);
 
 	/** Construct binary attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	binary_attribute(int type, size_t length, octet_reader& in);
+	binary_attribute(int attrid, size_t length, octet_reader& in);
 
 	virtual ~binary_attribute();
 	virtual std::unique_ptr<attribute> clone() const;

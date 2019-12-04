@@ -14,9 +14,9 @@
 
 namespace horace {
 
-timestamp_attribute::timestamp_attribute(int type,
+timestamp_attribute::timestamp_attribute(int attrid,
 	size_t length, octet_reader& in):
-	attribute(type) {
+	attribute(attrid) {
 
 	if ((length < 5) || (length > 12)) {
 		throw horace_error(
@@ -36,16 +36,16 @@ timestamp_attribute::timestamp_attribute(int type,
 	_content.tv_nsec = nsec;
 }
 
-timestamp_attribute::timestamp_attribute(int type):
-	attribute(type) {
+timestamp_attribute::timestamp_attribute(int attrid):
+	attribute(attrid) {
 
 	if (clock_gettime(CLOCK_REALTIME, &_content) == -1) {
 		throw libc_error();
 	}
 }
 
-timestamp_attribute::timestamp_attribute(int type, time_t sec, long nsec):
-	attribute(type) {
+timestamp_attribute::timestamp_attribute(int attrid, time_t sec, long nsec):
+	attribute(attrid) {
 
 	if (nsec >= 2000000000) {
 		throw horace_error(
@@ -55,8 +55,8 @@ timestamp_attribute::timestamp_attribute(int type, time_t sec, long nsec):
 	_content.tv_nsec = nsec;
 }
 
-timestamp_attribute::timestamp_attribute(int type, const timespec& content):
-	attribute(type),
+timestamp_attribute::timestamp_attribute(int attrid, const timespec& content):
+	attribute(attrid),
 	_content(content) {
 
 	if (_content.tv_nsec >= 2000000000) {
@@ -76,18 +76,18 @@ size_t timestamp_attribute::length() const {
 }
 
 std::unique_ptr<attribute> timestamp_attribute::clone() const {
-	return std::make_unique<timestamp_attribute>(type(), _content);
+	return std::make_unique<timestamp_attribute>(attrid(), _content);
 }
 
 void timestamp_attribute::write(std::ostream& out) const {
-	out << "attr" << type() << "(" <<
+	out << "attr" << attrid() << "(" <<
 		_content.tv_sec << "." <<
 		std::setfill('0') << std::setw(9) << _content.tv_nsec << ")";
 }
 
 void timestamp_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_signed_base128(type());
+	out.write_signed_base128(attrid());
 	out.write_unsigned_base128(len);
 	out.write_unsigned(_content.tv_sec, len - 4);
 	out.write_unsigned(_content.tv_nsec, 4);

@@ -13,35 +13,35 @@
 namespace horace {
 namespace {
 
-/** The reserved attribute labels applicable to all sessions,
- * indexed by code. */
-const std::map<int, std::string> _reserved_attr_labels = {
-	{ attr_type_def, "attributes" },
-	{ attr_type_code, "code" },
-	{ attr_type_label, "label" },
-	{ attr_type_format, "format" },
-	{ attr_channel_def, "channels" },
-	{ attr_channel_num, "channel" },
-	{ attr_channel_label, "label" },
-	{ attr_source, "source" },
-	{ attr_seqnum, "seqnum" },
-	{ attr_ts_begin, "ts_begin" },
-	{ attr_ts_end, "ts_end" }};
+/** The reserved attribute names applicable to all sessions,
+ * indexed by attribute ID. */
+const std::map<int, std::string> _reserved_attr_names = {
+	{ attrid_attr_def, "attributes" },
+	{ attrid_attr_id, "id" },
+	{ attrid_attr_name, "name" },
+	{ attrid_attr_type, "type" },
+	{ attrid_channel_def, "channels" },
+	{ attrid_channel_num, "channel" },
+	{ attrid_channel_label, "label" },
+	{ attrid_source, "source" },
+	{ attrid_seqnum, "seqnum" },
+	{ attrid_ts_begin, "ts_begin" },
+	{ attrid_ts_end, "ts_end" }};
 
-/** The reserved attribute formats applicable to all sessions,
- * indexed by code. */
-const std::map<int, int> _reserved_attr_formats = {
-	{ attr_type_def, attr_format_compound },
-	{ attr_type_code, attr_format_unsigned_integer },
-	{ attr_type_label, attr_format_string },
-	{ attr_type_format, attr_format_unsigned_integer },
-	{ attr_channel_def, attr_format_compound },
-	{ attr_channel_num, attr_format_unsigned_integer },
-	{ attr_channel_label, attr_format_string },
-	{ attr_source, attr_format_string },
-	{ attr_seqnum, attr_format_unsigned_integer },
-	{ attr_ts_begin, attr_format_timestamp },
-	{ attr_ts_end, attr_format_timestamp }};
+/** The reserved attribute types applicable to all sessions,
+ * indexed by attribute ID. */
+const std::map<int, int> _reserved_attr_types = {
+	{ attrid_attr_def, attrtype_compound },
+	{ attrid_attr_id, attrtype_unsigned_integer },
+	{ attrid_attr_name, attrtype_string },
+	{ attrid_attr_type, attrtype_unsigned_integer },
+	{ attrid_channel_def, attrtype_compound },
+	{ attrid_channel_num, attrtype_unsigned_integer },
+	{ attrid_channel_label, attrtype_string },
+	{ attrid_source, attrtype_string },
+	{ attrid_seqnum, attrtype_unsigned_integer },
+	{ attrid_ts_begin, attrtype_timestamp },
+	{ attrid_ts_end, attrtype_timestamp }};
 
 /** The reserved channel labels applicable to all sessions,
  * indexed by channel number. */
@@ -52,55 +52,55 @@ std::map<int, std::string> _reserved_chan_labels = {
 
 } /* anonymous namespace */
 
-void session_context::handle_attr_type_def(const compound_attribute& attr) {
-	uint64_t code = attr.content().find_one<unsigned_integer_attribute>(
-		attr_type_code).content();
-	std::string label = attr.content().find_one<string_attribute>(
-		attr_type_label).content();
-	uint64_t format = attr.content().find_one<unsigned_integer_attribute>(
-		attr_type_format).content();
-	_attr_labels[code] = label;
-	_attr_formats[code] = format;
+void session_context::handle_attr_def(const compound_attribute& attr) {
+	uint64_t attrid = attr.content().find_one<unsigned_integer_attribute>(
+		attrid_attr_id).content();
+	std::string attrname = attr.content().find_one<string_attribute>(
+		attrid_attr_name).content();
+	uint64_t attrtype = attr.content().find_one<unsigned_integer_attribute>(
+		attrid_attr_type).content();
+	_attr_names[attrid] = attrname;
+	_attr_types[attrid] = attrtype;
 }
 
 void session_context::handle_channel_def(const compound_attribute& attr) {
 	uint64_t num = attr.content().find_one<unsigned_integer_attribute>(
-		attr_channel_num).content();
+		attrid_channel_num).content();
 	std::string label = attr.content().find_one<string_attribute>(
-		attr_channel_label).content();
+		attrid_channel_label).content();
 	_chan_labels[num] = label;
 }
 
-const std::string& session_context::get_attr_label(int type_code) {
-	if (type_code < 0) {
-		auto f = _reserved_attr_labels.find(type_code);
-		if (f != _reserved_attr_labels.end()) {
+const std::string& session_context::get_attr_name(int attrid) {
+	if (attrid < 0) {
+		auto f = _reserved_attr_names.find(attrid);
+		if (f != _reserved_attr_names.end()) {
 			return f->second;
 		}
 	} else {
-		auto f = _attr_labels.find(type_code);
-		if (f != _attr_labels.end()) {
+		auto f = _attr_names.find(attrid);
+		if (f != _attr_names.end()) {
 			return f->second;
 		}
 	}
-	throw horace_error(std::string("unrecognised attribute type ") +
-		std::to_string(type_code));
+	throw horace_error(std::string("unrecognised attribute ID ") +
+		std::to_string(attrid));
 }
 
-int session_context::get_attr_format(int type_code) {
-	if (type_code < 0) {
-		auto f = _reserved_attr_formats.find(type_code);
-		if (f != _reserved_attr_formats.end()) {
+int session_context::get_attr_type(int attrid) {
+	if (attrid < 0) {
+		auto f = _reserved_attr_types.find(attrid);
+		if (f != _reserved_attr_types.end()) {
 			return f->second;
 		}
 	} else {
-		auto f = _attr_formats.find(type_code);
-		if (f != _attr_formats.end()) {
+		auto f = _attr_types.find(attrid);
+		if (f != _attr_types.end()) {
 			return f->second;
 		}
 	}
-	throw horace_error(std::string("unrecognised attribute type ") +
-		std::to_string(type_code));
+	throw horace_error(std::string("unrecognised attribute ID ") +
+		std::to_string(attrid));
 }
 
 const std::string& session_context::get_channel_label(int channel_num) {

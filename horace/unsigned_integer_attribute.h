@@ -20,19 +20,19 @@ private:
 	uint64_t _content;
 public:
 	/** Construct unsigned integer attribute.
-	 * @param type the required attribute type
+	 * @param attrid the required attribute ID
 	 * @param content the required content
 	 */
-	unsigned_integer_attribute(int type, uint64_t content);
+	unsigned_integer_attribute(int attrid, uint64_t content);
 
 	/** Construct unsigned integer attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	unsigned_integer_attribute(int type, size_t length, octet_reader& in);
+	unsigned_integer_attribute(int attrid, size_t length, octet_reader& in);
 
 	/** Get the attribute content.
 	 * @return the content

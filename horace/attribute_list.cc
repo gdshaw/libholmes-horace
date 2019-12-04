@@ -70,11 +70,11 @@ attribute_list::attribute_list(session_context& session, size_t length,
 	size_t remaining = length;
 	while (remaining) {
 		size_t hdr_len = 0;
-		int attr_type = in.read_signed_base128(hdr_len);
+		int attr_id = in.read_signed_base128(hdr_len);
 		int attr_len = in.read_unsigned_base128(hdr_len);
 
 		std::unique_ptr<attribute> attr =
-			attribute::parse(session, attr_type, attr_len, in);
+			attribute::parse(session, attr_id, attr_len, in);
 		append(attr);
 
 		size_t length = hdr_len + attr_len;
@@ -90,30 +90,30 @@ size_t attribute_list::length() const {
 	size_t len = 0;
 	for (auto&& attr : _attributes) {
 		size_t attr_len = attr->length();
-		len += octet_writer::signed_base128_length(attr->type());
+		len += octet_writer::signed_base128_length(attr->attrid());
 		len += octet_writer::unsigned_base128_length(attr_len);
 		len += attr_len;
 	}
 	return len;
 }
 
-bool attribute_list::contains(int type) const {
+bool attribute_list::contains(int attrid) const {
 	for (auto&& attr : _attributes) {
-		if (attr -> type() == type) {
+		if (attr -> attrid() == attrid) {
 			return true;
 		}
 	}
 	return false;
 }
 
-const attribute& attribute_list::_find_one(int type) const {
+const attribute& attribute_list::_find_one(int attrid) const {
 	const attribute* found = 0;
 	for (auto&& attr : _attributes) {
-		if (attr -> type() == type) {
+		if (attr -> attrid() == attrid) {
 			if (found) {
 				std::ostringstream msg;
-				msg << "unexpected multiple attributes of type "
-					<< type;
+				msg << "unexpected multiple attributes (ID="
+					<< attrid << ")";
 				throw horace_error(msg.str());
 			}
 			found = attr;
@@ -121,7 +121,7 @@ const attribute& attribute_list::_find_one(int type) const {
 	}
 	if (!found) {
 		std::ostringstream msg;
-		msg << "expected attribute of type " << type;
+		msg << "expected attribute (ID=" << attrid << ")";
 		throw horace_error(msg.str());
 	}
 	return *found;

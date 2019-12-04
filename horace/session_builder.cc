@@ -18,23 +18,23 @@ session_builder::session_builder(const std::string& source_id):
 	_chan_count(0) {
 
 	_attributes.append(std::make_unique<string_attribute>(
-		attr_source, source_id));
+		attrid_source, source_id));
 	_attributes.append(std::make_unique<timestamp_attribute>
-		(attr_ts_begin));
+		(attrid_ts_begin));
 }
 
-int session_builder::define_attribute_type(const std::string& label,
-	int format) {
+int session_builder::define_attribute(const std::string& name,
+	int type) {
 
 	attribute_list subattrs;
 	subattrs.append(std::make_unique<unsigned_integer_attribute>(
-		attr_type_code, _attr_count));
+		attrid_attr_id, _attr_count));
 	subattrs.append(std::make_unique<string_attribute>(
-		attr_type_label, label));
+		attrid_attr_name, name));
 	subattrs.append(std::make_unique<unsigned_integer_attribute>(
-		attr_type_format, format));
+		attrid_attr_type, type));
 	_attributes.append(std::make_unique<compound_attribute>(
-		attr_type_def, std::move(subattrs)));
+		attrid_attr_def, std::move(subattrs)));
 	return _attr_count++;
 }
 
@@ -42,11 +42,11 @@ int session_builder::define_channel(const std::string& label,
 	attribute_list&& subattrs) {
 
 	subattrs.append(std::make_unique<unsigned_integer_attribute>(
-		attr_channel_num, _chan_count));
+		attrid_channel_num, _chan_count));
 	subattrs.append(std::make_unique<string_attribute>(
-		attr_channel_label, label));
+		attrid_channel_label, label));
 	_attributes.append(std::make_unique<compound_attribute>(
-		attr_channel_def, std::move(subattrs)));
+		attrid_channel_def, std::move(subattrs)));
 	return _chan_count;
 }
 

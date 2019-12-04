@@ -12,9 +12,9 @@
 
 namespace horace {
 
-unrecognised_attribute::unrecognised_attribute(int type, size_t length,
+unrecognised_attribute::unrecognised_attribute(int attrid, size_t length,
 	octet_reader& in):
-	attribute(type),
+	attribute(attrid),
 	_length(length) {
 
 	std::unique_ptr<char[]> content = std::make_unique<char[]>(_length);
@@ -22,9 +22,9 @@ unrecognised_attribute::unrecognised_attribute(int type, size_t length,
 	_content = std::move(content);
 }
 
-unrecognised_attribute::unrecognised_attribute(int type, size_t length,
+unrecognised_attribute::unrecognised_attribute(int attrid, size_t length,
 	std::unique_ptr<const char[]>& content):
-	attribute(type),
+	attribute(attrid),
 	_content(std::move(content)),
 	_length(length) {}
 
@@ -36,11 +36,11 @@ std::unique_ptr<attribute> unrecognised_attribute::clone() const {
 	std::unique_ptr<char[]> content = std::make_unique<char[]>(_length);
 	memcpy(content.get(), _content.get(), _length);
 	std::unique_ptr<const char[]> const_content = std::move(content);
-	return std::make_unique<unrecognised_attribute>(type(), _length, const_content);
+	return std::make_unique<unrecognised_attribute>(attrid(), _length, const_content);
 }
 
 void unrecognised_attribute::write(std::ostream& out) const {
-	out << "attr" << std::dec << type() << "(";
+	out << "attr" << std::dec << attrid() << "(";
 	out << std::hex << std::setfill('0');
 	for (size_t i = 0; i != _length; ++i) {
 		out << std::setw(2) << (_content[i] & 0xff);
@@ -49,7 +49,7 @@ void unrecognised_attribute::write(std::ostream& out) const {
 }
 
 void unrecognised_attribute::write(octet_writer& out) const {
-	out.write_signed_base128(type());
+	out.write_signed_base128(attrid());
 	out.write_unsigned_base128(_length);
 	out.write(_content.get(), _length);
 }

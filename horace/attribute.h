@@ -15,45 +15,45 @@ class octet_reader;
 class octet_writer;
 class session_context;
 
-// Attribute format codes.
-static const int attr_format_compound = 0;
-static const int attr_format_unsigned_integer = 1;
-static const int attr_format_binary = 2;
-static const int attr_format_string = 3;
-static const int attr_format_timestamp = 4;
+// Attribute type codes.
+static const int attrtype_compound = 0;
+static const int attrtype_unsigned_integer = 1;
+static const int attrtype_binary = 2;
+static const int attrtype_string = 3;
+static const int attrtype_timestamp = 4;
 
-// Reserved attribute type codes.
-static const int attr_type_def = -1;
-static const int attr_type_code = -2;
-static const int attr_type_label = -3;
-static const int attr_type_format = -4;
-static const int attr_channel_def = -5;
-static const int attr_channel_num = -6;
-static const int attr_channel_label = -7;
-static const int attr_source = -8;
-static const int attr_seqnum = -9;
-static const int attr_ts_begin = -10;
-static const int attr_ts_end = -11;
+// Reserved attribute IDs
+static const int attrid_attr_def = -1;
+static const int attrid_attr_id = -2;
+static const int attrid_attr_name = -3;
+static const int attrid_attr_type = -4;
+static const int attrid_channel_def = -5;
+static const int attrid_channel_num = -6;
+static const int attrid_channel_label = -7;
+static const int attrid_source = -8;
+static const int attrid_seqnum = -9;
+static const int attrid_ts_begin = -10;
+static const int attrid_ts_end = -11;
 
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
 private:
-	/** The type code for this attribute. */
-	int _type;
+	/** The attribute ID. */
+	int _attrid;
 public:
 	/** Construct attribute.
-	 * @param type the required type code
+	 * @param id the required attribute ID
 	 */
-	explicit attribute(int type):
-		_type(type) {}
+	explicit attribute(int attrid):
+		_attrid(attrid) {}
 
 	virtual ~attribute() = default;
 
-	/** Get the type of this attribute.
-	 * @return the type code
+	/** Get the attribute ID
+	 * @return the attribute ID
 	 */
-	int type() const {
-		return _type;
+	int attrid() const {
+		return _attrid;
 	}
 
 	/** Get the length of the content of this attribute.
@@ -80,19 +80,19 @@ public:
 	virtual void write(octet_writer& out) const = 0;
 
 	/** Parse attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * function must read exactly the specified number of octets.
 	 * @param session the applicable session context
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 * @return the resulting attribute
 	 */
 	static std::unique_ptr<attribute> parse(session_context& session,
-		int type, size_t length, octet_reader& in);
+		int attrid, size_t length, octet_reader& in);
 
 	/** Parse attribute from an octet reader.
-	 * The type and length fields must not already have been read.
+	 * The ID and length fields must not already have been read.
 	 * @param session the applicable session context
 	 * @param in the octet reader
 	 * @return the resulting attribute

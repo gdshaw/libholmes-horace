@@ -27,11 +27,11 @@ public:
 	 * The content is not copied, and must remain valid for the
 	 * lifetime of this attribute and of any record buffer derived
 	 * from it.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param content the required content
 	 */
-	binary_ref_attribute(int type, size_t length, const void* content);
+	binary_ref_attribute(int attrid, size_t length, const void* content);
 
 	/** Get attribute content.
 	 * @return the content

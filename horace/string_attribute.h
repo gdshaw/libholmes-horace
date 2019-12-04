@@ -20,19 +20,19 @@ private:
 	std::string _content;
 public:
 	/** Construct string attribute.
-	 * @param type the required attribute type
+	 * @param attrid the required attribute ID
 	 * @param content the required content
 	 */
-	string_attribute(int type, const std::string& content);
+	string_attribute(int attrid, const std::string& content);
 
 	/** Construct string attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	string_attribute(int type, size_t length, octet_reader& in);
+	string_attribute(int attrid, size_t length, octet_reader& in);
 
 	/** Get the attribute content.
 	 * @return the content

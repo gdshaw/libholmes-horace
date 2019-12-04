@@ -24,7 +24,7 @@ private:
 	/** An attribute list for the session record. */
 	attribute_list _attributes;
 
-	/** The number of attribute types defineds. */
+	/** The number of attribute types defined. */
 	int _attr_count;
 
 	/** The number of channels defined. */
@@ -42,14 +42,15 @@ public:
 		return _source_id;
 	}
 
-	/** Define attribute type.
-	 * If a type is requested which matches a previous definition
-	 * then this function is permitted but not required to reuse it.
-	 * @param label the required attribute label
-	 * @param format the required attribute format
+	/** Define attribute.
+	 * If a name and type are requested which match a previous
+	 * definition then this function is permitted but not required
+	 * to reuse it.
+	 * @param name the required attribute name
+	 * @param type the required attribute type
 	 */
-	int define_attribute_type(const std::string& label,
-		int format);
+	int define_attribute(const std::string& name,
+		int type);
 
 	/** Define channel.
 	 * Invokation of this function always causes a new channel to be

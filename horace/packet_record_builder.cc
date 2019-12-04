@@ -11,10 +11,10 @@ namespace horace {
 
 packet_record_builder::packet_record_builder(session_builder& session, int channel):
 	_channel(channel),
-	_ts_attr(session.define_attribute_type("ts", attr_format_timestamp), 0, 0),
-	_pkt_attr(session.define_attribute_type("packet", attr_format_binary), 0, 0),
-	_origlen_attr(session.define_attribute_type("origlen", attr_format_unsigned_integer), 0),
-	_rpt_attr(session.define_attribute_type("repeat", attr_format_unsigned_integer), 0),
+	_ts_attr(session.define_attribute("ts", attrtype_timestamp), 0, 0),
+	_pkt_attr(session.define_attribute("packet", attrtype_binary), 0, 0),
+	_origlen_attr(session.define_attribute("origlen", attrtype_unsigned_integer), 0),
+	_rpt_attr(session.define_attribute("repeat", attrtype_unsigned_integer), 0),
 	_count(0) {
 
 	_buffer.emplace_back();
@@ -28,11 +28,11 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 	attribute_list attrs;
 	_count = 0;
 	if (ts) {
-		attrs.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
+		attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid(), *ts));
 	}
-	attrs.append(_pkt_attr = binary_ref_attribute(_pkt_attr.type(), snaplen, content));
+	attrs.append(_pkt_attr = binary_ref_attribute(_pkt_attr.attrid(), snaplen, content));
 	if (snaplen != origlen) {
-		attrs.append(_origlen_attr = unsigned_integer_attribute(_origlen_attr.type(), origlen));
+		attrs.append(_origlen_attr = unsigned_integer_attribute(_origlen_attr.attrid(), origlen));
 	}
 	_buffer[_count] = record(_channel, std::move(attrs));
 	_count += 1;
@@ -42,7 +42,7 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 		if (ts) {
 			attrs.append(_ts_attr);
 		}
-		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
+		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.attrid(), dropped));
 		_buffer[_count] = record(_channel, std::move(attrs));
 		_count += 1;
 	}
@@ -55,9 +55,9 @@ void packet_record_builder::build_dropped(const struct timespec* ts,
 	_count = 0;
 	if (dropped != 0) {
 		if (ts) {
-			attrs.append(_ts_attr = timestamp_attribute(_ts_attr.type(), *ts));
+			attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid(), *ts));
 		}
-		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.type(), dropped));
+		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.attrid(), dropped));
 		_buffer[_count] = record(_channel, std::move(attrs));
 		_count += 1;
 	}

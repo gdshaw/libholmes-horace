@@ -20,7 +20,7 @@ void simple_session_writer::_process_session_record(const record& srec) {
 	} else {
 		_srec = std::make_unique<record>(srec);
 	}
-	if (srec.contains(attr_ts_end)) {
+	if (srec.contains(attrid_ts_end)) {
 		handle_session_end(srec);
 		_srec = 0;
 	}

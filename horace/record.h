@@ -105,23 +105,23 @@ public:
 		return _attributes;
 	}
 
-	/** Determine whether this record contains any instances of a given
-	 * attribute type.
-	 * @param type the required attribute type
+	/** Determine whether this record contains any attributes with
+	 * a given attribute ID.
+	 * @param attrid the required attribute ID
 	 * @return true if there are one or more instances, otherwise false
 	 */
-	bool contains(int type) const {
-		return _attributes.contains(type);
+	bool contains(int attrid) const {
+		return _attributes.contains(attrid);
 	}
 
-	/** Find a single instance of a given attribute type.
+	/** Find a single attribute with a given attribute ID.
 	 * It is an error if there are no matching attributes, or if there
 	 * is more than one matching attribute.
-	 * @param type the required attribute type
+	 * @param addrid the required attribute ID
 	 */
 	template<class T>
-	const T& find_one(int type) const {
-		return _attributes.find_one<T>(type);
+	const T& find_one(int attrid) const {
+		return _attributes.find_one<T>(attrid);
 	}
 
 	/** Write this record to an octet writer.

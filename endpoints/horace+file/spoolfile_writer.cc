@@ -63,7 +63,7 @@ bool spoolfile_writer::write(const record& rec) {
 bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
 	if (seqnum != _seqnum) {
 		attribute_list attrs = rec.attributes();
-		unsigned_integer_attribute seqnum_attr(attr_seqnum, seqnum);
+		unsigned_integer_attribute seqnum_attr(attrid_seqnum, seqnum);
 		attrs.append(seqnum_attr);
 		record nrec(rec.channel_number(), std::move(attrs));
 		return write(nrec);

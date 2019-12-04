@@ -20,23 +20,23 @@
 namespace horace {
 
 void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
-	std::string attr_label = _session.get_attr_label(attr.type());
+	std::string attr_name = _session.get_attr_name(attr.attrid());
 	if (const unsigned_integer_attribute* _attr = dynamic_cast<const unsigned_integer_attribute*>(&attr)) {
-		bson_append_int64(&bson, attr_label.c_str(), -1, _attr->content());
+		bson_append_int64(&bson, attr_name.c_str(), -1, _attr->content());
 	} else if (const string_attribute* _attr = dynamic_cast<const string_attribute*>(&attr)) {
-		bson_append_utf8(&bson, attr_label.c_str(), -1, _attr->content().c_str(), -1);
+		bson_append_utf8(&bson, attr_name.c_str(), -1, _attr->content().c_str(), -1);
 	} else if (const binary_ref_attribute* _attr = dynamic_cast<const binary_ref_attribute*>(&attr)) {
-		bson_append_binary(&bson, attr_label.c_str(), -1, BSON_SUBTYPE_BINARY,
+		bson_append_binary(&bson, attr_name.c_str(), -1, BSON_SUBTYPE_BINARY,
 			reinterpret_cast<const uint8_t*>(_attr->content()), _attr->length());
 	} else if (const timestamp_attribute* _attr = dynamic_cast<const timestamp_attribute*>(&attr)) {
 		bson_t bson_ts;
-		bson_append_document_begin(&bson, attr_label.c_str(), -1, &bson_ts);
+		bson_append_document_begin(&bson, attr_name.c_str(), -1, &bson_ts);
 		bson_append_int64(&bson_ts, "sec", -1, _attr->content().tv_sec);
 		bson_append_int32(&bson_ts, "nsec", -1, _attr->content().tv_nsec);
 		bson_append_document_end(&bson, &bson_ts);
 	} else if (const compound_attribute* _attr = dynamic_cast<const compound_attribute*>(&attr)) {
 		bson_t bson_compound;
-		bson_append_document_begin(&bson, attr_label.c_str(), -1, &bson_compound);
+		bson_append_document_begin(&bson, attr_name.c_str(), -1, &bson_compound);
 		for (auto subattr : _attr->content().attributes()) {
 			_append_bson(bson_compound, *subattr);
 		}
@@ -92,7 +92,7 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 
 void mongodb_session_writer::handle_session_start(const record& srec) {
 	_session_ts = srec.find_one<timestamp_attribute>(
-		attr_ts_begin).content();
+		attrid_ts_begin).content();
 	_seqnum = 0;
 	_session = session_context();
 
@@ -112,11 +112,11 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 	bson_t bson_channels;
 	bson_append_document_begin(&bson_session, "channels", -1, &bson_channels);
 	for (auto attr : srec.attributes()) {
-		if (attr->type() == attr_type_def) {
-			_session.handle_attr_type_def(
+		if (attr->attrid() == attrid_attr_def) {
+			_session.handle_attr_def(
 				dynamic_cast<const compound_attribute&>(*attr));
 			continue;
-		} else	if (attr->type() != attr_channel_def) {
+		} else	if (attr->attrid() != attrid_channel_def) {
 			continue;
 		}
 
@@ -125,9 +125,9 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 		_session.handle_channel_def(channel_def);
 
 		uint64_t channel_num = channel_def.content().
-			find_one<unsigned_integer_attribute>(attr_channel_num).content();
+			find_one<unsigned_integer_attribute>(attrid_channel_num).content();
 		std::string channel_label = channel_def.content().
-			find_one<string_attribute>(attr_channel_label).content();
+			find_one<string_attribute>(attrid_channel_label).content();
 
 		std::string channel_str = std::string("channel") + std::to_string(channel_num);
 		bson_t bson_channel;
@@ -153,7 +153,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 
 void mongodb_session_writer::handle_session_end(const record& srec) {
 	struct timespec end_ts = srec.find_one<timestamp_attribute>(
-		attr_ts_end).content();
+		attrid_ts_end).content();
 
 	bson_t bson_session;
 	bson_t bson_id;

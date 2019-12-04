@@ -21,21 +21,21 @@ private:
 	std::unique_ptr<const char[]> _content;
 public:
 	/** Construct unrecognised attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	unrecognised_attribute(int type, size_t length, octet_reader& in);
+	unrecognised_attribute(int attrid, size_t length, octet_reader& in);
 
 	/** Construct unrecognised attribute.
 	 * Ownership of the content passes to the attribute.
-	 * @param type the required type
+	 * @param attrid the required ID
 	 * @param content the required content
 	 * @param length the required length, in octets
 	 */
-	unrecognised_attribute(int type, size_t length,
+	unrecognised_attribute(int attrid, size_t length,
 		std::unique_ptr<const char[]>& content);
 
 	/** Get the content of this attribute.

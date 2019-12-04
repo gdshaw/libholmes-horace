@@ -10,13 +10,13 @@
 
 namespace horace {
 
-compound_attribute::compound_attribute(int type, attribute_list&& attrlist):
-	attribute(type),
+compound_attribute::compound_attribute(int attrid, attribute_list&& attrlist):
+	attribute(attrid),
 	_attrlist(std::move(attrlist)) {}
 
-compound_attribute::compound_attribute(session_context& session, int type,
+compound_attribute::compound_attribute(session_context& session, int attrid,
 	size_t length, octet_reader& in):
-	attribute(type),
+	attribute(attrid),
 	_attrlist(session, length, in) {}
 
 size_t compound_attribute::length() const {
@@ -26,15 +26,15 @@ size_t compound_attribute::length() const {
 std::unique_ptr<attribute> compound_attribute::clone() const {
 	attribute_list attrlist(_attrlist);
 	return std::make_unique<compound_attribute>(
-		type(), std::move(attrlist));
+		attrid(), std::move(attrlist));
 }
 
 void compound_attribute::write(std::ostream& out) const {
-	out << "attr" << type() << _attrlist;
+	out << "attr" << attrid() << _attrlist;
 }
 
 void compound_attribute::write(octet_writer& out) const {
-	out.write_signed_base128(type());
+	out.write_signed_base128(attrid());
 	out.write_unsigned_base128(length());
 	_attrlist.write(out);
 }

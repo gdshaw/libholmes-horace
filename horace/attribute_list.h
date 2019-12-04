@@ -60,7 +60,7 @@ public:
 	}
 
 	/** Get the encoded length of the content of this list.
-	 * The result includes a type and length field for each attribute,
+	 * The result includes an ID and length field for each attribute,
 	 * but not for the list as a whole.
 	 * @return the content length, in octets
 	 */
@@ -87,28 +87,28 @@ public:
 		return _attributes;
 	}
 
-       /** Determine whether this list contains any instances of a given
-         * attribute type.
-         * @param type the required attribute type
+       /** Determine whether this list contains any attributes with a given
+         * attribute ID.
+         * @param attrid the required attribute ID
          * @return true if there are one or more instances, otherwise false
          */
-        bool contains(int type) const;
+        bool contains(int attrid) const;
 private:
-	/** Find a single instance of a given attribute type.
+	/** Find a single attribute with a given attribute ID.
 	 * It is an error if there are no matching attributes, or if there
 	 * is more than one matching attribute.
-	 * @param type the required attribute type
+	 * @param attrid the required attribute ID
 	 */
-	const attribute& _find_one(int type) const;
+	const attribute& _find_one(int attrid) const;
 public:
-	/** Find a single instance of a given attribute type.
+	/** Find a single attribute with a given attribute ID.
 	 * It is an error if there are no matching attributes, or if there
 	 * is more than one matching attribute.
-	 * @param type the required attribute type
+	 * @param attrid the required attribute ID
 	 */
 	template<class T>
-	const T& find_one(int type) const {
-		return dynamic_cast<const T&>(_find_one(type));
+	const T& find_one(int attrid) const {
+		return dynamic_cast<const T&>(_find_one(attrid));
 	}
 
 	/** Append an attribute to this list, with transfer of ownership.
@@ -133,7 +133,7 @@ public:
 	attribute_list& append(const attribute& attr);
 
 	/** Write this attribute list to an octet writer.
-	 * A type and length field are written for each attribute, but not
+	 * An ID and length field are written for each attribute, but not
 	 * for the list as a whole.
 	 * @param out the octet writer
 	 */

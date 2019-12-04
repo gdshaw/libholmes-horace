@@ -11,12 +11,12 @@
 
 namespace horace {
 
-string_attribute::string_attribute(int type, const std::string& content):
-	attribute(type),
+string_attribute::string_attribute(int attrid, const std::string& content):
+	attribute(attrid),
 	_content(content) {}
 
-string_attribute::string_attribute(int type, size_t length, octet_reader& in):
-	attribute(type),
+string_attribute::string_attribute(int attrid, size_t length, octet_reader& in):
+	attribute(attrid),
 	_content(in.read_string(length)) {}
 
 size_t string_attribute::length() const {
@@ -24,15 +24,15 @@ size_t string_attribute::length() const {
 }
 
 std::unique_ptr<attribute> string_attribute::clone() const {
-	return std::make_unique<string_attribute>(type(), _content);
+	return std::make_unique<string_attribute>(attrid(), _content);
 }
 
 void string_attribute::write(std::ostream& out) const {
-	out << "attr" << type() << "(" << _content << ")";
+	out << "attr" << attrid() << "(" << _content << ")";
 }
 
 void string_attribute::write(octet_writer& out) const {
-	out.write_signed_base128(type());
+	out.write_signed_base128(attrid());
 	out.write_unsigned_base128(length());
 	out.write_string(_content);
 }

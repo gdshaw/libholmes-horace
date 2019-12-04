@@ -33,31 +33,31 @@ private:
 	struct timespec _content;
 public:
 	/** Construct timestamp attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	timestamp_attribute(int type, size_t length, octet_reader& in);
+	timestamp_attribute(int attrid, size_t length, octet_reader& in);
 
 	/** Construct timestamp attribute for current time.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 */
-	explicit timestamp_attribute(int type);
+	explicit timestamp_attribute(int addrid);
 
 	/** Construct timestamp attribute from seconds and nanoseconds.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param sec the number of whole seconds since the epoch
 	 * @param nsec the number of additional nanoseconds
 	 */
-	timestamp_attribute(int type, time_t sec, long nsec);
+	timestamp_attribute(int attrid, time_t sec, long nsec);
 
 	/** Construct timestamp attribute from a timespec.
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param ts the required timestamp
 	 */
-	timestamp_attribute(int type, const struct timespec& ts);
+	timestamp_attribute(int attrid, const struct timespec& ts);
 
 	/** Get the attribute content.
 	 * @return the content as a timespec

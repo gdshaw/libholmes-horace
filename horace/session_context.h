@@ -16,36 +16,36 @@ class compound_attribute;
 /** A class for tracking the context of a HORACE session. */
 class session_context {
 private:
-	/** The attribute labels for this session, indexed by code. */
-	std::map<int, std::string> _attr_labels;
+	/** The attribute names for this session, indexed by ID. */
+	std::map<int, std::string> _attr_names;
 
-	/** The attribute formats for this session, indexed by code. */
-	std::map<int, int> _attr_formats;
+	/** The attribute types for this session, indexed by ID. */
+	std::map<int, int> _attr_types;
 
 	/** The channel labels for this session, indexed by number. */
 	std::map<int, std::string> _chan_labels;
 public:
-	/** Handle an attribute type definition.
-	 * @param attr the attribute to be handled
+	/** Handle an attribute definition.
+	 * @param attr the attribute definition attribute to be handled
 	 */
-	void handle_attr_type_def(const compound_attribute& attr);
+	void handle_attr_def(const compound_attribute& attr);
 
 	/** Handle a channel definition.
-	 * @param attr the attribute to be handled
+	 * @param attr the channel definition attribute to be handled
 	 */
 	void handle_channel_def(const compound_attribute& attr);
 
-	/** Get the attribute label for a given type code.
-	 * @param type_code the required type code
-	 * @return the corresponding attribute label
+	/** Get the attribute name for a given attribute ID.
+	 * @param attrid the required attribute ID
+	 * @return the corresponding attribute name
 	 */
-	const std::string& get_attr_label(int type_code);
+	const std::string& get_attr_name(int attrid);
 
-	/** Get the attribute format for a given type code.
-	 * @param type_code the required type code
-	 * @return the corresponding attribute format
+	/** Get the attribute type for a given attribute ID.
+	 * @param attrid the required attribute ID
+	 * @return the corresponding attribute type
 	 */
-	int get_attr_format(int type_code);
+	int get_attr_type(int attrid);
 
 	/** Get the channel label for a given channel number.
 	 * @param channel_num the required channel number

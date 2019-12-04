@@ -19,21 +19,21 @@ private:
 	attribute_list _attrlist;
 public:
 	/** Construct compound attribute.
-	 * @param type the required attribute type
+	 * @param attrid the required attribute ID
 	 * @param attrlist the required attributes
 	 */
-	compound_attribute(int type, attribute_list&& attrlist);
+	compound_attribute(int attrid, attribute_list&& attrlist);
 
 	/** Construct compound attribute from an octet reader.
-	 * The type and length fields must already have been read. This
+	 * The ID and length fields must already have been read. This
 	 * constructor must read exactly the specified number of octets.
 	 * @param session the applicable session context
-	 * @param type the attribute type
+	 * @param attrid the attribute ID
 	 * @param length the length of the content, in octets
 	 * @param in the octet reader
 	 */
-	compound_attribute(session_context& session, int type, size_t length,
-		octet_reader& in);
+	compound_attribute(session_context& session, int attrid,
+		size_t length, octet_reader& in);
 
 	/** Get the attribute content.
 	 * @return the content

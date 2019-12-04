@@ -25,17 +25,17 @@ record::record(session_context& session, octet_reader& in) {
 	size_t remaining = in.read_unsigned_base128();
 	while (remaining) {
 		size_t hdr_len = 0;
-		int attr_type = in.read_signed_base128(hdr_len);
+		int attr_id = in.read_signed_base128(hdr_len);
 		int attr_len = in.read_unsigned_base128(hdr_len);
 
 		std::unique_ptr<attribute> attr =
-			attribute::parse(session, attr_type, attr_len, in);
-		switch (attr->type()) {
-		case attr_type_def:
-			session.handle_attr_type_def(
+			attribute::parse(session, attr_id, attr_len, in);
+		switch (attr->attrid()) {
+		case attrid_attr_def:
+			session.handle_attr_def(
 				dynamic_cast<compound_attribute&>(*attr));
 			break;
-		case attr_channel_def:
+		case attrid_channel_def:
 			session.handle_channel_def(
 				dynamic_cast<compound_attribute&>(*attr));
 			break;
@@ -57,7 +57,7 @@ record::record(session_context& session, octet_reader& in) {
 uint64_t record::update_seqnum(uint64_t seqnum) const {
 	if (is_event()) {
 		for (auto&& attr : _attributes) {
-			if (attr->type() == attr_seqnum) {
+			if (attr->attrid() == attrid_seqnum) {
 				return dynamic_cast<const unsigned_integer_attribute&>(*attr).content();
 			}
 		}
@@ -106,15 +106,15 @@ std::ostream& operator<<(std::ostream& out, const record& rec) {
 
 bool same_session(const record& lhs, const record& rhs) {
 	std::string lsource = lhs.find_one<string_attribute>(
-		attr_source).content();
+		attrid_source).content();
 	std::string rsource = rhs.find_one<string_attribute>(
-		attr_source).content();
+		attrid_source).content();
 	if (lsource != rsource) return false;
 
 	struct timespec lts = lhs.find_one<timestamp_attribute>(
-		attr_ts_begin).content();
+		attrid_ts_begin).content();
 	struct timespec rts = rhs.find_one<timestamp_attribute>(
-		attr_ts_begin).content();
+		attrid_ts_begin).content();
 	if ((lts.tv_sec != rts.tv_sec) || (lts.tv_nsec != rts.tv_nsec)) {
 		return false;
 	}

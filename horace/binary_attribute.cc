@@ -11,16 +11,16 @@
 
 namespace horace {
 
-binary_attribute::binary_attribute(int type, size_t length, const void* content):
-	binary_ref_attribute(type, length, new char[length]) {
+binary_attribute::binary_attribute(int attrid, size_t length, const void* content):
+	binary_ref_attribute(attrid, length, new char[length]) {
 
 	char* _content = const_cast<char*>(
 		static_cast<const char*>(this->content()));
 	memcpy(_content, content, length);
 }
 
-binary_attribute::binary_attribute(int type, size_t length, octet_reader& in):
-	binary_ref_attribute(type, length, new char[length]) {
+binary_attribute::binary_attribute(int attrid, size_t length, octet_reader& in):
+	binary_ref_attribute(attrid, length, new char[length]) {
 
 	char* _content = const_cast<char*>(
 		static_cast<const char*>(content()));
@@ -34,7 +34,7 @@ binary_attribute::binary_attribute(int type, size_t length, octet_reader& in):
 
 std::unique_ptr<attribute> binary_attribute::clone() const {
 	return std::make_unique<binary_attribute>(
-		type(), length(), content());
+		attrid(), length(), content());
 }
 
 binary_attribute::~binary_attribute() {
