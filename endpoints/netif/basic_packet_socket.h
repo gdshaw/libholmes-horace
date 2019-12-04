@@ -45,8 +45,9 @@ public:
 	void set_promiscuous(const interface& iface);
 
 	/** Get the number of dropped packets.
-	 * The default implementation is applicable to TPACKET_V1 and
-	 * TPACKET_V2, but should be overridden for sockets using TPACKET_V3.
+	 * The default implementation is applicable to sockets without a
+	 * ring buffer, or with a TPACKET_v1 or V2 ring buffer, but it must
+	 * be overridden for sockets using TPACKET_V3.
 	 * @return the number of dropped packets since previous call
 	 */
 	virtual unsigned int drops() const;
