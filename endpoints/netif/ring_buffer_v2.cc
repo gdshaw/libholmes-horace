@@ -118,4 +118,4 @@ const record& ring_buffer_v2::read() {
 	return *_builder->next();
 }
 
-} /* namepsace horace */
+} /* namespace horace */

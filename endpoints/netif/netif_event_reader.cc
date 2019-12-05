@@ -30,7 +30,7 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 	attribute_list attrs;
 	attrs.append(std::make_unique<unsigned_integer_attribute>(
 		session.define_attribute("ifindex", attrtype_unsigned_integer),
-		_ep->netif()));
+		_ep->netif().ifindex()));
 	attrs.append(std::make_unique<string_attribute>(
 		session.define_attribute("ifname", attrtype_string),
 		_ep->netifname()));
@@ -56,22 +56,22 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 		throw endpoint_error("interface capture method not recognised");
 	}
 
-	if (ep.netif()) {
+	if (!ep.netif().isany()) {
 		_sock->bind(ep.netif());
 	}
 
 	if (log->enabled(logger::log_notice)) {
 		log_message msg(*log, logger::log_notice);
 		msg << "capturing on ";
-		if (ep.netif()) {
-			msg << "interface " << ep.netifname();
-		} else {
+		if (ep.netif().isany()) {
 			msg << "all interfaces";
+		} else {
+			msg << "interface " << ep.netifname();
 		}
 	}
 
 	if (ep.promiscuous()) {
-		if (!ep.netif()) {
+		if (ep.netif().isany()) {
 			throw endpoint_error("cannot enable promiscuous "
 				"mode for all interfaces.");
 		}

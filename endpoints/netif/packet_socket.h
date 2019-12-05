@@ -19,7 +19,8 @@ namespace horace {
 
 class packet_record_builder;
 
-/** A class for reading traffic from an AF_PACKET socket. */
+/** A class for reading traffic from an AF_PACKET socket without using
+ * a ring buffer. */
 class packet_socket:
 	public basic_packet_socket {
 private:
@@ -50,9 +51,10 @@ public:
 	/** Open packet socket.
 	 * @param builder a builder for making packet records
 	 * @param snaplen the required link layer snaplen, in octets
-	 * @param buffer_size the required ring buffer size, in octets
+	 * @param buffer_size the required buffer size, in octets
 	 */
-	packet_socket(packet_record_builder& builder, size_t snaplen, size_t buffer_size);
+	packet_socket(packet_record_builder& builder, size_t snaplen,
+		size_t buffer_size);
 
 	virtual const record& read();
 };

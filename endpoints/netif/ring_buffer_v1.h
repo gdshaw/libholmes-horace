@@ -32,7 +32,8 @@ private:
 	/** The index of the next frame to be read. */
 	int _frame_idx;
 
-	/** The tpacket_hdr structure for the last frame to be read. */
+	/** The tpacket_hdr structure for the most recently read frame,
+	 * or 0 if none or already released back to the kernel. */
 	struct tpacket_hdr* _last_tphdr;
 
 	/** A builder for making packet records. */

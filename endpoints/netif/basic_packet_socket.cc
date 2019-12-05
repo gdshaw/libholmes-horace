@@ -22,14 +22,14 @@ basic_packet_socket::basic_packet_socket():
 void basic_packet_socket::bind(const interface& iface) {
 	struct sockaddr_ll addr = {0};
 	addr.sll_family = AF_PACKET;
-	addr.sll_ifindex = iface;
+	addr.sll_ifindex = iface.ifindex();
 	addr.sll_protocol = htons(ETH_P_ALL);
 	socket_descriptor::bind(addr);
 }
 
 void basic_packet_socket::set_promiscuous(const interface& iface) {
 	struct packet_mreq mreq = {0};
-	mreq.mr_ifindex = iface;
+	mreq.mr_ifindex = iface.ifindex();
 	mreq.mr_type = PACKET_MR_PROMISC;
 	setsockopt(SOL_PACKET, PACKET_ADD_MEMBERSHIP, mreq);
 }

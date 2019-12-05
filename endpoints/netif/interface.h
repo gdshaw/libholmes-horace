@@ -33,10 +33,17 @@ public:
 	 */
 	explicit interface(const std::string& ifname);
 
+	/** Test whether capture should occur on any interface.
+	 * @return true for capture on any interface, otherwise false
+	 */
+	bool isany() const {
+		return (_ifindex == 0);
+	}
+
 	/** Get interface index.
 	 * @return the interface index, or 0 for any index
 	 */
-	operator int() const {
+	int ifindex() const {
 		return _ifindex;
 	}
 

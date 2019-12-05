@@ -30,7 +30,8 @@ private:
 	/** The index of the next frame to be read. */
 	int _frame_idx;
 
-	/** The previous block, or 0 if none or already released. */
+	/** The previous block, or 0 if none or already released
+	 * back to the kernel. */
 	struct tpacket_block_desc* _last_block;
 
 	/** The current block. */

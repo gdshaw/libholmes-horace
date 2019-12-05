@@ -74,7 +74,8 @@ const record& packet_socket::read() {
 	size_t pkt_snaplen = (message.msg_flags & MSG_TRUNC) ?
 		_snaplen : pkt_origlen;
 
-	// Find the timestamp which should be present in the control buffer.
+	// Scan the control buffer, extracting the timestamp (which should
+	// always be present) and the drop count (which may be present).
 	struct timespec* ts = 0;
 	uint32_t drop_diff = 0;
 	for (struct cmsghdr* cmsg = CMSG_FIRSTHDR(&message); cmsg;
@@ -84,10 +85,10 @@ const record& packet_socket::read() {
 			if (cmsg->cmsg_type == SO_TIMESTAMPNS) {
 				ts = reinterpret_cast<struct timespec*>(CMSG_DATA(cmsg));
 			} else if (cmsg->cmsg_type == SO_RXQ_OVFL) {
-				uint32_t drop_count =
+				uint32_t new_drop_count =
 					*reinterpret_cast<uint32_t*>(CMSG_DATA(cmsg));
-				drop_diff = drop_count - _drop_count;
-				_drop_count = drop_count;
+				drop_diff = new_drop_count - _drop_count;
+				_drop_count = new_drop_count;
 			}
 		}
 	}
