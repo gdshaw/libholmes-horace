@@ -22,7 +22,9 @@
 #include "horace/inet4_netblock.h"
 #include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
+#include "horace/sha256.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/record.h"
@@ -46,16 +48,19 @@ void write_help(std::ostream& out) {
 	out << "  -h  display this help text then exit" << std::endl;
 	out << "  -S  set source identifier" << std::endl;
 	out << "  -x  exclude address or netblock" << std::endl;
+	out << "  -D  hash messages with given digest function" << std::endl;
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
 void capture(session_builder& session, uint64_t& seqnum,
-	event_reader& src_er, session_writer_endpoint& dst_swep) {
+	event_reader& src_er, session_writer_endpoint& dst_swep,
+	const char* hashfn_name) {
 
 	std::unique_ptr<session_writer> dst_sw =
 		dst_swep.make_session_writer(session.source_id());
 
 	std::unique_ptr<record> srec = session.build();
+	std::unique_ptr<binary_attribute> hattr;
 	try {
 		try {
 			dst_sw->write(*srec);
@@ -86,6 +91,9 @@ void capture(session_builder& session, uint64_t& seqnum,
 			attribute_list attrs = rec.attributes();
 			unsigned_integer_attribute seqnum_attr(attrid_seqnum, seqnum++);
 			attrs.append(seqnum_attr);
+			if (hattr) {
+				attrs.append(std::move(hattr));
+			}
 			record nrec(rec.channel_number(), std::move(attrs));
 
 			// Attempt to write record to destination.
@@ -95,6 +103,13 @@ void capture(session_builder& session, uint64_t& seqnum,
 				throw;
 			} catch (std::exception& ex) {
 				throw retry_exception();
+			}
+
+			if (hashfn_name) {
+				sha256 hashfunc;
+				nrec.write(hashfunc);
+				hattr = std::make_unique<binary_attribute>(attrid_hash,
+					hashfunc.length(), hashfunc.final());
 			}
 		}
 	} catch (retry_exception&) {
@@ -116,14 +131,14 @@ void capture(session_builder& session, uint64_t& seqnum,
 }
 
 void capture_with_retry(session_builder& session, event_reader& src_er,
-	session_writer_endpoint& dst_swep) {
+	session_writer_endpoint& dst_swep, const char* hashfn_name) {
 
 	uint64_t seqnum = 0;
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(session, seqnum, src_er, dst_swep);
+			capture(session, seqnum, src_er, dst_swep, hashfn_name);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {
@@ -150,13 +165,17 @@ int main(int argc, char* argv[]) {
 	std::string source_id = hostname();
 
 	// Initialise default options.
+	const char* hashfn_name = 0;
 	address_filter addrfilt;
 	int severity = logger::log_warning;
 
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+hS:vx:")) != -1) {
+	while ((opt = getopt(argc, argv, "+D:hS:vx:")) != -1) {
 		switch (opt) {
+		case 'D':
+			hashfn_name = optarg;
+			break;
 		case 'h':
 			write_help(std::cout);
 			return 0;
@@ -183,6 +202,12 @@ int main(int argc, char* argv[]) {
 	// Initialise logger.
 	log = std::make_unique<stderr_logger>();
 	log->severity(severity);
+
+	// Validate hash function name.
+	if (hashfn_name && strcmp(hashfn_name, "sha256")) {
+		std::cerr << "Unrecognised hash function" << std::endl;
+		exit(1);
+	}
 
 	// Validate source ID.
 	for (char c : source_id) {
@@ -243,7 +268,7 @@ int main(int argc, char* argv[]) {
 
 	// Capture events.
 	std::thread capture_thread(capture_with_retry, std::ref(session),
-		std::ref(*src_er), std::ref(*dst_swep));
+		std::ref(*src_er), std::ref(*dst_swep), hashfn_name);
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();

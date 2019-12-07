@@ -13,7 +13,7 @@ pkgname = horace
 
 CPPFLAGS = -MD -MP -I. '-DLIBEXECDIR="$(libexecdir)"' '-DPKGNAME="$(pkgname)"'
 CXXFLAGS = -fPIC -O2 --std=c++17
-LDLIBS = -ldl -pthread
+LDLIBS = -ldl -pthread -lcrypto
 
 SRC = $(wildcard src/*.cc)
 BIN = $(SRC:src/%.cc=bin/%)
