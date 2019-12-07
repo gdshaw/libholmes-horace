@@ -22,7 +22,7 @@ spoolfile_writer::spoolfile_writer(const std::string& pathname,
 	_ow(_fd),
 	_size(0),
 	_capacity(capacity),
-	_seqnum(0) {
+	_first(true) {
 
 	if (log->enabled(logger::log_info)) {
 		log_message msg(*log, logger::log_info);
@@ -49,27 +49,15 @@ bool spoolfile_writer::write(const record& rec) {
 	// Return false if this record would cause the spoolfile capacity
 	// to be exceeded, except that it is always permissible to write
 	// at least one event record to each spoolfile.
-	if ((_size + full_len > _capacity) && (_seqnum != 0)) {
+	if ((_size + full_len > _capacity) && !_first) {
 		return false;
 	}
 
-	// Write the record, updating the spoolfile size and seqnum.
+	// Write the record, updating the spoolfile size.
 	rec.write(_ow);
 	_size += full_len;
-	_seqnum = rec.update_seqnum(_seqnum) + 1;
+	_first = false;
 	return true;
-}
-
-bool spoolfile_writer::write(uint64_t seqnum, const record& rec) {
-	if (seqnum != _seqnum) {
-		attribute_list attrs = rec.attributes();
-		unsigned_integer_attribute seqnum_attr(attrid_seqnum, seqnum);
-		attrs.append(seqnum_attr);
-		record nrec(rec.channel_number(), std::move(attrs));
-		return write(nrec);
-	} else {
-		return write(rec);
-	}
 }
 
 } /* namespace horace */

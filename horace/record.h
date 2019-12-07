@@ -77,15 +77,6 @@ public:
 		return _channel >= 0;
 	}
 
-	/** Update sequence number.
-	 * If the record is an event record containing a seqnum attribute
-	 * then the value of that attribute is returned, otherwise the
-	 * expected value is used.
-	 * @param seqnum the expected sequence number
-	 * @return the updated sequence number
-	 */
-	virtual uint64_t update_seqnum(uint64_t seqnum) const;
-
 	/** Log this record.
 	 * @param log the logger
 	 */

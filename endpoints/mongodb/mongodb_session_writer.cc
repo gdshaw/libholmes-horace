@@ -93,7 +93,6 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 void mongodb_session_writer::handle_session_start(const record& srec) {
 	_session_ts = srec.find_one<timestamp_attribute>(
 		attrid_ts_begin).content();
-	_seqnum = 0;
 	_session = session_context();
 
 	bson_t bson_session;
@@ -190,7 +189,8 @@ void mongodb_session_writer::handle_sync(const record& crec) {
 }
 
 void mongodb_session_writer::handle_event(const record& rec) {
-	_seqnum = rec.update_seqnum(_seqnum);
+	uint64_t seqnum = rec.find_one<unsigned_integer_attribute>(
+		attrid_seqnum).content();
 
 	// Construct event with _id field (which must always be present).
 	bson_t bson_event;
@@ -205,7 +205,7 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
 	bson_append_int32(&bson_ts, "nsec", -1, _session_ts.tv_nsec);
 	bson_append_document_end(&bson_id, &bson_ts);
-	bson_append_int64(&bson_id, "seqnum", -1, _seqnum);
+	bson_append_int64(&bson_id, "seqnum", -1, seqnum);
 	bson_append_document_end(&bson_event, &bson_id);
 
 	// Add data from event record.
@@ -217,9 +217,6 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	std::string label = _session.get_channel_label(rec.channel_number());
 	_write_bulk(rec.channel_number(), label, bson_event);
 	bson_destroy(&bson_event);
-
-	// Increment the sequence number.
-	_seqnum += 1;
 }
 
 mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
@@ -227,7 +224,6 @@ mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
 	simple_session_writer(source_id),
 	_database(dst_ep.name()),
 	_sessions(&_database.collection("sessions")),
-	_seqnum(0),
 	_bulk(0),
 	_bulk_count(0),
 	_bulk_channel(0) {

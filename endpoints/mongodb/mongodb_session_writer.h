@@ -33,9 +33,6 @@ private:
 	/** The current session context. */
 	session_context _session;
 
-	/** The current sequence number. */
-	uint64_t _seqnum;
-
 	/** The write concern (majority, journalled). */
 	mongoc_write_concern_t* _wc;
 

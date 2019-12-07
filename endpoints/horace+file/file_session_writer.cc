@@ -23,8 +23,7 @@ file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	_pathname(dst_ep.pathname() + "/" + source_id),
 	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
-	_lockfile(_pathname + "/.wrlock"),
-	_seqnum(0) {
+	_lockfile(_pathname + "/.wrlock") {
 
 	filestore_scanner scanner(_pathname);
 	_next_filenum = scanner.next_filenum();
@@ -72,12 +71,11 @@ void file_session_writer::handle_sync(const record& crec) {
 
 void file_session_writer::handle_event(const record& rec) {
 	bool written = false;
-	_seqnum = rec.update_seqnum(_seqnum);
 
 	// If there is a spoolfile in progress then attempt to write the
 	// record to it.
 	if (_sfw) {
-		written = _sfw->write(_seqnum, rec);
+		written = _sfw->write(rec);
 	}
 
 	// If the record has not yet been written, either because there
@@ -88,7 +86,7 @@ void file_session_writer::handle_event(const record& rec) {
 			_dst_ep->filesize());
 		_sfw->write(session_record());
 		_fd.fsync();
-		written = _sfw->write(_seqnum, rec);
+		written = _sfw->write(rec);
 	}
 
 	// Spoolfiles should allow at least one event record to be written,
@@ -96,7 +94,6 @@ void file_session_writer::handle_event(const record& rec) {
 	if (!written) {
 		throw endpoint_error("failed to write record to new spoolfile");
 	}
-	++_seqnum;
 }
 
 } /* namespace horace */

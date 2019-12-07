@@ -21,6 +21,7 @@
 #include "horace/hostname.h"
 #include "horace/string_attribute.h"
 #include "horace/record.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/session_listener.h"
 #include "horace/session_reader.h"
 #include "horace/session_writer.h"
@@ -50,7 +51,6 @@ void write_help(std::ostream& out) {
  * @param dst_swep the destination
  */
 void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
-	uint64_t current_seqnum = 0;
 	uint64_t expected_seqnum = 0;
 	bool initial_seqnum = true;
 
@@ -90,23 +90,6 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		// Log the record.
 		rec->log(*log);
 
-		// Update sequence number, log any discontinuties.
-		current_seqnum = rec->update_seqnum(current_seqnum);
-		if (initial_seqnum) {
-			if (log->enabled(logger::log_notice)) {
-				log_message msg(*log, logger::log_notice);
-				msg << "forwarding from seqnum=" << current_seqnum;
-			}
-			initial_seqnum = false;
-		} else if (current_seqnum != expected_seqnum) {
-			if (log->enabled(logger::log_warning)) {
-				log_message msg(*log, logger::log_warning);
-				msg << "seqnum discontinuity (" <<
-					"expected=" << expected_seqnum << ", " <<
-					"observed=" << current_seqnum << ")";
-			}
-		}
-
 		// Attempt to write record to destination.
 		try {
 			dst_sw->write(*rec);
@@ -119,9 +102,6 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		// Perform any special handling required by specific
 		// record types.
 		switch (rec->channel_number()) {
-		case channel_session:
-			current_seqnum = 0;
-			break;
 		case channel_sync:
 			// Sync records must be acknowledged.
 			{
@@ -139,8 +119,24 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 			}
 		default:
 			if (rec->is_event()) {
-				current_seqnum += 1;
-				expected_seqnum = current_seqnum;
+				// Update sequence number, log any discontinuties.
+				uint64_t seqnum = rec->find_one<unsigned_integer_attribute>(
+					attrid_seqnum).content();
+				if (initial_seqnum) {
+					if (log->enabled(logger::log_notice)) {
+						log_message msg(*log, logger::log_notice);
+						msg << "forwarding from seqnum=" << seqnum;
+					}
+					initial_seqnum = false;
+				} else if (seqnum != expected_seqnum) {
+					if (log->enabled(logger::log_warning)) {
+						log_message msg(*log, logger::log_warning);
+						msg << "seqnum discontinuity (" <<
+							"expected=" << expected_seqnum << ", " <<
+							"observed=" << seqnum << ")";
+					}
+				}
+				expected_seqnum = seqnum + 1;
 			}
 		}
 	}

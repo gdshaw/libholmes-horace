@@ -95,7 +95,8 @@ std::unique_ptr<record> file_session_reader::read() {
 				_seqnum = 0;
 			}
 		} else if (rec->is_event()) {
-			_seqnum += 1;
+			_seqnum = rec->find_one<unsigned_integer_attribute>(
+				attrid_seqnum).content();
 		}
 		return rec;
 	} catch (eof_error& ex) {

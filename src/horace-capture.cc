@@ -22,6 +22,7 @@
 #include "horace/inet4_netblock.h"
 #include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/record.h"
@@ -48,8 +49,8 @@ void write_help(std::ostream& out) {
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
-void capture(session_builder& session, event_reader& src_er,
-	session_writer_endpoint& dst_swep) {
+void capture(session_builder& session, uint64_t& seqnum,
+	event_reader& src_er, session_writer_endpoint& dst_swep) {
 
 	std::unique_ptr<session_writer> dst_sw =
 		dst_swep.make_session_writer(session.source_id());
@@ -73,9 +74,23 @@ void capture(session_builder& session, event_reader& src_er,
 			// Read record from source.
 			const record& rec = src_er.read();
 
+			// Append sequence number to record.
+			// This is the same method as was previously used in
+			// spoolfile_writer, and is known to be inefficient.
+			// It was tolerable in that context because it was
+			// invoked only once per spoolfile. Here it is
+			// applied to every event record, and effectively
+			// undoes efforts made elsewhere to avoid copying.
+			// A more efficient solution would be desirable, but
+			// the current event reader API does not allow for one.
+			attribute_list attrs = rec.attributes();
+			unsigned_integer_attribute seqnum_attr(attrid_seqnum, seqnum++);
+			attrs.append(seqnum_attr);
+			record nrec(rec.channel_number(), std::move(attrs));
+
 			// Attempt to write record to destination.
 			try {
-				dst_sw->write(rec);
+				dst_sw->write(nrec);
 			} catch (terminate_exception&) {
 				throw;
 			} catch (std::exception& ex) {
@@ -103,11 +118,12 @@ void capture(session_builder& session, event_reader& src_er,
 void capture_with_retry(session_builder& session, event_reader& src_er,
 	session_writer_endpoint& dst_swep) {
 
+	uint64_t seqnum = 0;
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(session, src_er, dst_swep);
+			capture(session, seqnum, src_er, dst_swep);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {

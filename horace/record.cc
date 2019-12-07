@@ -54,17 +54,6 @@ record::record(session_context& session, octet_reader& in) {
 	}
 }
 
-uint64_t record::update_seqnum(uint64_t seqnum) const {
-	if (is_event()) {
-		for (auto&& attr : _attributes) {
-			if (attr->attrid() == attrid_seqnum) {
-				return dynamic_cast<const unsigned_integer_attribute&>(*attr).content();
-			}
-		}
-	}
-	return seqnum;
-}
-
 void record::write(octet_writer& out) const {
 	out.write_signed_base128(_channel);
 	out.write_unsigned_base128(_attributes.length());
