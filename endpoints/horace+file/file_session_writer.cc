@@ -69,6 +69,10 @@ void file_session_writer::handle_sync(const record& crec) {
 	_sfw->sync();
 }
 
+void file_session_writer::handle_signature(const record& grec) {
+	handle_event(grec);
+}
+
 void file_session_writer::handle_event(const record& rec) {
 	bool written = false;
 

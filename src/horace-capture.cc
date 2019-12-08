@@ -23,6 +23,7 @@
 #include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
 #include "horace/sha256.h"
+#include "horace/keypair.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
@@ -49,12 +50,13 @@ void write_help(std::ostream& out) {
 	out << "  -S  set source identifier" << std::endl;
 	out << "  -x  exclude address or netblock" << std::endl;
 	out << "  -D  hash messages with given digest function" << std::endl;
+	out << "  -k  sign messages using key in given file" << std::endl;
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
 void capture(session_builder& session, uint64_t& seqnum,
 	event_reader& src_er, session_writer_endpoint& dst_swep,
-	const char* hashfn_name) {
+	const char* hashfn_name, keypair* kp) {
 
 	std::unique_ptr<session_writer> dst_sw =
 		dst_swep.make_session_writer(session.source_id());
@@ -108,8 +110,26 @@ void capture(session_builder& session, uint64_t& seqnum,
 			if (hashfn_name) {
 				sha256 hashfunc;
 				nrec.write(hashfunc);
+				const void* hash = hashfunc.final();
+				size_t hash_len = hashfunc.length();
+
 				hattr = std::make_unique<binary_attribute>(attrid_hash,
-					hashfunc.length(), hashfunc.final());
+					hash_len, hash);
+
+				if (kp) {
+					std::string sig = kp->sign(hash, hash_len);
+					attribute_list sigattrs;
+					sigattrs.append(std::make_unique<binary_attribute>(
+						attrid_sig, sig.length(), sig.data()));
+					record sigrec(channel_signature, std::move(sigattrs));
+					try {
+						dst_sw->write(sigrec);
+					} catch (terminate_exception&) {
+						throw;
+					} catch (std::exception& ex) {
+						throw retry_exception();
+					}
+				}
 			}
 		}
 	} catch (retry_exception&) {
@@ -131,14 +151,14 @@ void capture(session_builder& session, uint64_t& seqnum,
 }
 
 void capture_with_retry(session_builder& session, event_reader& src_er,
-	session_writer_endpoint& dst_swep, const char* hashfn_name) {
+	session_writer_endpoint& dst_swep, const char* hashfn_name, keypair* kp) {
 
 	uint64_t seqnum = 0;
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(session, seqnum, src_er, dst_swep, hashfn_name);
+			capture(session, seqnum, src_er, dst_swep, hashfn_name, kp);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {
@@ -166,12 +186,13 @@ int main(int argc, char* argv[]) {
 
 	// Initialise default options.
 	const char* hashfn_name = 0;
+	const char* keyfile_pathname = 0;
 	address_filter addrfilt;
 	int severity = logger::log_warning;
 
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+D:hS:vx:")) != -1) {
+	while ((opt = getopt(argc, argv, "+D:hk:S:vx:")) != -1) {
 		switch (opt) {
 		case 'D':
 			hashfn_name = optarg;
@@ -179,6 +200,9 @@ int main(int argc, char* argv[]) {
 		case 'h':
 			write_help(std::cout);
 			return 0;
+		case 'k':
+			keyfile_pathname = optarg;
+			break;
 		case 'S':
 			source_id = std::string(optarg);
 			break;
@@ -207,6 +231,12 @@ int main(int argc, char* argv[]) {
 	if (hashfn_name && strcmp(hashfn_name, "sha256")) {
 		std::cerr << "Unrecognised hash function" << std::endl;
 		exit(1);
+	}
+
+	// Load keyfile.
+	std::unique_ptr<keypair> kp;
+	if (keyfile_pathname) {
+		kp = keypair::load(keyfile_pathname);
 	}
 
 	// Validate source ID.
@@ -268,7 +298,7 @@ int main(int argc, char* argv[]) {
 
 	// Capture events.
 	std::thread capture_thread(capture_with_retry, std::ref(session),
-		std::ref(*src_er), std::ref(*dst_swep), hashfn_name);
+		std::ref(*src_er), std::ref(*dst_swep), hashfn_name, kp.get());
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();

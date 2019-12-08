@@ -46,6 +46,11 @@ protected:
 	 */
 	virtual void handle_sync(const record& crec) = 0;
 
+	/** Handle signature.
+	 * @param grec the signature record
+	 */
+	virtual void handle_signature(const record& grec);
+
 	/** Handle an event.
 	 * @param rec the event record
 	 */

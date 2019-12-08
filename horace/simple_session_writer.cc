@@ -31,6 +31,8 @@ void simple_session_writer::_process_sync_record(const record& crec) {
 	_reply = std::make_unique<record>(channel_sync, crec.attributes());
 }
 
+void simple_session_writer::handle_signature(const record& grec) {}
+
 const record& simple_session_writer::session_record() const {
 	if (!_srec) {
 		throw horace_error("no session in progress");
@@ -45,6 +47,9 @@ void simple_session_writer::write(const record& rec) {
 		break;
 	case channel_sync:
 		_process_sync_record(rec);
+		break;
+	case channel_signature:
+		handle_signature(rec);
 		break;
 	default:
 		if (rec.is_event()) {
