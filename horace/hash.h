@@ -28,6 +28,12 @@ public:
 	 * @return the length, in octets
 	 */
 	virtual size_t length() const = 0;
+
+	/** Make hash from algorithm name.
+	 * @param name the algorithm name
+	 * @return the resulting hash object
+	 */
+	static std::unique_ptr<hash> make(const std::string& name);
 };
 
 } /* namespace horace */

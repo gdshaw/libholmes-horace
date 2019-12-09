@@ -22,7 +22,7 @@
 #include "horace/inet4_netblock.h"
 #include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
-#include "horace/sha256.h"
+#include "horace/hash.h"
 #include "horace/keypair.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/binary_attribute.h"
@@ -56,7 +56,7 @@ void write_help(std::ostream& out) {
 
 void capture(session_builder& session, uint64_t& seqnum,
 	event_reader& src_er, session_writer_endpoint& dst_swep,
-	const char* hashfn_name, keypair* kp) {
+	hash* hashfn, keypair* kp) {
 
 	std::unique_ptr<session_writer> dst_sw =
 		dst_swep.make_session_writer(session.source_id());
@@ -107,11 +107,10 @@ void capture(session_builder& session, uint64_t& seqnum,
 				throw retry_exception();
 			}
 
-			if (hashfn_name) {
-				sha256 hashfunc;
-				nrec.write(hashfunc);
-				const void* hash = hashfunc.final();
-				size_t hash_len = hashfunc.length();
+			if (hashfn) {
+				nrec.write(*hashfn);
+				const void* hash = hashfn->final();
+				size_t hash_len = hashfn->length();
 
 				hattr = std::make_unique<binary_attribute>(attrid_hash,
 					hash_len, hash);
@@ -151,14 +150,14 @@ void capture(session_builder& session, uint64_t& seqnum,
 }
 
 void capture_with_retry(session_builder& session, event_reader& src_er,
-	session_writer_endpoint& dst_swep, const char* hashfn_name, keypair* kp) {
+	session_writer_endpoint& dst_swep, hash* hashfn, keypair* kp) {
 
 	uint64_t seqnum = 0;
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(session, seqnum, src_er, dst_swep, hashfn_name, kp);
+			capture(session, seqnum, src_er, dst_swep, hashfn, kp);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {
@@ -171,7 +170,7 @@ void capture_with_retry(session_builder& session, event_reader& src_er,
 	}
 }
 
-int main(int argc, char* argv[]) {
+int main2(int argc, char* argv[]) {
 	// Mask signals.
 	masked_signals.mask();
 
@@ -227,10 +226,10 @@ int main(int argc, char* argv[]) {
 	log = std::make_unique<stderr_logger>();
 	log->severity(severity);
 
-	// Validate hash function name.
-	if (hashfn_name && strcmp(hashfn_name, "sha256")) {
-		std::cerr << "Unrecognised hash function" << std::endl;
-		exit(1);
+	// Select hash function.
+	std::unique_ptr<hash> hashfn;
+	if (hashfn_name) {
+		hashfn = hash::make(hashfn_name);
 	}
 
 	// Load keyfile.
@@ -298,7 +297,7 @@ int main(int argc, char* argv[]) {
 
 	// Capture events.
 	std::thread capture_thread(capture_with_retry, std::ref(session),
-		std::ref(*src_er), std::ref(*dst_swep), hashfn_name, kp.get());
+		std::ref(*src_er), std::ref(*dst_swep), hashfn.get(), kp.get());
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();
@@ -308,4 +307,13 @@ int main(int argc, char* argv[]) {
 	terminating.set();
 	pthread_kill(capture_thread.native_handle(), SIGALRM);
 	capture_thread.join();
+}
+
+int main(int argc, char* argv[]) {
+	try {
+		main2(argc, argv);
+	} catch (const std::exception& ex) {
+		std::cerr << ex.what() << std::endl;
+		exit(1);
+	}
 }
