@@ -8,16 +8,18 @@
 namespace horace {
 
 sha256::sha256() {
-	SHA256_Init(&_ctx);
+	crypto_hash_sha256_init(&_state);
 }
 
 void sha256::_write_direct(const void* buf, size_t nbyte) {
-	SHA256_Update(&_ctx, buf, nbyte);
+	crypto_hash_sha256_update(&_state,
+		static_cast<const unsigned char*>(buf), nbyte);
 }
 
 const void* sha256::final() {
 	flush();
-	SHA256_Final(_hash, &_ctx);
+	crypto_hash_sha256_final(&_state, _hash);
+	crypto_hash_sha256_init(&_state);
 	return _hash;
 }
 

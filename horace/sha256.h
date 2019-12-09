@@ -6,7 +6,7 @@
 #ifndef LIBHOLMES_HORACE_SHA256
 #define LIBHOLMES_HORACE_SHA256
 
-#include <openssl/sha.h>
+#include <sodium.h>
 
 #include "horace/hash.h"
 
@@ -17,7 +17,7 @@ class sha256:
 	public hash {
 private:
 	/** The SHA256 hash context. */
-	SHA256_CTX _ctx;
+	crypto_hash_sha256_state _state;
 
 	/** The hashed result. */
 	unsigned char _hash[32];
