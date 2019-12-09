@@ -1,0 +1,42 @@
+// This file is part of libholmes.
+// Copyright 2019 Graham Shaw
+// Redistribution and modification are permitted within the terms of the
+// BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
+
+#ifndef LIBHOLMES_HORACE_SHA256_HASH
+#define LIBHOLMES_HORACE_SHA256_HASH
+
+#include <sodium.h>
+
+#include "horace/hash.h"
+
+namespace horace {
+
+/** An octet writer class for calculating a SHA256 hash. */
+class sha256_hash:
+	public hash {
+private:
+	/** The SHA256 hash context. */
+	crypto_hash_sha256_state _state;
+
+	/** The hashed result. */
+	unsigned char _hash[32];
+protected:
+	virtual void _write_direct(const void* buf, size_t nbyte);
+public:
+	/** Construct SHA256 octet writer. */
+	sha256_hash();
+
+	sha256_hash(const sha256_hash& that) = delete;
+	sha256_hash& operator=(const sha256_hash& that) = delete;
+
+	virtual const void* final();
+
+	virtual size_t length() const {
+		return 32;
+	}
+};
+
+} /* namespace horace */
+
+#endif

@@ -3,8 +3,8 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
-#ifndef LIBHOLMES_HORACE_SHA256
-#define LIBHOLMES_HORACE_SHA256
+#ifndef LIBHOLMES_HORACE_SHA512_HASH
+#define LIBHOLMES_HORACE_SHA512_HASH
 
 #include <sodium.h>
 
@@ -12,28 +12,28 @@
 
 namespace horace {
 
-/** An octet writer class for calculating a SHA256 hash. */
-class sha256:
+/** An octet writer class for calculating a SHA512 hash. */
+class sha512_hash:
 	public hash {
 private:
-	/** The SHA256 hash context. */
-	crypto_hash_sha256_state _state;
+	/** The SHA512 hash context. */
+	crypto_hash_sha512_state _state;
 
 	/** The hashed result. */
 	unsigned char _hash[32];
 protected:
 	virtual void _write_direct(const void* buf, size_t nbyte);
 public:
-	/** Construct SHA256 octet writer. */
-	sha256();
+	/** Construct SHA512 octet writer. */
+	sha512_hash();
 
-	sha256(const sha256& that) = delete;
-	sha256& operator=(const sha256& that) = delete;
+	sha512_hash(const sha512_hash& that) = delete;
+	sha512_hash& operator=(const sha512_hash& that) = delete;
 
 	virtual const void* final();
 
 	virtual size_t length() const {
-		return 32;
+		return 64;
 	}
 };
 
