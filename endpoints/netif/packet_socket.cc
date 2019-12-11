@@ -98,4 +98,9 @@ const record& packet_socket::read() {
 	return *_builder->next();
 }
 
+const std::string& packet_socket::method() const {
+	static const std::string name("packet");
+	return name;
+}
+
 } /* namespace horace */

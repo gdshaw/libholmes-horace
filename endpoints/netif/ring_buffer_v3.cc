@@ -159,4 +159,9 @@ unsigned int ring_buffer_v3::drops() const {
 	return stats.tp_drops;
 }
 
+const std::string& ring_buffer_v3::method() const {
+	static const std::string name("ringv3");
+	return name;
+}
+
 } /* namespace horace */

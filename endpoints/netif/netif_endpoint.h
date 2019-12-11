@@ -21,7 +21,7 @@ private:
 	/** The network interface referred to by this endpoint. */
 	interface _if;
 
-	/** The capture method. */
+	/** The capture method, or the empty string if unspecified. */
 	std::string _method;
 
 	/** The snaplen, in octets. */
@@ -82,6 +82,16 @@ public:
 
 	virtual std::unique_ptr<event_reader> make_event_reader(
 		session_builder& session);
+
+	/** Make a basic packet socket for this endpoint.
+	 * The type of basic packet socket returned will correspond to
+	 * the method argument, if specified, and any other relevant
+	 * endpoint parameters.
+	 * @param a builder for making packet records
+	 * @return the basic packet socket
+	 */
+	std::unique_ptr<basic_packet_socket> make_basic_packet_socket(
+		packet_record_builder& builder) const;
 };
 
 } /* namespace horace */

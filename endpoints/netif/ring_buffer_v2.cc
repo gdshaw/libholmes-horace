@@ -118,4 +118,9 @@ const record& ring_buffer_v2::read() {
 	return *_builder->next();
 }
 
+const std::string& ring_buffer_v2::method() const {
+	static const std::string name("ringv2");
+	return name;
+}
+
 } /* namespace horace */

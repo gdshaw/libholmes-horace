@@ -51,6 +51,11 @@ public:
 	 * @return the number of dropped packets since previous call
 	 */
 	virtual unsigned int drops() const;
+
+	/** Get the method name for this socket.
+	 * @return the method name
+	 */
+	virtual const std::string& method() const = 0;
 };
 
 } /* namespace horace */

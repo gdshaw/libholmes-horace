@@ -3,10 +3,15 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/endpoint_error.h"
 #include "horace/query_string.h"
 #include "horace/packet_record_builder.h"
 
 #include "basic_packet_socket.h"
+#include "packet_socket.h"
+#include "ring_buffer_v1.h"
+#include "ring_buffer_v2.h"
+#include "ring_buffer_v3.h"
 #include "netif_endpoint.h"
 #include "netif_event_reader.h"
 
@@ -14,7 +19,6 @@ namespace horace {
 
 netif_endpoint::netif_endpoint(const std::string& name):
 	endpoint(name),
-	_method("ringv1"),
 	_snaplen(0x40000),
 	_capacity(0x1000000),
 	_promiscuous(false) {
@@ -40,6 +44,33 @@ std::unique_ptr<event_reader> netif_endpoint::make_event_reader(
 
 	return std::make_unique<netif_event_reader>(*this, session);
 };
+
+std::unique_ptr<basic_packet_socket> netif_endpoint::make_basic_packet_socket(
+	packet_record_builder& builder) const {
+
+	if (_method.empty()) {
+		try {
+			return std::make_unique<ring_buffer_v3>(builder, snaplen(), capacity());
+		} catch (std::exception& ex) {}
+		try {
+			return std::make_unique<ring_buffer_v2>(builder, snaplen(), capacity());
+		} catch (std::exception& ex) {}
+		try {
+			return std::make_unique<ring_buffer_v1>(builder, snaplen(), capacity());
+		} catch (std::exception& ex) {}
+		return std::make_unique<packet_socket>(builder, snaplen(), capacity());
+	} else if (_method == "ringv3") {
+		return std::make_unique<ring_buffer_v3>(builder, snaplen(), capacity());
+	} else if (_method == "ringv2") {
+		return std::make_unique<ring_buffer_v2>(builder, snaplen(), capacity());
+	} else if (_method == "ringv1") {
+		return std::make_unique<ring_buffer_v1>(builder, snaplen(), capacity());
+	} else if (_method == "packet") {
+		return std::make_unique<packet_socket>(builder, snaplen(), capacity());
+	} else {
+		throw endpoint_error("unrecognised capture _method");
+	}
+}
 
 } /* namespace horace */
 

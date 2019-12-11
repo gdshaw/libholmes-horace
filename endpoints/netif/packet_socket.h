@@ -57,6 +57,7 @@ public:
 		size_t buffer_size);
 
 	virtual const record& read();
+	virtual const std::string& method() const;
 };
 
 } /* namespace horace */

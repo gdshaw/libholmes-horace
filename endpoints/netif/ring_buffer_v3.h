@@ -53,6 +53,7 @@ public:
 
 	virtual const record& read();
 	virtual unsigned int drops() const;
+	virtual const std::string& method() const;
 };
 
 } /* namespace horace */

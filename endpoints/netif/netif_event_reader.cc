@@ -43,18 +43,7 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 	_channel = session.define_channel("packets", std::move(attrs));
 
 	_builder = std::make_unique<packet_record_builder>(session, _channel);
-	std::string method = ep.method();
-	if (method == "packet") {
-		_sock = std::make_unique<packet_socket>(*_builder, ep.snaplen(), ep.capacity());
-	} else if (method == "ringv1") {
-		_sock = std::make_unique<ring_buffer_v1>(*_builder, ep.snaplen(), ep.capacity());
-	} else if (method == "ringv2") {
-		_sock = std::make_unique<ring_buffer_v2>(*_builder, ep.snaplen(), ep.capacity());
-	} else if (method == "ringv3") {
-		_sock = std::make_unique<ring_buffer_v3>(*_builder, ep.snaplen(), ep.capacity());
-	} else {
-		throw endpoint_error("interface capture method not recognised");
-	}
+	_sock = ep.make_basic_packet_socket(*_builder);
 
 	if (!ep.netif().isany()) {
 		_sock->bind(ep.netif());
@@ -68,6 +57,7 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 		} else {
 			msg << "interface " << ep.netifname();
 		}
+		msg << " with " << _sock->method() << " socket";
 	}
 
 	if (ep.promiscuous()) {
