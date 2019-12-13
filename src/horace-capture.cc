@@ -11,6 +11,7 @@
 
 #include <getopt.h>
 
+#include "horace/libc_error.h"
 #include "horace/retry_exception.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
@@ -51,12 +52,18 @@ void write_help(std::ostream& out) {
 	out << "  -x  exclude address or netblock" << std::endl;
 	out << "  -D  hash messages with given digest function" << std::endl;
 	out << "  -k  sign messages using key in given file" << std::endl;
+	out << "  -R  set minimum time in milliseconds between signed events" << std::endl;
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
 void capture(session_builder& session, uint64_t& seqnum,
 	event_reader& src_er, session_writer_endpoint& dst_swep,
-	hash* hashfn, keypair* kp) {
+	hash* hashfn, keypair* kp, unsigned long signature_rate) {
+
+	timespec signature_ts = {0};
+	if (clock_gettime(CLOCK_REALTIME, &signature_ts) == -1) {
+		throw libc_error();
+	}
 
 	std::unique_ptr<session_writer> dst_sw =
 		dst_swep.make_session_writer(session.source_id());
@@ -116,17 +123,41 @@ void capture(session_builder& session, uint64_t& seqnum,
 					hash_len, hash);
 
 				if (kp) {
-					std::string sig = kp->sign(hash, hash_len);
-					attribute_list sigattrs;
-					sigattrs.append(std::make_unique<binary_attribute>(
-						attrid_sig, sig.length(), sig.data()));
-					record sigrec(channel_signature, std::move(sigattrs));
-					try {
-						dst_sw->write(sigrec);
-					} catch (terminate_exception&) {
-						throw;
-					} catch (std::exception& ex) {
-						throw retry_exception();
+					// The following method for regulating signature
+					// generation is imperfect, because it checks the
+					// clock only when an event is written (and may
+					// therefore delay signing for an arbitrarily long
+					// time). However, this will be easier to address
+					// once support for multiple event sources has been
+					// added.
+					timespec current_ts;
+					if (clock_gettime(CLOCK_REALTIME, &current_ts) == -1) {
+						throw libc_error();
+					}
+					timespec diff_ts;
+					diff_ts.tv_sec = current_ts.tv_sec - signature_ts.tv_sec;
+					diff_ts.tv_nsec = current_ts.tv_nsec - signature_ts.tv_nsec;
+					if (diff_ts.tv_nsec < 0) {
+						diff_ts.tv_sec -= 1;
+						diff_ts.tv_nsec += 1000000000;
+					}
+					long diff = (diff_ts.tv_sec * 1000) + (diff_ts.tv_nsec / 1000000);
+
+					if (diff >= signature_rate) {
+						signature_ts = current_ts;
+
+						std::string sig = kp->sign(hash, hash_len);
+						attribute_list sigattrs;
+						sigattrs.append(std::make_unique<binary_attribute>(
+							attrid_sig, sig.length(), sig.data()));
+						record sigrec(channel_signature, std::move(sigattrs));
+						try {
+							dst_sw->write(sigrec);
+						} catch (terminate_exception&) {
+							throw;
+						} catch (std::exception& ex) {
+							throw retry_exception();
+						}
 					}
 				}
 			}
@@ -150,14 +181,16 @@ void capture(session_builder& session, uint64_t& seqnum,
 }
 
 void capture_with_retry(session_builder& session, event_reader& src_er,
-	session_writer_endpoint& dst_swep, hash* hashfn, keypair* kp) {
+	session_writer_endpoint& dst_swep, hash* hashfn, keypair* kp,
+	unsigned long signature_rate) {
 
 	uint64_t seqnum = 0;
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(session, seqnum, src_er, dst_swep, hashfn, kp);
+			capture(session, seqnum, src_er, dst_swep, hashfn, kp,
+				signature_rate);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {
@@ -186,12 +219,13 @@ int main2(int argc, char* argv[]) {
 	// Initialise default options.
 	const char* hashfn_name = 0;
 	const char* keyfile_pathname = 0;
+	unsigned long signature_rate = 0;
 	address_filter addrfilt;
 	int severity = logger::log_warning;
 
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+D:hk:S:vx:")) != -1) {
+	while ((opt = getopt(argc, argv, "+D:hk:R:S:vx:")) != -1) {
 		switch (opt) {
 		case 'D':
 			hashfn_name = optarg;
@@ -201,6 +235,9 @@ int main2(int argc, char* argv[]) {
 			return 0;
 		case 'k':
 			keyfile_pathname = optarg;
+			break;
+		case 'R':
+			signature_rate = std::stol(optarg);
 			break;
 		case 'S':
 			source_id = std::string(optarg);
@@ -297,7 +334,8 @@ int main2(int argc, char* argv[]) {
 
 	// Capture events.
 	std::thread capture_thread(capture_with_retry, std::ref(session),
-		std::ref(*src_er), std::ref(*dst_swep), hashfn.get(), kp.get());
+		std::ref(*src_er), std::ref(*dst_swep), hashfn.get(),
+		kp.get(), signature_rate);
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();
