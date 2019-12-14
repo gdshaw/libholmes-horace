@@ -1,0 +1,102 @@
+.TH HORACE-CAPTURE 1 "2019-12-14" "LibHolmes" "LibHolmes-HORACE Manual"
+.SH NAME
+horace-capture \- record new HORACE session
+.SH SYNOPSIS
+horace capture [<options>] <source> <destination>
+.SH DESCRIPTION
+The
+.I horace capture
+command is responsible for monitoring a host or network, capturing any
+resulting event data, and recording it in the form of a new HORACE session.
+.PP
+The source and destination arguments are endpoint names which determine,
+respectively, what is to be monitored and where the resulting session data
+should be sent.
+.PP
+Writing directly to a remote endpoint is not forbidden, but increases the
+risk of data loss if the method of capture is time-sensitive. The
+recommended mode of operation is to capture to local spoolfiles in the
+first instance, as these provide both high throughput and high
+availability. For example:
+.PP
+.RS 4
+horace-capture netif:ens3 horace+file:/var/spool/horace
+.RE
+.PP
+would capture network traffic from the interface named
+.I ens3
+and write the resulting session data to a set of spoolfiles placed within
+a subdirectory of /var/spool/horace.
+.SH OPTIONS
+.IP -h
+Display help text then exit.
+.IP -S
+Set source identifier.
+.IP -x
+Exclude address or netblock.
+.IP -D
+Hash messages with a given digest function.
+.IP -k
+Sign messages using key in a given file.
+.IP -R
+Set minimum time in milliseconds between signed events.
+.IP -v
+Increase verbosity of log messages.
+.SH HASHING
+HORACE event records can be hashed at the point of collection, with the
+result being incorporated into the following event record. This causes
+the records to form a chain, such that if the integrity of one record can
+be validated then that allows all preceding records to be validated also.
+.PP
+This capability can be used in two ways:
+.IP *
+By itself, to protect against accidental modification only.
+.IP *
+In conjunction with digital signatures, to protect against both accidental
+and malicious modification, but without the need to sign every message
+(see below).
+.PP
+The hash function is configurable using the -D option, with the following
+supported currently:
+.IP sha256
+The SHA-256 hash algorithm as defined by FIPS PUB 180-2
+.IP sha512
+The SHA-512 hash algorithm as defined by FIPS PUB 180-2
+.SH DIGITAL SIGNATURES
+HORACE event records can be digitally signed at the point of collection in
+order to protect against accidental or malicious alteration, and thereby
+provide evidence of their authenticity.
+.PP
+To do this it is first necessary to generate a secret key for use during
+the signing process and a corresponding public key for subsequent
+verification of the signatures. These are stored together in a keyfile,
+specified using the -k option, which additionally identifies the chosen
+signature algorithm.
+.PP
+Currently there is only one supported signature algorithm, that being
+ed25519. A suitable keyfile can be created using the
+.I horace-genkey
+command.
+.PP
+Signing is a computationally expensive process which has the potential to
+become unacceptably burdensome if every record is signed. However, when
+signatures are used in conjunction with a chain of record hashes as
+described above, not every record need be signed.
+.PP
+The -R option specifies the desired time interval between signatures.
+A longer interval reduces the number of signatures required, but increases
+the number of records which could be left unsigned if the monitoring
+process were to terminate abruptly.
+.SH SEE ALSO
+horace(1), horace-genkey(1)
+.SH BUGS
+In development, not yet stable.
+.PP
+Only a single source endpoint may be specified.
+.PP
+Rate limiting of signatures does not function as intended if there are long
+gaps between events.
+.PP
+The capture process currently involves some unnecessary copying.
+.SH AUTHOR
+Graham Shaw (gdshaw@riscpkg.org)
