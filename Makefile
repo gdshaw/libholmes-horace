@@ -36,7 +36,7 @@ all: $(BIN) $(EPLIBS) $(MANGZ)
 
 $(BIN): bin/%: src/%.o horace.so
 	@mkdir -p bin
-	g++ -rdynamic -o $@ $^ $(LDLIBS)
+	g++ -rdynamic -Wl,-rpath $(libdir) -o $@ $^ $(LDLIBS)
 
 endpoints/%.so: always
 	make -C $(dir $@)
