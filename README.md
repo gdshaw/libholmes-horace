@@ -8,8 +8,43 @@ and collection components of LibHolmes.
 
 ## Current status
 
-This software is in the very early stages of development and is not
-yet functional.
+This software is functional, however the protocol is not yet fully stable
+and some important features are missing.
+
+## Usage
+
+Events can be captured using the horace capture command. For example,
+the following command would capture network traffic from an interface
+named 'ens3' and write it to a set of HORACE spoolfiles located in a
+subdirectory of /var/spool/horace:
+
+    horace capture netif:ens3 horace+file:/var/spool/horace
+
+Captured data can then be forwarded to another location using the
+horace forward command. For example, to forward the data captured above
+to a host named horace.example.com:
+
+    horace forward horace+file:/var/spool/horace \
+        horace+tcp://horace.example.com
+
+A HORACE server must be run on that host to receive the data. To do that,
+writing the data into a local MongoDB database named 'horace':
+
+    horace forward horace+tcp: mongodb://localhost/horace
+
+Detailed documentation is provided in the form of manpages. See horace(1)
+for a starting point. There is also a limited amount of online help which
+can be obtained using the -h option with any HORACE command or subcommand:
+
+    horace -h
+    horace capture -h
+
+## Limitations
+
+The following configurations are not recommended:
+
+- Capture directly to a TCP connection
+- Reading or writing spoolfiles via a network filesystem
 
 ## Copyright and licensing
 
