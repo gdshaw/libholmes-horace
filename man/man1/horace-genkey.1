@@ -1,0 +1,45 @@
+.TH HORACE-GENKEY 1 "2019-12-14" "LibHolmes" "LibHolmes-HORACE Manual"
+.SH NAME
+horace-genkey \- generate keypair for signing
+.SH SYNOPSIS
+horace genkey [<options>]
+.SH DESCRIPTION
+The
+.I horace genkey
+generates a keypair that can be used to protect HORACE data using digital
+signatures as it is captured.
+.PP
+The output is in a format suitable for writing directly to a keyfile, which
+can then be used as input by the
+.I horace capture
+command:
+.PP
+.RS 4
+horace genkey > horace.key
+chmod 600 horace.key
+.RE
+.PP
+.SH OPTIONS
+.IP -h
+Display help text then exit.
+.IP -A
+Optionally select the digital signature algorithm.
+.SH ALGORITHMS
+Currently there is only one supported digital signature algorithm, that
+being ed25519.
+.PP
+Should multiple algorithms be supported in the future, this command will
+default to the recommended algorithm if none is specified.
+.SH SEE ALSO
+horace(1), horace-capture(1)
+.SH BUGS
+In development, not yet stable.
+.PP
+Only a single source endpoint may be specified.
+.PP
+Rate limiting of signatures does not function as intended if there are long
+gaps between events.
+.PP
+The capture process currently involves some unnecessary copying.
+.SH AUTHOR
+Graham Shaw (gdshaw@riscpkg.org)
