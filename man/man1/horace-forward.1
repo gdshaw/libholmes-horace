@@ -1,0 +1,47 @@
+.TH HORACE-FORWARD 1 "2019-12-14" "LibHolmes" "LibHolmes-HORACE Manual"
+.SH NAME
+horace-forward \- move HORACE data from one endpoint to another
+.SH SYNOPSIS
+horace forward [<options>] <source> <destination>
+.SH DESCRIPTION
+The
+.I horace forward
+command is responsible for taking HORACE data which has already been
+captured, and moving it from one location to another.
+.PP
+The source and destination arguments are endpoint names which determine,
+respectively, where to obtain the data from and where to send it to. A
+single endpoint may have data from multiple event sources, in which case
+they are forwarded in parallel. Sessions from the same event source are
+forwarded sequentially.
+.PP
+For example, to forward data from spoolfiles located in subdirectories of
+/var/spool/horace to a host named horace.example.com:
+.PP
+.RS 4
+horace forward horace+file:/var/spool/horace \
+  horace+tcp://horace.example.com
+.RE
+.PP
+A HORACE server must be run on that host to receive the data. To do that,
+writing the data into a local MongoDB database named 'horace':
+.PP
+.RS 4
+horace forward horace+tcp: mongodb://localhost/horace
+.RE
+.PP
+Either end of this connection may be stopped and restarted without loss
+or duplication of data.
+.SH OPTIONS
+.IP -h
+Display help text then exit.
+.IP -v
+Increase verbosity of log messages.
+.SH SEE ALSO
+horace(1), horace-capture(1)
+.SH BUGS
+In development, not yet stable.
+.PP
+Only a single destination endpoint may be specified.
+.SH AUTHOR
+Graham Shaw (gdshaw@riscpkg.org)
