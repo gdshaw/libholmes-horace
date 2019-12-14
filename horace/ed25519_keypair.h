@@ -14,11 +14,11 @@ namespace horace {
 class ed25519_keypair:
 	public keypair {
 private:
-	/** The secret key. */
-	unsigned char _sk[64];
-
 	/** The public key. */
 	unsigned char _pk[32];
+
+	/** The secret key. */
+	unsigned char _sk[64];
 public:
 	/** Construct keypair from keyfile content.
 	 * @param content the content of the keyfile

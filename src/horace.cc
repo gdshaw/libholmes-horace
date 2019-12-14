@@ -27,6 +27,8 @@ void write_help(std::ostream& out) {
 	out << "Commands:" << std::endl;
 	out << std::endl;
 	out << "  capture  capture data from host" << std::endl;
+	out << "  forward  forward data from one endpoint to another" << std::endl;
+	out << "  genkey   generate keypair for signing" << std::endl;
 }
 
 /** Print version information.

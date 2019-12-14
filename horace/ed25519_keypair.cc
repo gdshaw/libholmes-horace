@@ -19,24 +19,24 @@ ed25519_keypair::ed25519_keypair(const std::string& content) {
 		throw std::runtime_error("malformed keyfile");
 	}
 
-	std::string sk_hex = content.substr(f1 + 1, f2 - f1 - 1);
-	std::string pk_hex = content.substr(f2 + 1);
-
-	size_t sk_len = 0;
+	std::string pk_hex = content.substr(f1 + 1, f2 - f1 - 1);
 	size_t pk_len = 0;
-	if (sodium_hex2bin(_sk, sizeof(_sk),
-		sk_hex.data(), sk_hex.length(), "", &sk_len, 0)) {
-		throw std::runtime_error("malformed private key");
-	}
-	if (sk_len != sizeof(_sk)) {
-		throw std::runtime_error("undersized private key");
-	}
 	if (sodium_hex2bin(_pk, sizeof(_pk),
 		pk_hex.data(), pk_hex.length(), "", &pk_len, 0)) {
 		throw std::runtime_error("malformed public key");
 	}
 	if (pk_len != sizeof(_pk)) {
 		throw std::runtime_error("undersized public key");
+	}
+
+	std::string sk_hex = content.substr(f2 + 1);
+	size_t sk_len = 0;
+	if (sodium_hex2bin(_sk, sizeof(_sk),
+		sk_hex.data(), sk_hex.length(), "", &sk_len, 0)) {
+		throw std::runtime_error("malformed private key");
+	}
+	if (sk_len != sizeof(_sk)) {
+		throw std::runtime_error("undersized private key");
 	}
 }
 
