@@ -8,6 +8,8 @@ exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
 libdir = $(exec_prefix)/lib
 libexecdir = $(libdir)
+mandir = $(prefix)/man
+man1dir = $(mandir)/man1
 
 pkgname = horace
 
@@ -25,8 +27,12 @@ HORACE = $(wildcard horace/*.cc)
 EPDIRS = $(wildcard endpoints/*)
 EPLIBS = $(foreach EPDIR,$(EPDIRS),$(EPDIR)/$(notdir $(EPDIR)).so)
 
+MAN1 = $(wildcard man/man1/*.1)
+MAN1GZ = $(MAN1:man/%=man/%.gz)
+MANGZ = $(MAN1GZ)
+
 .PHONY: all
-all: $(BIN) $(EPLIBS)
+all: $(BIN) $(EPLIBS) $(MANGZ)
 
 $(BIN): bin/%: src/%.o horace.so
 	@mkdir -p bin
@@ -38,12 +44,16 @@ endpoints/%.so: always
 horace.so: $(HORACE:%.cc=%.o)
 	gcc -shared -o $@ $^
 
+man/%.gz: man/%
+	gzip -k -f $<
+
 .PHONY: clean
 clean: $(EPDIRS:%=%/clean)
 	rm -f horace/*.d horace/*.o
 	rm -f src/*.d src/*.o
 	rm -f *.so
 	rm -rf bin
+	rm -f man/*/*.gz
 
 %/clean: always
 	make -C $* clean
@@ -58,11 +68,14 @@ install: all
 	cp horace.so $(libdir)/
 	cp $(AUXBIN) $(libexecdir)/$(pkgname)/bin/
 	cp $(EPLIBS) $(libexecdir)/$(pkgname)/endpoints/
+	@mkdir -p $(man1dir)
+	cp $(MAN1GZ) $(man1dir)/
 
 .PHONY: uninstall
 uninstall:
 	rm -f $(bindir)/$(notdir $(MAINBIN))
 	rm -rf $(libexecdir)/$(pkgname)
+	rm -f $(foreach MANFILE,$(MAN1GZ),$(man1dir)/$(notdir $(MANFILE)))
 
 .PHONY: always
 always:

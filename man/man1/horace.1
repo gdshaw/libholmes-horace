@@ -1,0 +1,176 @@
+.TH HORACE 1 "2019-12-14" "LibHolmes" "LibHolmes-HORACE Manual"
+.SH NAME
+horace \- reliable monitoring of hosts and networks
+.SH SYNOPSIS
+horace [<options>] <subcommand> [<args>]
+.SH DESCRIPTION
+This is an implementation of HORACE, the Host Observation, Recording And
+Continuous Exfiltration protocol. Its purpose is to monitor a host or
+network in one location, and reliably forward the resulting data to
+another location for analysis.
+.PP
+The
+.I horace
+command does not implement any of this functionality itself, but
+instead acts as a front-end to a set of subcommands for performing specific
+actions. Each subcommand has a separate manpage containing detailed
+instructions.
+.SH OPTIONS
+.IP -h
+Display help text then exit
+.IP -V
+Display version number then exit
+.SH SUBCOMMANDS
+.IP capture
+Capture events from an endpoint to produce a session
+.IP forward
+Forward sessions from one endpoint to another
+.IP genkey
+Generate keypair for signing
+.SH ENDPOINTS
+An endpoint is something that HORACE data can be received from or sent to.
+Each endpoint has a name, which conforms to the same syntax as an absolute
+URI. Each endpoint name consequently begins with a scheme name followed by
+a colon, and the scheme name determines how the remainder of the endpoint
+name should be interpreted.
+.PP
+Note that endpoints may differ in the capabilities they provide, and for
+this reason they are not necessarily interchangable with each other.
+Potential capabilities include event capture, reading dessions from a
+source and writing sessions to a destination.
+.PP
+This implementation includes endpoint drivers for the following schemes:
+.IP netif
+Event capture from a network interface
+.IP horace+file
+Reading or writing sessions to the local filesystem
+.IP horace+tcp
+Transmission or reception of sessions via a TCP connection
+.IP mongodb
+Storage of sessions in a MongoDB database
+.PP
+For any of the above, if query component is present then it contains a
+set of named parameters in x-www-form-urlencoded format.
+.PP
+For
+.I netif
+endpoints the path component specifies the name of a network
+interface. Currently supported parameters are:
+.IP method
+Optionally specify the method of capture (
+.I packet
+for a plain AF_PACKET
+socket,
+.I ringv1
+,
+.I ringv2
+or
+.I ringv3
+for one with a ring buffer using the corresponding API version, defaulting
+to the highest version available).
+.IP snaplen
+Optionally specify the maximum packet length (in octets) that can be
+captured in full.
+.IP capacity
+Optionally specify the required buffer capacity (in octets).
+.IP promiscuous
+Optionally specify whether the interface should be placed in promiscuous
+mode (
+.I true
+or
+.I false
+, defaulting to
+.I false).
+.PP
+For example:
+.PP
+.RS 4
+netif:ens3
+.RE
+.PP
+would refer to the network interface ens3 with default settings, whereas
+.PP
+.RS 4
+netif:ens3?method=packet&promiscuous=true
+.RE
+.PP
+would additionally place the interface in promiscuous mode, and capture
+network traffic using a plain AF_PACKET socket (no ring buffer).
+.PP
+For
+.I horace+file
+endpoints the path component specifies the pathname of a base directory
+within the local filesystem for the storage of spoolfiles. Immediately
+beneath the base directory are subdirectories for each event source, and
+below them are the spoolfiles themselves. Currently supported parameters
+are:
+.IP filesize
+Optionally specify the size (in octets) to which spoolfiles are allowed to
+grow when they are being written.
+.IP nodelete
+Optionally specify whether spoolfiles are deleted once they have been read
+and acknowledged (true or false, defaulting to true). This should always be
+set to true in normal use, however it is sometimes useful to suppress
+deletion for testing purposes.
+.PP
+For
+.I horace+tcp
+endpoints the host and port components may be used to specify the local or
+remote socket address used for inbound or outbound connections
+respectively. The host defaults to the wildcard address when accepting
+inbound connections, or the loopback address when initiating outbound
+connections. The port defaults to 40960 in both cases.
+.PP
+The only currently supported parameter is:
+.IP
+retry
+Optionally specify the time (in seconds) to wait before retrying an
+outbound connection attempt if a previous attempt failed.
+.PP
+For example:
+.PP
+.RS 4
+horace+tcp:
+.RE
+.PP
+could be used to make outbound connections to the local machine, or listen
+for inbound connections from anywhere, on the default port of 40960.
+.PP
+.RS 4
+horace+tcp://localhost
+.RE
+.PP
+would have the same effect for outbound connections, but would only allow
+inbound connections from the local machine.
+.PP
+.RS 4
+horace+tcp://horace.example.com:40961?retry=60
+.RE
+.PP
+could be used to make outbound connections to the host horace.example.com
+with a remote port number of 40961, waiting 60 seconds between retries.
+It could also be used to listen for connections exclusively from that host
+using a local port number of 40961, however the retry parameter would be
+superfluous in that case.
+.PP
+For
+.I mongodb
+endpoints the syntax is identical to that used by MongoDB itself. Note that
+a specific database name should be included. For example:
+.PP
+.RS 4
+mongodb://localhost/holmes
+.RE
+.PP
+would refer to a MongoDB database named 'holmes' hosted on the local
+machine.
+.PP
+Endpoint drivers are implemented using an extensible plug-in system,
+therefore it is possible for new schemes to be implemented without
+rebuilding other parts of the software.
+.SH SEE ALSO
+horace-capture(1), horace-forward(1), horace-genkey(1)
+.SH BUGS
+In development, not yet stable.
+.SH AUTHOR
+Graham Shaw (gdshaw@riscpkg.org)
