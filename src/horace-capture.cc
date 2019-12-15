@@ -28,6 +28,7 @@
 #include "horace/session_builder.h"
 #include "horace/event_reader.h"
 #include "horace/new_session_writer.h"
+#include "horace/event_source.h"
 #include "horace/endpoint.h"
 #include "horace/event_reader_endpoint.h"
 
@@ -48,51 +49,6 @@ void write_help(std::ostream& out) {
 	out << "  -k  sign messages using key in given file" << std::endl;
 	out << "  -R  set minimum time in milliseconds between signed events" << std::endl;
 	out << "  -v  increase verbosity of log messages" << std::endl;
-}
-
-void capture(session_builder& session, event_reader& src_er,
-	new_session_writer& dst) {
-
-	std::unique_ptr<record> srec = session.build();
-	try {
-		dst.start_session(*srec);
-		while (true) {
-			// Ensure that termination is picked up, even if
-			// the thread never blocks.
-			terminating.poll();
-
-			// Read record from source.
-			const record& rec = src_er.read();
-			dst.write_event(rec);
-		}
-	} catch (retry_exception&) {
-		throw;
-	} catch (terminate_exception&) {
-		// No action.
-	} catch (std::exception& ex) {
-		std::cerr << ex.what() << std::endl;
-	}
-	dst.end_session(*srec);
-}
-
-void capture_with_retry(session_builder& session, event_reader& src_er,
-	new_session_writer& dst) {
-
-	bool retry = true;
-	while (retry) {
-		retry = false;
-		try {
-			capture(session, src_er, dst);
-		} catch (retry_exception&) {
-			retry = true;
-			if (log->enabled(logger::log_err)) {
-				log_message msg(*log, logger::log_err);
-				msg << "error during capture (will retry)";
-			}
-		} catch (std::exception& ex) {
-			std::cerr << ex.what() << std::endl;
-		}
-	}
 }
 
 int main2(int argc, char* argv[]) {
@@ -184,18 +140,6 @@ int main2(int argc, char* argv[]) {
 	std::unique_ptr<endpoint> src_ep =
 		endpoint::make(argv[optind++]);
 
-	// Make event reader for source endpoint.
-	event_reader_endpoint* src_erep =
-		dynamic_cast<event_reader_endpoint*>(src_ep.get());
-	if (!src_erep) {
-		std::cerr << "Source endpoint is unable to capture events."
-			<< std::endl;
-		exit(1);
-	}
-	session_builder session(source_id);
-	std::unique_ptr<event_reader> src_er =
-		src_erep->make_event_reader(session);
-
 	// Parse destination endpoint.
 	if (optind == argc) {
 		std::cerr << "Destination endpoint not specified."
@@ -205,23 +149,30 @@ int main2(int argc, char* argv[]) {
 	std::unique_ptr<endpoint> dst_ep =
 		endpoint::make(argv[optind++]);
 
-	// Make new_session_writer for destination endpoint.
-	new_session_writer dst(*dst_ep, source_id, hashfn.get(),
-		kp.get(), sigrate);
-
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
 			<< std::endl;
 	}
 
+	// Make a new_session_writer for destination endpoint.
+	new_session_writer dst(*dst_ep, source_id, hashfn.get(),
+		kp.get(), sigrate);
+
+	// Make an event_source for source endpoint.
+	session_builder sb(source_id);
+	event_source src(*src_ep, dst, sb);
+
 	// Attach address filter to event reader, but only if it is non-empty.
 	if (!addrfilt.empty()) {
-		src_er->attach(addrfilt);
+		src.attach(addrfilt);
 	}
 
-	// Capture events.
-	std::thread capture_thread(capture_with_retry, std::ref(session),
-		std::ref(*src_er), std::ref(dst));
+	// Start the session.
+	std::unique_ptr<record> srec = sb.build();
+	dst.begin_session(*srec);
+
+	// Start capturing events.
+	src.start();
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();
@@ -229,8 +180,8 @@ int main2(int argc, char* argv[]) {
 	// Stop listening and exit.
 	std::cerr << strsignal(raised) << std::endl;
 	terminating.set();
-	pthread_kill(capture_thread.native_handle(), SIGALRM);
-	capture_thread.join();
+	src.stop();
+	dst.end_session();
 }
 
 int main(int argc, char* argv[]) {

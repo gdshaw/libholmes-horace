@@ -29,6 +29,9 @@ private:
 	/** The required source ID. */
 	std::string _source_id;
 
+	/** The session record, or 0 if not yet created. */
+	const record* _srec;
+
 	/** A session writer for the destination endpoint. */
 	std::unique_ptr<session_writer> _sw;
 
@@ -72,6 +75,14 @@ private:
 	 * @return true if a signature is due, otherwise false
 	 */
 	bool _signature_due();
+
+	/** Open a connection to the endpoint. */
+	void _open();
+
+	/** Write an event record to the endpoint (without retry).
+	 * @param rec the event record to be written
+	 */
+	void _write_event(const record& rec);
 public:
 	/** Construct new session writer.
 	 * @param ep the destination endpoint
@@ -86,20 +97,18 @@ public:
 	new_session_writer(endpoint& ep, const std::string& source_id,
 		hash* hashfn, keypair* kp, unsigned long sigrate);
 
-	/** Start new session.
-	 * @param srec the session record
+	/** Begin the session.
+	 * @param srec the required session record
 	 */
-	void start_session(const record& srec);
+	void begin_session(const record& srec);
 
-	/** End session.
-	 * @param srec the original session record
-	 */
-	void end_session(const record& srec);
-
-	/** Write an event record to the endpoint.
+	/** Write an event record to the endpoint (with retry).
 	 * @param rec the event record to be written
 	 */
 	void write_event(const record& rec);
+
+	/** End the session. */
+	void end_session();
 };
 
 } /* namespace horace */

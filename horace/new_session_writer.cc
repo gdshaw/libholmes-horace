@@ -4,9 +4,11 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include "horace/libc_error.h"
+#include "horace/horace_error.h"
 #include "horace/retry_exception.h"
 #include "horace/terminate_exception.h"
 #include "horace/logger.h"
+#include "horace/log_message.h"
 #include "horace/hash.h"
 #include "horace/keypair.h"
 #include "horace/binary_attribute.h"
@@ -27,6 +29,7 @@ new_session_writer::new_session_writer(endpoint& ep, const std::string& source_i
 	hash* hashfn, keypair* kp, unsigned long sigrate):
 	_ep(dynamic_cast<session_writer_endpoint*>(&ep)),
 	_source_id(source_id),
+	_srec(0),
 	_seqnum(0),
 	_signature_ts({0}),
 	_hashfn(hashfn),
@@ -73,30 +76,69 @@ void new_session_writer::_write_signature(size_t hash_len, const void* hash) {
 	} catch (terminate_exception&) {
 		throw;
 	} catch (std::exception& ex) {
+		_sw = 0;
 		throw retry_exception();
 	}
 }
 
-void new_session_writer::start_session(const record& srec) {
+void new_session_writer::_open() {
+	if (!_srec) {
+		throw horace_error("session not yet started");
+	}
 	_sw = _ep->make_session_writer(_source_id);
 	try {
-		_sw->write(srec);
+		_sw->write(*_srec);
 	} catch (terminate_exception&) {
 		throw;
 	} catch (std::exception& ex) {
+		_sw = 0;
 		throw retry_exception();
 	}
-	srec.log(*log);
+	_srec->log(*log);
 }
 
-void new_session_writer::end_session(const record& srec) {
-	attribute_list attrs;
-	attrs.append(srec.find_one<string_attribute>(attrid_source).clone());
-	attrs.append(srec.find_one<timestamp_attribute>(attrid_ts_begin).clone());
-	attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_end));
-	std::unique_ptr<record> erec = std::make_unique<record>(channel_session, attrs);
-	_sw->write(*erec);
-	erec->log(*log);
+void new_session_writer::_write_event(const record& rec) {
+	// Attempt to write record to destination.
+	try {
+		_sw->write(rec);
+	} catch (terminate_exception&) {
+		throw;
+	} catch (std::exception& ex) {
+		_sw = 0;
+		throw retry_exception();
+	}
+
+	if (_hashfn) {
+		rec.write(*_hashfn);
+		const void* hash = _hashfn->final();
+		size_t hash_len = _hashfn->length();
+
+		_hattr = std::make_unique<binary_attribute>(attrid_hash,
+			hash_len, hash);
+
+		// The following method for regulating signature
+		// generation is imperfect, because it checks the
+		// clock only when an event is written (and may
+		// therefore delay signing for an arbitrarily long
+		// time). However, this will be easier to address
+		// once support for multiple event sources has been
+		// added.
+		if (_signature_due()) {
+			_write_signature(hash_len, hash);
+		}
+	}
+}
+
+void new_session_writer::begin_session(const record& srec) {
+	_srec = &srec;
+	try {
+		_open();
+	} catch (retry_exception&) {
+		if (log->enabled(logger::log_err)) {
+			log_message msg(*log, logger::log_err);
+			msg << "error during capture (will retry)";
+		}
+	}
 }
 
 void new_session_writer::write_event(const record& rec) {
@@ -117,33 +159,40 @@ void new_session_writer::write_event(const record& rec) {
 	}
 	record nrec(rec.channel_number(), std::move(attrs));
 
-	// Attempt to write record to destination.
-	try {
-		_sw->write(nrec);
-	} catch (terminate_exception&) {
-		throw;
-	} catch (std::exception& ex) {
-		throw retry_exception();
-	}
+	bool retry = true;
+	while (retry) {
+		retry = false;
 
-	if (_hashfn) {
-		nrec.write(*_hashfn);
-		const void* hash = _hashfn->final();
-		size_t hash_len = _hashfn->length();
-
-		_hattr = std::make_unique<binary_attribute>(attrid_hash,
-			hash_len, hash);
-
-		// The following method for regulating signature
-		// generation is imperfect, because it checks the
-		// clock only when an event is written (and may
-		// therefore delay signing for an arbitrarily long
-		// time). However, this will be easier to address
-		// once support for multiple event sources has been
-		// added.
-		if (_signature_due()) {
-			_write_signature(hash_len, hash);
+		try {
+			if (!_sw) {
+				_open();
+			}
+			_write_event(nrec);
+		} catch (retry_exception&) {
+			retry = true;
+			if (log->enabled(logger::log_err)) {
+				log_message msg(*log, logger::log_err);
+				msg << "error during capture (will retry)";
+			}
+		} catch (std::exception& ex) {
+			if (log->enabled(logger::log_err)) {
+				log_message msg(*log, logger::log_err);
+				msg << ex.what();
+			}
 		}
+	}
+}
+
+void new_session_writer::end_session() {
+	if (_sw) {
+		attribute_list attrs;
+		attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());
+		attrs.append(_srec->find_one<timestamp_attribute>(attrid_ts_begin).clone());
+		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_end));
+		std::unique_ptr<record> erec = std::make_unique<record>(channel_session, attrs);
+		_sw->write(*erec);
+		erec->log(*log);
+		_sw = 0;
 	}
 }
 
