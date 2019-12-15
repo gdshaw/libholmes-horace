@@ -11,7 +11,6 @@
 
 #include <getopt.h>
 
-#include "horace/libc_error.h"
 #include "horace/retry_exception.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
@@ -25,17 +24,12 @@
 #include "horace/address_filter.h"
 #include "horace/hash.h"
 #include "horace/keypair.h"
-#include "horace/unsigned_integer_attribute.h"
-#include "horace/binary_attribute.h"
-#include "horace/string_attribute.h"
-#include "horace/timestamp_attribute.h"
 #include "horace/record.h"
 #include "horace/session_builder.h"
 #include "horace/event_reader.h"
-#include "horace/session_writer.h"
+#include "horace/new_session_writer.h"
 #include "horace/endpoint.h"
 #include "horace/event_reader_endpoint.h"
-#include "horace/session_writer_endpoint.h"
 
 using namespace horace;
 
@@ -56,30 +50,12 @@ void write_help(std::ostream& out) {
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
-void capture(session_builder& session, uint64_t& seqnum,
-	event_reader& src_er, session_writer_endpoint& dst_swep,
-	hash* hashfn, keypair* kp, unsigned long signature_rate) {
-
-	timespec signature_ts = {0};
-	if (clock_gettime(CLOCK_REALTIME, &signature_ts) == -1) {
-		throw libc_error();
-	}
-
-	std::unique_ptr<session_writer> dst_sw =
-		dst_swep.make_session_writer(session.source_id());
+void capture(session_builder& session, event_reader& src_er,
+	new_session_writer& dst) {
 
 	std::unique_ptr<record> srec = session.build();
-	std::unique_ptr<binary_attribute> hattr;
 	try {
-		try {
-			dst_sw->write(*srec);
-		} catch (terminate_exception&) {
-			throw;
-		} catch (std::exception& ex) {
-			throw retry_exception();
-		}
-		srec->log(*log);
-
+		dst.start_session(*srec);
 		while (true) {
 			// Ensure that termination is picked up, even if
 			// the thread never blocks.
@@ -87,80 +63,7 @@ void capture(session_builder& session, uint64_t& seqnum,
 
 			// Read record from source.
 			const record& rec = src_er.read();
-
-			// Append sequence number to record.
-			// This is the same method as was previously used in
-			// spoolfile_writer, and is known to be inefficient.
-			// It was tolerable in that context because it was
-			// invoked only once per spoolfile. Here it is
-			// applied to every event record, and effectively
-			// undoes efforts made elsewhere to avoid copying.
-			// A more efficient solution would be desirable, but
-			// the current event reader API does not allow for one.
-			attribute_list attrs = rec.attributes();
-			unsigned_integer_attribute seqnum_attr(attrid_seqnum, seqnum++);
-			attrs.append(seqnum_attr);
-			if (hattr) {
-				attrs.append(std::move(hattr));
-			}
-			record nrec(rec.channel_number(), std::move(attrs));
-
-			// Attempt to write record to destination.
-			try {
-				dst_sw->write(nrec);
-			} catch (terminate_exception&) {
-				throw;
-			} catch (std::exception& ex) {
-				throw retry_exception();
-			}
-
-			if (hashfn) {
-				nrec.write(*hashfn);
-				const void* hash = hashfn->final();
-				size_t hash_len = hashfn->length();
-
-				hattr = std::make_unique<binary_attribute>(attrid_hash,
-					hash_len, hash);
-
-				if (kp) {
-					// The following method for regulating signature
-					// generation is imperfect, because it checks the
-					// clock only when an event is written (and may
-					// therefore delay signing for an arbitrarily long
-					// time). However, this will be easier to address
-					// once support for multiple event sources has been
-					// added.
-					timespec current_ts;
-					if (clock_gettime(CLOCK_REALTIME, &current_ts) == -1) {
-						throw libc_error();
-					}
-					timespec diff_ts;
-					diff_ts.tv_sec = current_ts.tv_sec - signature_ts.tv_sec;
-					diff_ts.tv_nsec = current_ts.tv_nsec - signature_ts.tv_nsec;
-					if (diff_ts.tv_nsec < 0) {
-						diff_ts.tv_sec -= 1;
-						diff_ts.tv_nsec += 1000000000;
-					}
-					long diff = (diff_ts.tv_sec * 1000) + (diff_ts.tv_nsec / 1000000);
-
-					if (diff >= signature_rate) {
-						signature_ts = current_ts;
-
-						std::string sig = kp->sign(hash, hash_len);
-						attribute_list sigattrs;
-						sigattrs.append(std::make_unique<binary_attribute>(
-							attrid_sig, sig.length(), sig.data()));
-						record sigrec(channel_signature, std::move(sigattrs));
-						try {
-							dst_sw->write(sigrec);
-						} catch (terminate_exception&) {
-							throw;
-						} catch (std::exception& ex) {
-							throw retry_exception();
-						}
-					}
-				}
-			}
+			dst.write_event(rec);
 		}
 	} catch (retry_exception&) {
 		throw;
@@ -169,28 +72,17 @@ void capture(session_builder& session, uint64_t& seqnum,
 	} catch (std::exception& ex) {
 		std::cerr << ex.what() << std::endl;
 	}
-
-	// Write end of session timestamp to session channel.
-	attribute_list attrs;
-	attrs.append(srec->find_one<string_attribute>(attrid_source).clone());
-	attrs.append(srec->find_one<timestamp_attribute>(attrid_ts_begin).clone());
-	attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_end));
-	std::unique_ptr<record> erec = std::make_unique<record>(channel_session, attrs);
-	dst_sw->write(*erec);
-	erec->log(*log);
+	dst.end_session(*srec);
 }
 
 void capture_with_retry(session_builder& session, event_reader& src_er,
-	session_writer_endpoint& dst_swep, hash* hashfn, keypair* kp,
-	unsigned long signature_rate) {
+	new_session_writer& dst) {
 
-	uint64_t seqnum = 0;
 	bool retry = true;
 	while (retry) {
 		retry = false;
 		try {
-			capture(session, seqnum, src_er, dst_swep, hashfn, kp,
-				signature_rate);
+			capture(session, src_er, dst);
 		} catch (retry_exception&) {
 			retry = true;
 			if (log->enabled(logger::log_err)) {
@@ -219,7 +111,7 @@ int main2(int argc, char* argv[]) {
 	// Initialise default options.
 	const char* hashfn_name = 0;
 	const char* keyfile_pathname = 0;
-	unsigned long signature_rate = 0;
+	unsigned long sigrate = 0;
 	address_filter addrfilt;
 	int severity = logger::log_warning;
 
@@ -237,7 +129,7 @@ int main2(int argc, char* argv[]) {
 			keyfile_pathname = optarg;
 			break;
 		case 'R':
-			signature_rate = std::stol(optarg);
+			sigrate = std::stol(optarg);
 			break;
 		case 'S':
 			source_id = std::string(optarg);
@@ -313,14 +205,9 @@ int main2(int argc, char* argv[]) {
 	std::unique_ptr<endpoint> dst_ep =
 		endpoint::make(argv[optind++]);
 
-	// Make session writer for destination endpoint.
-	session_writer_endpoint* dst_swep =
-		dynamic_cast<session_writer_endpoint*>(dst_ep.get());
-	if (!dst_swep) {
-		std::cerr << "Destination endpoint is unable to receive sessions."
-			<< std::endl;
-		exit(1);
-	}
+	// Make new_session_writer for destination endpoint.
+	new_session_writer dst(*dst_ep, source_id, hashfn.get(),
+		kp.get(), sigrate);
 
 	if (optind != argc) {
 		std::cerr << "Too many arguments on command line."
@@ -334,8 +221,7 @@ int main2(int argc, char* argv[]) {
 
 	// Capture events.
 	std::thread capture_thread(capture_with_retry, std::ref(session),
-		std::ref(*src_er), std::ref(*dst_swep), hashfn.get(),
-		kp.get(), signature_rate);
+		std::ref(*src_er), std::ref(dst));
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();
