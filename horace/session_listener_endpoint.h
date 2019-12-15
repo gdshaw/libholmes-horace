@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_SESSION_LISTENER_ENDPOINT
 #define LIBHOLMES_HORACE_SESSION_LISTENER_ENDPOINT
 
+#include <memory>
+
 namespace horace {
 
 class session_listener;

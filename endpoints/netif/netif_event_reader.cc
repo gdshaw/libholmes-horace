@@ -10,6 +10,7 @@
 #include "horace/binary_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/compound_attribute.h"
+#include "horace/session_builder.h"
 #include "horace/packet_record_builder.h"
 
 #include "packet_socket.h"

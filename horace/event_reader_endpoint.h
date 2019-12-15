@@ -6,10 +6,12 @@
 #ifndef LIBHOLMES_HORACE_EVENT_READER_ENDPOINT
 #define LIBHOLMES_HORACE_EVENT_READER_ENDPOINT
 
-#include "horace/session_builder.h"
-#include "horace/event_reader.h"
+#include <memory>
 
 namespace horace {
+
+class session_builder;
+class event_reader;
 
 /** An endpoint mixin class to represent a source of events.
  * This class is intended for use in endpoints which act as a source of
