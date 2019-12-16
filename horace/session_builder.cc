@@ -47,7 +47,7 @@ int session_builder::define_channel(const std::string& label,
 		attrid_channel_label, label));
 	_attributes.append(std::make_unique<compound_attribute>(
 		attrid_channel_def, std::move(subattrs)));
-	return _chan_count;
+	return _chan_count++;
 }
 
 std::unique_ptr<record> session_builder::build() {

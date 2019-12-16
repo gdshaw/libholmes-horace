@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <cstdint>
+#include <mutex>
 
 #include "horace/binary_attribute.h"
 #include "horace/session_writer.h"
@@ -23,6 +24,9 @@ class session_writer_endpoint;
 /** A class for writing newly-captured sessions to an endpoint. */
 class new_session_writer {
 private:
+	/** A mutex to allow thread-safe capture from multiple sources. */
+	std::mutex _mutex;
+
 	/** The destination endpoint, as a session_writer_endpoint. */
 	session_writer_endpoint* _ep;
 

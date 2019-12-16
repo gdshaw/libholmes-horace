@@ -130,6 +130,8 @@ void new_session_writer::_write_event(const record& rec) {
 }
 
 void new_session_writer::begin_session(const record& srec) {
+	std::scoped_lock lk(_mutex);
+
 	_srec = &srec;
 	try {
 		_open();
@@ -142,6 +144,8 @@ void new_session_writer::begin_session(const record& srec) {
 }
 
 void new_session_writer::write_event(const record& rec) {
+	std::scoped_lock lk(_mutex);
+
 	// Append sequence number to record.
 	// This is the same method as was previously used in
 	// spoolfile_writer, and is known to be inefficient.
@@ -184,6 +188,8 @@ void new_session_writer::write_event(const record& rec) {
 }
 
 void new_session_writer::end_session() {
+	std::scoped_lock lk(_mutex);
+
 	if (_sw) {
 		attribute_list attrs;
 		attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());

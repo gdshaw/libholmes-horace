@@ -131,40 +131,40 @@ int main2(int argc, char* argv[]) {
 		}
 	}
 
-	// Parse source endpoint.
-	if (optind == argc) {
-		std::cerr << "Source endpoint not specified."
-			<< std::endl;
+	// Parse list of endpoints.
+	std::vector<std::unique_ptr<endpoint>> endpoints;
+	while (optind != argc) {
+		std::unique_ptr<endpoint> ep =
+			endpoint::make(argv[optind++]);
+		endpoints.push_back(std::move(ep));
+	}
+	if (endpoints.size() < 1) {
+		std::cerr << "Source endpoint not specified." << std::endl;
 		exit(1);
 	}
-	std::unique_ptr<endpoint> src_ep =
-		endpoint::make(argv[optind++]);
-
-	// Parse destination endpoint.
-	if (optind == argc) {
+	if (endpoints.size() < 2) {
 		std::cerr << "Destination endpoint not specified."
 			<< std::endl;
 		exit(1);
 	}
-	std::unique_ptr<endpoint> dst_ep =
-		endpoint::make(argv[optind++]);
-
-	if (optind != argc) {
-		std::cerr << "Too many arguments on command line."
-			<< std::endl;
-	}
+	std::unique_ptr<endpoint> dst_ep = std::move(endpoints.back());
+	endpoints.pop_back();
 
 	// Make a new_session_writer for destination endpoint.
 	new_session_writer dst(*dst_ep, source_id, hashfn.get(),
 		kp.get(), sigrate);
 
-	// Make an event_source for source endpoint.
+	// Make an event_source for each source endpoint.
+	// While doing this, attach the address filter if there is one.
 	session_builder sb(source_id);
-	event_source src(*src_ep, dst, sb);
-
-	// Attach address filter to event reader, but only if it is non-empty.
-	if (!addrfilt.empty()) {
-		src.attach(addrfilt);
+	std::vector<std::unique_ptr<event_source>> sources;
+	for (auto& src_ep : endpoints) {
+		std::unique_ptr<event_source> src =
+			std::make_unique<event_source>(*src_ep, dst, sb);
+		if (!addrfilt.empty()) {
+			src->attach(addrfilt);
+		}
+		sources.push_back(std::move(src));
 	}
 
 	// Start the session.
@@ -172,7 +172,9 @@ int main2(int argc, char* argv[]) {
 	dst.begin_session(*srec);
 
 	// Start capturing events.
-	src.start();
+	for (auto& src : sources) {
+		src->start();
+	}
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();
@@ -180,7 +182,9 @@ int main2(int argc, char* argv[]) {
 	// Stop listening and exit.
 	std::cerr << strsignal(raised) << std::endl;
 	terminating.set();
-	src.stop();
+	for (auto& src : sources) {
+		src->stop();
+	}
 	dst.end_session();
 }
 

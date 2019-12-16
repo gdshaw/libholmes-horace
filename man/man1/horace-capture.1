@@ -2,7 +2,7 @@
 .SH NAME
 horace-capture \- record new HORACE session
 .SH SYNOPSIS
-horace capture [<options>] <source> <destination>
+horace capture [<options>] <source> ... <destination>
 .SH DESCRIPTION
 The
 .I horace capture
@@ -91,8 +91,6 @@ process were to terminate abruptly.
 horace(1), horace-genkey(1)
 .SH BUGS
 In development, not yet stable.
-.PP
-Only a single source endpoint may be specified.
 .PP
 Rate limiting of signatures does not function as intended if there are long
 gaps between events.
