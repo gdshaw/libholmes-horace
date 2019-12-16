@@ -8,10 +8,10 @@
 
 #include <memory>
 
+#include "horace/lockfile.h"
 #include "horace/simple_session_writer.h"
 
 #include "directory_maker.h"
-#include "lockfile.h"
 
 namespace horace {
 

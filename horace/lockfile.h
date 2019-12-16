@@ -12,7 +12,7 @@
 
 namespace horace {
 
-/** A class to represent a lockfile within a filestore.
+/** A class to represent a lockfile.
  * This class attempts to acquire an advisory lock on the file at the given
  * pathname, creating it if necessary. If the lock cannot be acquired
  * immediately then an exception is thrown. The lock is an exclusive one and

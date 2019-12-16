@@ -6,12 +6,12 @@
 #ifndef LIBHOLMES_HORACE_FILE_SESSION_READER
 #define LIBHOLMES_HORACE_FILE_SESSION_READER
 
+#include "horace/lockfile.h"
 #include "horace/session_context.h"
 #include "horace/session_reader.h"
 
 #include "directory_maker.h"
 #include "directory_watcher.h"
-#include "lockfile.h"
 
 namespace horace {
 

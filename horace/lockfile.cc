@@ -7,8 +7,7 @@
 #include <fcntl.h>
 
 #include "horace/endpoint_error.h"
-
-#include "lockfile.h"
+#include "horace/lockfile.h"
 
 namespace horace {
 
