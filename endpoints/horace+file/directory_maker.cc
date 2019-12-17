@@ -14,7 +14,7 @@
 namespace horace {
 
 directory_maker::directory_maker(const std::string& pathname) {
-	if (mkdir(pathname.c_str(), 0755) == -1) {
+	if (mkdir(pathname.c_str(), 0777) == -1) {
 		if (errno != EEXIST) {
 			throw libc_error();
 		}

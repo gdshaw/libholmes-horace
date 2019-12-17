@@ -44,7 +44,7 @@ public:
 	 * @param mode the required mode if new file created
 	 */
 	file_descriptor(const std::string& pathname, int flags,
-		int mode = 0644);
+		int mode = 0666);
 
 	/** Close file descriptor. */
 	virtual ~file_descriptor();

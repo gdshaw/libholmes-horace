@@ -13,7 +13,7 @@ namespace horace {
 
 lockfile::lockfile(const std::string& pathname):
 	_pathname(pathname),
-	_fd(_pathname, O_WRONLY|O_CREAT, 0600) {
+	_fd(_pathname, O_WRONLY|O_CREAT, 0666) {
 
 	if (!_fd.lock()) {
 		throw endpoint_error("filestore is locked for writing");

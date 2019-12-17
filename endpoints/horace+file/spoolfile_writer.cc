@@ -18,7 +18,7 @@ namespace horace {
 spoolfile_writer::spoolfile_writer(const std::string& pathname,
 	size_t capacity):
 	_pathname(pathname),
-	_fd(pathname, O_RDWR|O_CREAT|O_EXCL, 0644),
+	_fd(pathname, O_RDWR|O_CREAT|O_EXCL, 0666),
 	_ow(_fd),
 	_size(0),
 	_capacity(capacity),
