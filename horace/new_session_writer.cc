@@ -17,6 +17,7 @@
 #include "horace/timestamp_attribute.h"
 #include "horace/attribute_list.h"
 #include "horace/record.h"
+#include "horace/session_builder.h"
 #include "horace/endpoint_error.h"
 #include "horace/endpoint.h"
 #include "horace/session_writer_endpoint.h"
@@ -25,8 +26,9 @@
 
 namespace horace {
 
-new_session_writer::new_session_writer(endpoint& ep, const std::string& source_id,
-	hash* hashfn, keypair* kp, unsigned long sigrate):
+new_session_writer::new_session_writer(endpoint& ep, session_builder& sb,
+	const std::string& source_id, hash* hashfn,
+	keypair* kp, unsigned long sigrate):
 	_ep(dynamic_cast<session_writer_endpoint*>(&ep)),
 	_source_id(source_id),
 	_srec(0),
@@ -35,6 +37,13 @@ new_session_writer::new_session_writer(endpoint& ep, const std::string& source_i
 	_hashfn(hashfn),
 	_kp(kp),
 	_sigrate(sigrate) {
+
+	if (hashfn) {
+		sb.define_hash(*hashfn);
+	}
+	if (kp) {
+		sb.define_keypair(*kp);
+	}
 
 	if (!_ep) {
 		throw endpoint_error(
@@ -98,6 +107,7 @@ void new_session_writer::_open() {
 }
 
 void new_session_writer::_write_event(const record& rec) {
+
 	// Attempt to write record to destination.
 	try {
 		_sw->write(rec);
@@ -123,7 +133,7 @@ void new_session_writer::_write_event(const record& rec) {
 		// time). However, this will be easier to address
 		// once support for multiple event sources has been
 		// added.
-		if (_signature_due()) {
+		if (_kp && _signature_due()) {
 			_write_signature(hash_len, hash);
 		}
 	}

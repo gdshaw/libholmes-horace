@@ -3,8 +3,11 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
-#include "horace/unsigned_integer_attribute.h"
+#include "horace/hash.h"
+#include "horace/keypair.h"
+#include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/compound_attribute.h"
 #include "horace/record.h"
@@ -48,6 +51,19 @@ int session_builder::define_channel(const std::string& label,
 	_attributes.append(std::make_unique<compound_attribute>(
 		attrid_channel_def, std::move(subattrs)));
 	return _chan_count++;
+}
+
+void session_builder::define_hash(const hash& hashfn) {
+	_attributes.append(std::make_unique<string_attribute>(
+		attrid_hash_alg, hashfn.algorithm()));
+}
+
+void session_builder::define_keypair(const keypair& kp) {
+	_attributes.append(std::make_unique<string_attribute>(
+		attrid_sig_alg, kp.algorithm()));
+	std::basic_string<unsigned char> pubkey = kp.public_key();
+	_attributes.append(std::make_unique<binary_attribute>(
+		attrid_sig_pubkey, pubkey.length(), pubkey.data()));
 }
 
 std::unique_ptr<record> session_builder::build() {

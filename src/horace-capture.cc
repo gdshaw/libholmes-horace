@@ -151,12 +151,12 @@ int main2(int argc, char* argv[]) {
 	endpoints.pop_back();
 
 	// Make a new_session_writer for destination endpoint.
-	new_session_writer dst(*dst_ep, source_id, hashfn.get(),
+	session_builder sb(source_id);
+	new_session_writer dst(*dst_ep, sb, source_id, hashfn.get(),
 		kp.get(), sigrate);
 
 	// Make an event_source for each source endpoint.
 	// While doing this, attach the address filter if there is one.
-	session_builder sb(source_id);
 	std::vector<std::unique_ptr<event_source>> sources;
 	for (auto& src_ep : endpoints) {
 		std::unique_ptr<event_source> src =

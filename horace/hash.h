@@ -29,6 +29,11 @@ public:
 	 */
 	virtual size_t length() const = 0;
 
+	/** Get the algorithm name for this hash function.
+	 * @return the algorithm name
+	 */
+	virtual const std::string& algorithm() const = 0;
+
 	/** Make hash from algorithm name.
 	 * @param name the algorithm name
 	 * @return the resulting hash object

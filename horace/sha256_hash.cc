@@ -23,4 +23,9 @@ const void* sha256_hash::final() {
 	return _hash;
 }
 
+const std::string& sha256_hash::algorithm() const {
+        static const std::string name("sha256");
+        return name;
+}
+
 } /* namespace horace */

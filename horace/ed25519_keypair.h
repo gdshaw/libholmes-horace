@@ -6,6 +6,8 @@
 #ifndef LIBHOLMES_HORACE_ED25519_KEYPAIR
 #define LIBHOLMES_HORACE_ED25519_KEYPAIR
 
+#include <string>
+
 #include "horace/keypair.h"
 
 namespace horace {
@@ -15,10 +17,10 @@ class ed25519_keypair:
 	public keypair {
 private:
 	/** The public key. */
-	unsigned char _pk[32];
+	std::basic_string<unsigned char> _pk;
 
 	/** The secret key. */
-	unsigned char _sk[64];
+	std::basic_string<unsigned char> _sk;
 public:
 	/** Construct keypair from keyfile content.
 	 * @param content the content of the keyfile
@@ -26,6 +28,9 @@ public:
 	explicit ed25519_keypair(const std::string& content);
 
 	virtual std::string sign(const void* content, size_t nbyte) const;
+	virtual const std::string& algorithm() const;
+	virtual const std::basic_string<unsigned char>& public_key() const;
+	virtual const std::basic_string<unsigned char>& secret_key() const;
 };
 
 } /* namespace horace */

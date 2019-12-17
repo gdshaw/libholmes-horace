@@ -18,6 +18,7 @@ namespace horace {
 class hash;
 class keypair;
 class record;
+class session_builder;
 class endpoint;
 class session_writer_endpoint;
 
@@ -90,6 +91,7 @@ private:
 public:
 	/** Construct new session writer.
 	 * @param ep the destination endpoint
+	 * @param sb a session builder for the new session
 	 * @param source_id the required source ID
 	 * @param hashfn the hash function to apply to each event record,
 	 *  or 0 if none
@@ -98,8 +100,9 @@ public:
 	 * @param sigrate the minimum time in milliseconds between
 	 *  signatures
 	 */
-	new_session_writer(endpoint& ep, const std::string& source_id,
-		hash* hashfn, keypair* kp, unsigned long sigrate);
+	new_session_writer(endpoint& ep, session_builder& sb,
+		const std::string& source_id, hash* hashfn,
+		keypair* kp, unsigned long sigrate);
 
 	/** Begin the session.
 	 * @param srec the required session record

@@ -35,6 +35,8 @@ public:
 	virtual size_t length() const {
 		return 32;
 	}
+
+	virtual const std::string& algorithm() const;
 };
 
 } /* namespace horace */

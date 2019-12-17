@@ -23,4 +23,9 @@ const void* sha512_hash::final() {
 	return _hash;
 }
 
+const std::string& sha512_hash::algorithm() const {
+        static const std::string name("sha512");
+        return name;
+}
+
 } /* namespace horace */

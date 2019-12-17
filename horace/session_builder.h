@@ -13,6 +13,8 @@
 
 namespace horace {
 
+class hash;
+class keypair;
 class record;
 
 /** A class for building session records. */
@@ -62,6 +64,16 @@ public:
 	 */
 	int define_channel(const std::string& label,
 		attribute_list&& subattrs);
+
+	/** Define hash function.
+	 * @param hash the hash function
+	 */
+	void define_hash(const hash& hashfn);
+
+	/** Define signature algorithm and public key.
+	 * @param keypair the signing keypair
+	 */
+	void define_keypair(const keypair& kp);
 
 	/** Build session record.
 	 * @return the resulting record
