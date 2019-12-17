@@ -14,7 +14,8 @@
 
 namespace horace {
 
-static const size_t buffer_size = sizeof(struct inotify_event) + NAME_MAX + 1;
+static const size_t buffer_size =
+	sizeof(struct inotify_event) + NAME_MAX + 1;
 
 directory_watcher::directory_watcher(const std::string& pathname):
 	_fd(inotify_init()),
@@ -31,16 +32,21 @@ directory_watcher::directory_watcher(const std::string& pathname):
 
 std::string directory_watcher::read() {
 	while (true) {
+		// If the buffer is non-empty then return the next
+		// buffered filename.
 		if (_index < _count) {
 			char* ptr = _buffer.get() + _index;
 			struct inotify_event* event =
 				reinterpret_cast<struct inotify_event*>(ptr);
 			std::string filename(event->name);
-			size_t size = sizeof(struct inotify_event) + event->len;
+			size_t size = sizeof(struct inotify_event) +
+				event->len;
 			_index += size;
 			return filename;
 		}
 
+		// If the buffer is empty then fill it (blocking if
+		// necessary).
 		_count = _fd.read(_buffer.get(), buffer_size);
 		_index = 0;
 	}

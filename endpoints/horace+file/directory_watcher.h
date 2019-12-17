@@ -26,7 +26,7 @@ private:
 	size_t _count;
 
 	/** The index of the first unused octet in the buffer,
-	 * or _count if there are no unused octet. */
+	 * or _count if there are no unused octets. */
 	size_t _index;
 public:
 	/** Watch directory.
