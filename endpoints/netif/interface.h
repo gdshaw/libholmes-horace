@@ -23,7 +23,7 @@ private:
 
 	/** The hardware address, or the empty string if not known
 	 * or not applicable. */
-	std::string _hwaddr;
+	std::basic_string<unsigned char> _hwaddr;
 public:
 	/** Construct interface object for any interface. */
 	interface();
@@ -58,7 +58,7 @@ public:
 	 * @return the hardware address, or the empty string if not known
 	 *  or not applicable
 	 */
-	const std::string& hwaddr() const {
+	const std::basic_string<unsigned char>& hwaddr() const {
 		return _hwaddr;
 	}
 };

@@ -51,7 +51,9 @@ interface::interface(const std::string& ifname):
 	uint16_t arphrd = ifr.ifr_hwaddr.sa_family;
 	if (arphrd == ARPHRD_ETHER) {
 		_linktype = linktype_ethernet;
-		_hwaddr = std::string(ifr.ifr_hwaddr.sa_data, ETH_ALEN);
+		unsigned char* hwaddr = reinterpret_cast<unsigned char*>(
+			ifr.ifr_hwaddr.sa_data);
+		_hwaddr = std::basic_string<unsigned char>(hwaddr, ETH_ALEN);
 	}
 }
 
