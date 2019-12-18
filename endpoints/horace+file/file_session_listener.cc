@@ -16,13 +16,22 @@
 namespace horace {
 
 void file_session_listener::_scan() {
+	// Iterate over the names in the directory.
 	directory dir(_pathname);
 	while (dir) {
 		std::string filename = dir.read();
-		if (!filename.empty() && (filename[0] != '.')) {
-			if ((_pending.find(filename) == _pending.end()) &&
-				(_accepted.find(filename) == _accepted.end())) {
 
+		// Exclude names beginning with a dot to ensure that
+		// session readers are not created for the current
+		// directory, the parent directory, or any lockfiles.
+		if (!filename.empty() && (filename[0] != '.')) {
+			// Exclude sources in the accepted set, to avoid
+			// creating more than one session reader for a
+			// given source.
+			// (No need to check the pending set because it
+			// shouldn't be in there, and even if it was
+			// inserting a second time would have no effect.)
+			if (_accepted.find(filename) == _accepted.end()) {
 				_pending.insert(filename);
 			}
 		}
@@ -34,21 +43,36 @@ file_session_listener::file_session_listener(file_endpoint& src_ep):
 	_pathname(src_ep.pathname()),
 	_watcher(_pathname) {
 
+	// Existing sources will not be detected by inotify, therefore
+	// an initial scan is needed.
 	_scan();
 }
 
 std::unique_ptr<session_reader> file_session_listener::accept() {
 	while (true) {
+		// Create file session readers for any sources in the
+		// pending set, moving them to the accepted set once
+		// handled.
 		if (!_pending.empty()) {
 			std::string source_id = *_pending.begin();
 			_accepted.insert(source_id);
 			_pending.erase(source_id);
-
-			std::string pathname = _pathname + "/" + source_id;
-			return std::make_unique<file_session_reader>(*_src_ep, source_id);
+			return std::make_unique<file_session_reader>(
+				*_src_ep, source_id);
 		}
 
+		// Wait for any addition to the directory.
+		// Occasional false positives are tolerable here, since the
+		// objective is merely to avoid having to scan the
+		//  directory continuously.
 		_watcher.read();
+
+		// Rescan the directory to pick up any new sources.
+		// This method is somewhat inefficient, but new sources are
+		// expected to be sufficiently infrequent for that not to
+		// be a concern. It does have the virtue of not needing to
+		// detect and handle overruns in the inotify queue, which
+		// might otherwise cause sources to be missed.
 		_scan();
 	}
 }
