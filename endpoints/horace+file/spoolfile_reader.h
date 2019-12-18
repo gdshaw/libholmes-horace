@@ -59,14 +59,14 @@ public:
 	/** Get the pathname of this spoolfile.
 	 * @return the pathname
 	 */
-	const std::string& pathname() {
+	const std::string& pathname() const {
 		return _pathname;
 	}
 
 	/** Get the pathname of the following spoolfile.
 	 * @return the pathname
 	 */
-	const std::string& next_pathname() {
+	const std::string& next_pathname() const {
 		return _next_pathname;
 	}
 
