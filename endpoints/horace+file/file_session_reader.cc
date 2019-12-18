@@ -122,11 +122,11 @@ void file_session_reader::write(const record& rec) {
 	// Furthermore, acknowledgement records should only be written
 	// in response to a sync record.
 	if (!_syncing) {
-		throw horace_error("unexpected ack record sent to session reader");
+		throw horace_error("unexpected sync response sent to session reader");
 	}
 
-	// Check that the acknowledgement record matches the outstanding
-	// sync record.
+	// Check that the sync response record matches the outstanding
+	// sync request.
 	struct timespec ack_ts = rec.find_one<timestamp_attribute>(
 		attrid_ts_begin).content();
 	uint64_t ack_seqnum = rec.find_one<unsigned_integer_attribute>(
@@ -135,7 +135,7 @@ void file_session_reader::write(const record& rec) {
 		(ack_ts.tv_nsec != _session_ts.tv_nsec) ||
 		(ack_seqnum != _seqnum)) {
 
-		throw horace_error("acknowledgement record does not match sync record");
+		throw horace_error("sync response record does not match sync request");
 	}
 
 	// Delete the current spoolfile, unless deletion suppressed.
