@@ -52,6 +52,16 @@ private:
 	 * each time it is called.
 	 */
 	std::string _next_pathname();
+
+	/** Begin new spoolfile.
+	 * @param srec the session record to be written
+	 */
+	void _begin_spoolfile(const record& srec);
+
+	/** Write a record to the current or next spoolfile.
+	 * @param rec the record to be written
+	 */
+	void _write_record(const record& rec);
 protected:
 	virtual void handle_session_start(const record& srec);
 	virtual void handle_session_end(const record& srec);

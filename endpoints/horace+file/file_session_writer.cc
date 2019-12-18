@@ -16,6 +16,61 @@
 
 namespace horace {
 
+std::string file_session_writer::_next_pathname() {
+	// Construct the filename for the new spoolfile, incrementing the
+	// current filenum.
+	spoolfile sf(_next_filenum++, _minwidth);
+
+	// If this caused the filenum to overflow then roll back the filenum
+	// and throw an exception.
+	if (_next_filenum == 0) {
+		--_next_filenum;
+		throw endpoint_error("file number overflow");
+	}
+
+	// Construct the full pathname for the new spoolfile.
+	return _pathname + "/" + sf.filename();
+}
+
+void file_session_writer::_begin_spoolfile(const record& srec) {
+	if (_sfw) {
+		_sfw->sync();
+	}
+	_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
+		_dst_ep->filesize());
+	bool written = _sfw->write(srec);
+	if (!written) {
+		throw endpoint_error(
+			"failed to write session record to new spoolfile");
+	}
+	_fd.fsync();
+}
+
+void file_session_writer::_write_record(const record& rec) {
+	bool written = false;
+
+	// If there is a spoolfile in progress then attempt to write the
+	// record to it.
+	if (_sfw) {
+		written = _sfw->write(rec);
+	}
+
+	// If the record has not yet been written, either because there
+	// is no spoolfile in progress or because it is full, open a new
+	// spoolfile and write to that instead.
+	if (!written) {
+		_begin_spoolfile(session_record());
+		written = _sfw->write(rec);
+	}
+
+	// Spoolfiles should allow at least one non-session record to be
+	// written, regardless of size, therefore the above is not expected
+	// to fail.
+	if (!written) {
+		throw endpoint_error("failed to write record to new spoolfile");
+	}
+}
+
 file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	const std::string& source_id):
 	simple_session_writer(source_id),
@@ -33,34 +88,12 @@ file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	}
 }
 
-std::string file_session_writer::_next_pathname() {
-	// Construct the filename for the new spoolfile, incrementing the
-	// current filenum.
-	spoolfile sf(_next_filenum++, _minwidth);
-
-	// If this caused the filenum to overflow then roll back the filenum
-	// and throw an exception.
-	if (_next_filenum == 0) {
-		--_next_filenum;
-		throw endpoint_error("file number overflow");
-	}
-
-	// Construct the full pathname for the new spoolfile.
-	return _pathname + "/" + sf.filename();
-}
-
 void file_session_writer::handle_session_start(const record& srec) {
-	if (_sfw) {
-		_sfw->sync();
-	}
-	_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
-		_dst_ep->filesize());
-	_sfw->write(srec);
-	_fd.fsync();
+	_begin_spoolfile(srec);
 }
 
 void file_session_writer::handle_session_end(const record& srec) {
-	_sfw->write(srec);
+	_write_record(srec);
 	_sfw->sync();
 	_sfw = 0;
 }
@@ -70,34 +103,11 @@ void file_session_writer::handle_sync(const record& crec) {
 }
 
 void file_session_writer::handle_signature(const record& grec) {
-	handle_event(grec);
+	_write_record(grec);
 }
 
 void file_session_writer::handle_event(const record& rec) {
-	bool written = false;
-
-	// If there is a spoolfile in progress then attempt to write the
-	// record to it.
-	if (_sfw) {
-		written = _sfw->write(rec);
-	}
-
-	// If the record has not yet been written, either because there
-	// is no spoolfile in progress or because it is full, open a new
-	// spoolfile and write to that instead.
-	if (!written) {
-		_sfw = std::make_unique<spoolfile_writer>(_next_pathname(),
-			_dst_ep->filesize());
-		_sfw->write(session_record());
-		_fd.fsync();
-		written = _sfw->write(rec);
-	}
-
-	// Spoolfiles should allow at least one event record to be written,
-	// regardless of size, therefore the above is not expected to fail.
-	if (!written) {
-		throw endpoint_error("failed to write record to new spoolfile");
-	}
+	_write_record(rec);
 }
 
 } /* namespace horace */
