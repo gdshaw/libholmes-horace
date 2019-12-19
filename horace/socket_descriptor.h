@@ -80,7 +80,7 @@ public:
 	 */
 	template<class T>
 	void connect(const T& addr) {
-		bind(reinterpret_cast<const struct sockaddr*>(&addr),
+		connect(reinterpret_cast<const struct sockaddr*>(&addr),
 			sizeof(addr));
 	}
 
