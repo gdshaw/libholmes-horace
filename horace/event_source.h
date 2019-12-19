@@ -33,10 +33,13 @@ private:
 	/** A thread for capturing events. */
 	std::thread _thread;
 
-	/** Capture events.
+	/** Capture events. */
+	void _capture();
+
+	/** Static wrapper function for _capture.
 	 * @param es the event source from which to capture
 	 */
-	static void _capture(event_source& es);
+	static void _do_capture(event_source& es);
 public:
 	/** Construct event source.
 	 * @param ep the source endpoint

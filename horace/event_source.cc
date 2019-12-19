@@ -7,7 +7,6 @@
 
 #include <signal.h>
 
-#include "horace/retry_exception.h"
 #include "horace/terminate_exception.h"
 #include "horace/terminate_flag.h"
 #include "horace/logger.h"
@@ -20,7 +19,7 @@
 
 namespace horace {
 
-void event_source::_capture(event_source& es) {
+void event_source::_capture() {
 	try {
 		while (true) {
 			// Ensure that termination is picked up, even if
@@ -28,16 +27,18 @@ void event_source::_capture(event_source& es) {
 			terminating.poll();
 
 			// Read record from source, write to destination.
-			const record& rec = es._er->read();
-			es._nsw->write_event(rec);
+			const record& rec = _er->read();
+			_nsw->write_event(rec);
 		}
-	} catch (retry_exception&) {
-		throw;
 	} catch (terminate_exception&) {
 		// No action.
 	} catch (std::exception& ex) {
 		std::cerr << ex.what() << std::endl;
 	}
+}
+
+void event_source::_do_capture(event_source& es) {
+	es._capture();
 }
 
 event_source::event_source(endpoint& ep, new_session_writer& nsw,
@@ -49,7 +50,7 @@ event_source::event_source(endpoint& ep, new_session_writer& nsw,
 }
 
 void event_source::start() {
-	_thread = std::thread(_capture, std::ref(*this));
+	_thread = std::thread(_do_capture, std::ref(*this));
 }
 
 void event_source::stop() {
