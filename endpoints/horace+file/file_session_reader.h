@@ -7,6 +7,7 @@
 #define LIBHOLMES_HORACE_FILE_SESSION_READER
 
 #include "horace/lockfile.h"
+#include "horace/record.h"
 #include "horace/session_context.h"
 #include "horace/session_reader.h"
 
@@ -60,8 +61,8 @@ public:
 	/** The current sequence number. */
 	uint64_t _seqnum;
 
-	/** True if waiting for a sync record to be acknowledged, otherwise false. */
-	bool _syncing;
+	/** The unacknowledged sync record, or 0 if not syncing. */
+	std::unique_ptr<record> _syncrec;
 
 	/** Get the pathname at which to look for the next spoolfile.
 	 * This function has the side effect of incrementing the filenum

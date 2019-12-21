@@ -13,7 +13,6 @@
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/attribute_list.h"
-#include "horace/record.h"
 
 #include "filestore_scanner.h"
 #include "spoolfile.h"
@@ -34,8 +33,7 @@ file_session_reader::file_session_reader(file_endpoint& src_ep,
 	_next_filenum(0),
 	_minwidth(0),
 	_session_ts({0}),
-	_seqnum(0),
-	_syncing(false) {}
+	_seqnum(0) {}
 
 std::string file_session_reader::_next_pathname() {
 	// Construct the filename for the new spoolfile, incrementing the
@@ -77,7 +75,7 @@ std::unique_ptr<record> file_session_reader::read() {
 	// If a sync record has already been returned for the current
 	// spoolfile then it is an error to read any more records until
 	// it has been acknowledged.
-	if (_syncing) {
+	if (_syncrec) {
 		throw horace_error("ack record expected");
 	}
 
@@ -104,11 +102,11 @@ std::unique_ptr<record> file_session_reader::read() {
 		// the current spoolfile (because the end has been reached
 		// and a subsequent spoolfile has been detected) then
 		// return a sync record.
-		_syncing = true;
 		attribute_list attrs;
 		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_begin, _session_ts));
 		attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
-		return std::make_unique<record>(channel_sync, std::move(attrs));
+		_syncrec = std::make_unique<record>(channel_sync, std::move(attrs));
+		return std::make_unique<record>(*_syncrec);
 	}
 }
 
@@ -121,20 +119,13 @@ void file_session_reader::write(const record& rec) {
 
 	// Furthermore, acknowledgement records should only be written
 	// in response to a sync record.
-	if (!_syncing) {
+	if (!_syncrec) {
 		throw horace_error("unexpected sync response sent to session reader");
 	}
 
 	// Check that the sync response record matches the outstanding
 	// sync request.
-	struct timespec ack_ts = rec.find_one<timestamp_attribute>(
-		attrid_ts_begin).content();
-	uint64_t ack_seqnum = rec.find_one<unsigned_integer_attribute>(
-		attrid_seqnum).content();
-	if ((ack_ts.tv_sec != _session_ts.tv_sec) ||
-		(ack_ts.tv_nsec != _session_ts.tv_nsec) ||
-		(ack_seqnum != _seqnum)) {
-
+	if (rec != *_syncrec) {
 		throw horace_error("sync response record does not match sync request");
 	}
 
@@ -147,7 +138,7 @@ void file_session_reader::write(const record& rec) {
 	// Proceed to the next spoolfile.
 	_sfr = std::make_unique<spoolfile_reader>(*this,
 		_sfr->next_pathname(), _next_pathname(), _session);
-	_syncing = false;
+	_syncrec = 0;
 }
 
 bool file_session_reader::reset() {
@@ -156,7 +147,7 @@ bool file_session_reader::reset() {
 		_next_filenum -= 1;
 		_session_ts = {0};
 		_seqnum = 0;
-		_syncing = false;
+		_syncrec = 0;
 	}
 	return true;
 }
