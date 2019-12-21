@@ -73,6 +73,10 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	} catch (terminate_exception&) {
 		throw;
 	} catch (std::exception& ex) {
+		if (log->enabled(logger::log_err)) {
+			log_message msg(*log, logger::log_notice);
+			msg << ex.what();
+		}
 		throw retry_exception();
 	}
 
@@ -96,6 +100,10 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		} catch (terminate_exception&) {
 			throw;
 		} catch (std::exception& ex) {
+			if (log->enabled(logger::log_err)) {
+				log_message msg(*log, logger::log_notice);
+				msg << ex.what();
+			}
 			throw retry_exception();
 		}
 
@@ -111,6 +119,10 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 				} catch (terminate_exception&) {
 					throw;
 				} catch (std::exception& ex) {
+					if (log->enabled(logger::log_err)) {
+						log_message msg(*log, logger::log_notice);
+						msg << ex.what();
+					}
 					throw retry_exception();
 				}
 				src_sr.write(*arec);
