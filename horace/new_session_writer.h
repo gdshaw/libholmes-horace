@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <cstdint>
+#include <ctime>
 #include <mutex>
 
 #include "horace/binary_attribute.h"
@@ -21,6 +22,7 @@ class record;
 class session_builder;
 class endpoint;
 class session_writer_endpoint;
+class event_signer;
 
 /** A class for writing newly-captured sessions to an endpoint. */
 class new_session_writer {
@@ -47,47 +49,20 @@ private:
 	 * or 0 if none. */
 	std::unique_ptr<binary_attribute> _hattr;
 
-	/** The timestamp for the most recent signature, or the
-	 * start of the session if none. */
-	struct timespec _signature_ts;
-
 	/** The hash function to apply to each event record,
 	 * or 0 for none. */
 	hash* _hashfn;
 
-	/** The keypair with which to sign each event record,
-	 * or 0 for none. */
-	keypair* _kp;
-
-	/** The minimum time in milliseconds between signatures. */
-	unsigned long _sigrate;
-
-	/** Write a signature record for the given hash data.
-	 * @param hash_len the length of the hash
-	 * @param hash the value of the hash
-	 */
-	void _write_signature(size_t hash_len, const void* hash);
-
-	/** Determine whether an event record is due to be signed.
-	 * This function checks only whether a sufficient time has
-	 * elapsed since the last signature. It does not check
-	 * whether a keypair or hash function have been specified
-	 * (which are also preconditions for signing).
-	 *
-	 * The act of calling this function resets the clock in
-	 * preparation for the following signature, therefore it
-	 * should only be called once per event record.
-	 * @return true if a signature is due, otherwise false
-	 */
-	bool _signature_due();
+	/** An event signer for signing event records, or 0 if none. */
+	event_signer* _signer;
 
 	/** Open a connection to the endpoint. */
 	void _open();
 
-	/** Write an event record to the endpoint (without retry).
-	 * @param rec the event record to be written
+	/** Write any type of record to the endpoint (with retry).
+	 * @param rec the record to be written
 	 */
-	void _write_event(const record& rec);
+	void _write(const record& rec);
 public:
 	/** Construct new session writer.
 	 * @param ep the destination endpoint
@@ -95,14 +70,14 @@ public:
 	 * @param source_id the required source ID
 	 * @param hashfn the hash function to apply to each event record,
 	 *  or 0 if none
-	 * @param kp the keypair with which to sign each event record,
-	 *  or 0 if none
-	 * @param sigrate the minimum time in milliseconds between
-	 *  signatures
 	 */
 	new_session_writer(endpoint& ep, session_builder& sb,
-		const std::string& source_id, hash* hashfn,
-		keypair* kp, unsigned long sigrate);
+		const std::string& source_id, hash* hashfn);
+
+	/** Attach an event signer.
+	 * @param signer the event signer to be attached
+	 */
+	void attach_signer(event_signer& signer);
 
 	/** Begin the session.
 	 * @param srec the required session record
@@ -113,6 +88,11 @@ public:
 	 * @param rec the event record to be written
 	 */
 	void write_event(const record& rec);
+
+	/** Write an signature record to the endpoint (with retry).
+	 * @param sigrec the event record to be written
+	 */
+	void write_signature(const record& sigrec);
 
 	/** End the session. */
 	void end_session();

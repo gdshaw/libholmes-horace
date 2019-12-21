@@ -39,7 +39,7 @@ Hash messages with a given digest function.
 .IP -k
 Sign messages using key in a given file.
 .IP -R
-Set minimum time in milliseconds between signed events.
+Set delay in milliseconds before signing.
 .IP -v
 Increase verbosity of log messages.
 .SH HASHING
@@ -83,10 +83,16 @@ become unacceptably burdensome if every record is signed. However, when
 signatures are used in conjunction with a chain of record hashes as
 described above, not every record need be signed.
 .PP
-The -R option specifies the desired time interval between signatures.
-A longer interval reduces the number of signatures required, but increases
-the number of records which could be left unsigned if the monitoring
-process were to terminate abruptly.
+The -R option allows for signature production to be rate-limited. It
+introduces a delay, of a given number of milliseconds, between the
+time when an event record becomes available for signing and the time
+when one is signed. A longer interval reduces the number of signatures
+produced, but increases the number of records which could be left
+unsigned if the monitoring process were to terminate abruptly.
+.PP
+(Note that the event record which is signed may differ from the one which
+triggered the time delay, since it is always the most recent available
+record which is signed.)
 .SH SEE ALSO
 horace(1), horace-genkey(1)
 .SH BUGS

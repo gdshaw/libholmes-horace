@@ -22,71 +22,27 @@
 #include "horace/endpoint.h"
 #include "horace/session_writer_endpoint.h"
 #include "horace/session_writer.h"
+#include "horace/event_signer.h"
 #include "horace/new_session_writer.h"
 
 namespace horace {
 
 new_session_writer::new_session_writer(endpoint& ep, session_builder& sb,
-	const std::string& source_id, hash* hashfn,
-	keypair* kp, unsigned long sigrate):
+	const std::string& source_id, hash* hashfn):
 	_ep(dynamic_cast<session_writer_endpoint*>(&ep)),
 	_source_id(source_id),
 	_srec(0),
 	_seqnum(0),
-	_signature_ts({0}),
 	_hashfn(hashfn),
-	_kp(kp),
-	_sigrate(sigrate) {
+	_signer(0) {
 
 	if (hashfn) {
 		sb.define_hash(*hashfn);
-	}
-	if (kp) {
-		sb.define_keypair(*kp);
 	}
 
 	if (!_ep) {
 		throw endpoint_error(
 			"destination endpoint unable to receive sessions");
-	}
-
-	if (clock_gettime(CLOCK_REALTIME, &_signature_ts) == -1) {
-		throw libc_error();
-	}
-}
-
-bool new_session_writer::_signature_due() {
-	timespec current_ts;
-	if (clock_gettime(CLOCK_REALTIME, &current_ts) == -1) {
-		throw libc_error();
-	}
-
-	timespec diff_ts;
-	diff_ts.tv_sec = current_ts.tv_sec - _signature_ts.tv_sec;
-	diff_ts.tv_nsec = current_ts.tv_nsec - _signature_ts.tv_nsec;
-	if (diff_ts.tv_nsec < 0) {
-		diff_ts.tv_sec -= 1;
-		diff_ts.tv_nsec += 1000000000;
-	}
-	_signature_ts = current_ts;
-
-	long diff = (diff_ts.tv_sec * 1000) + (diff_ts.tv_nsec / 1000000);
-	return (diff >= _sigrate);
-}
-
-void new_session_writer::_write_signature(size_t hash_len, const void* hash) {
-	std::string sig = _kp->sign(hash, hash_len);
-	attribute_list sigattrs;
-	sigattrs.append(std::make_unique<binary_attribute>(
-		attrid_sig, sig.length(), sig.data()));
-	record sigrec(channel_signature, std::move(sigattrs));
-	try {
-		_sw->write(sigrec);
-	} catch (terminate_exception&) {
-		throw;
-	} catch (std::exception& ex) {
-		_sw = 0;
-		throw retry_exception();
 	}
 }
 
@@ -106,37 +62,31 @@ void new_session_writer::_open() {
 	_srec->log(*log);
 }
 
-void new_session_writer::_write_event(const record& rec) {
+void new_session_writer::_write(const record& rec) {
+	bool retry = true;
+	while (retry) {
+		retry = false;
 
-	// Attempt to write record to destination.
-	try {
-		_sw->write(rec);
-	} catch (terminate_exception&) {
-		throw;
-	} catch (std::exception& ex) {
-		_sw = 0;
-		throw retry_exception();
-	}
-
-	if (_hashfn) {
-		rec.write(*_hashfn);
-		const void* hash = _hashfn->final();
-		size_t hash_len = _hashfn->length();
-
-		_hattr = std::make_unique<binary_attribute>(attrid_hash,
-			hash_len, hash);
-
-		// The following method for regulating signature
-		// generation is imperfect, because it checks the
-		// clock only when an event is written (and may
-		// therefore delay signing for an arbitrarily long
-		// time). However, this will be easier to address
-		// once support for multiple event sources has been
-		// added.
-		if (_kp && _signature_due()) {
-			_write_signature(hash_len, hash);
+		try {
+			if (!_sw) {
+				_open();
+			}
+			_sw->write(rec);
+		} catch (terminate_exception&) {
+			throw;
+		} catch (std::exception& ex) {
+			_sw = 0;
+			retry = true;
+			if (log->enabled(logger::log_err)) {
+				log_message msg(*log, logger::log_err);
+				msg << "error during capture (will retry)";
+			}
 		}
 	}
+}
+
+void new_session_writer::attach_signer(event_signer& signer) {
+	_signer = &signer;
 }
 
 void new_session_writer::begin_session(const record& srec) {
@@ -166,40 +116,48 @@ void new_session_writer::write_event(const record& rec) {
 	// A more efficient solution would be desirable, but
 	// the current event reader API does not allow for one.
 	attribute_list attrs = rec.attributes();
-	unsigned_integer_attribute seqnum_attr(attrid_seqnum, _seqnum++);
+	unsigned_integer_attribute seqnum_attr(attrid_seqnum, _seqnum);
 	attrs.append(seqnum_attr);
 	if (_hattr) {
 		attrs.append(std::move(_hattr));
 	}
 	record nrec(rec.channel_number(), std::move(attrs));
 
-	bool retry = true;
-	while (retry) {
-		retry = false;
+	// Write the record (with retry).
+	_write(nrec);
 
-		try {
-			if (!_sw) {
-				_open();
-			}
-			_write_event(nrec);
-		} catch (retry_exception&) {
-			retry = true;
-			if (log->enabled(logger::log_err)) {
-				log_message msg(*log, logger::log_err);
-				msg << "error during capture (will retry)";
-			}
-		} catch (std::exception& ex) {
-			if (log->enabled(logger::log_err)) {
-				log_message msg(*log, logger::log_err);
-				msg << ex.what();
-			}
+	// Hash and sign the record if appropriate.
+	if (_hashfn) {
+		nrec.write(*_hashfn);
+		const void* hash = _hashfn->final();
+		size_t hash_len = _hashfn->length();
+
+		_hattr = std::make_unique<binary_attribute>(attrid_hash,
+			hash_len, hash);
+
+		if (_signer) {
+			std::basic_string<unsigned char> hash_str(
+				static_cast<const unsigned char*>(hash),
+				hash_len);
+			_signer->handle_event(_seqnum, hash_str);
 		}
 	}
+
+	// Increment the sequence number.
+	// (This must not be done earlier, since its value is
+	// needed for signing.)
+	_seqnum++;
+}
+
+void new_session_writer::write_signature(const record& sigrec) {
+	std::scoped_lock lk(_mutex);
+
+	// Write the signature record (with retry).
+	_write(sigrec);
 }
 
 void new_session_writer::end_session() {
 	std::scoped_lock lk(_mutex);
-
 	if (_sw) {
 		attribute_list attrs;
 		attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());

@@ -27,6 +27,7 @@
 #include "horace/record.h"
 #include "horace/session_builder.h"
 #include "horace/event_reader.h"
+#include "horace/event_signer.h"
 #include "horace/new_session_writer.h"
 #include "horace/event_source.h"
 #include "horace/endpoint.h"
@@ -67,7 +68,7 @@ int main2(int argc, char* argv[]) {
 	// Initialise default options.
 	const char* hashfn_name = 0;
 	const char* keyfile_pathname = 0;
-	unsigned long sigrate = 0;
+	long sigdelay = 0;
 	address_filter addrfilt;
 	int severity = logger::log_warning;
 
@@ -85,7 +86,7 @@ int main2(int argc, char* argv[]) {
 			keyfile_pathname = optarg;
 			break;
 		case 'R':
-			sigrate = std::stol(optarg);
+			sigdelay = std::stol(optarg);
 			break;
 		case 'S':
 			source_id = std::string(optarg);
@@ -152,8 +153,16 @@ int main2(int argc, char* argv[]) {
 
 	// Make a new_session_writer for destination endpoint.
 	session_builder sb(source_id);
-	new_session_writer dst(*dst_ep, sb, source_id, hashfn.get(),
-		kp.get(), sigrate);
+	new_session_writer dst(*dst_ep, sb, source_id, hashfn.get());
+
+	// Attach an event signer to the new session writer if a keyfile
+	// was supplied.
+	std::unique_ptr<event_signer> signer;
+	if (kp) {
+		signer = std::make_unique<event_signer>(dst, *kp, sigdelay);
+		signer->build_session(sb);
+		dst.attach_signer(*signer);
+	}
 
 	// Make an event_source for each source endpoint.
 	// While doing this, attach the address filter if there is one.
@@ -184,6 +193,9 @@ int main2(int argc, char* argv[]) {
 	terminating.set();
 	for (auto& src : sources) {
 		src->stop();
+	}
+	if (signer) {
+		signer->stop();
 	}
 	dst.end_session();
 }
