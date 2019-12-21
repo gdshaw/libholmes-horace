@@ -59,6 +59,8 @@ public:
 	 */
 	timestamp_attribute(int attrid, const struct timespec& ts);
 
+	virtual bool operator==(const attribute& that) const;
+
 	/** Get the attribute content.
 	 * @return the content as a timespec
 	 */

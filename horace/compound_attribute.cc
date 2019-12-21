@@ -19,6 +19,18 @@ compound_attribute::compound_attribute(session_context& session, int attrid,
 	attribute(attrid),
 	_attrlist(session, length, in) {}
 
+bool compound_attribute::operator==(const attribute& that) const {
+	if (this->attrid() != that.attrid()) {
+		return false;
+	}
+	const compound_attribute* _that =
+		dynamic_cast<const compound_attribute*>(&that);
+	if (!_that) {
+		return false;
+	}
+	return (_attrlist == _that->_attrlist);
+}
+
 size_t compound_attribute::length() const {
 	return _attrlist.length();
 }

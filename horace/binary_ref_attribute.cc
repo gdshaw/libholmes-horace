@@ -16,6 +16,24 @@ binary_ref_attribute::binary_ref_attribute(int attrid, size_t length, const void
 	_content(static_cast<const char*>(content)),
 	_length(length) {}
 
+bool binary_ref_attribute::operator==(const attribute& that) const {
+	if (this->attrid() != that.attrid()) {
+		return false;
+	}
+	const binary_ref_attribute* _that =
+		dynamic_cast<const binary_ref_attribute*>(&that);
+	if (!_that) {
+		return false;
+	}
+	if (_length != _that->_length) {
+		return false;
+	}
+	if (memcmp(_content, _that->_content, _length)) {
+		return false;
+	}
+	return true;
+}
+
 size_t binary_ref_attribute::length() const {
 	return _length;
 }

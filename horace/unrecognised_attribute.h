@@ -38,6 +38,8 @@ public:
 	unrecognised_attribute(int attrid, size_t length,
 		std::unique_ptr<const char[]>& content);
 
+	virtual bool operator==(const attribute& that) const;
+
 	/** Get the content of this attribute.
 	 * @return the content
 	 */

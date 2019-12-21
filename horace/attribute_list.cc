@@ -156,9 +156,25 @@ void attribute_list::write(octet_writer& out) const {
 	}
 }
 
-std::ostream& operator<<(std::ostream& out, const attribute_list& rec) {
+bool operator==(const attribute_list& lhs, const attribute_list& rhs) {
+	if (lhs._attributes.size() != rhs._attributes.size()) {
+		return false;
+	}
+	for (auto i = lhs._attributes.begin(), j = rhs._attributes.begin();
+		i != lhs._attributes.end(); ++i, ++j) {
+
+		if (**i != **j) {
+			return false;
+		}
+	}
+	return true;
+}
+
+std::ostream& operator<<(std::ostream& out,
+	const attribute_list& attrlist) {
+
 	out << "(";
-	for (auto&& attr : rec.attributes()) {
+	for (auto&& attr : attrlist._attributes) {
 		out << std::endl;
 		out << " " << *attr;
 	}

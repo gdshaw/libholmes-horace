@@ -5,6 +5,8 @@
 
 #include "horace/horace_error.h"
 #include "horace/attribute.h"
+#include "horace/string_attribute.h"
+#include "horace/timestamp_attribute.h"
 #include "horace/record.h"
 #include "horace/simple_session_writer.h"
 
@@ -14,13 +16,32 @@ simple_session_writer::simple_session_writer(const std::string& source_id):
 	session_writer(source_id) {}
 
 void simple_session_writer::_process_session_record(const record& srec) {
-	if (!_srec || !same_session(*_srec, srec)) {
-		_srec = std::make_unique<record>(srec);
-		handle_session_start(srec);
-	} else {
-		_srec = std::make_unique<record>(srec);
+	// Check that the source ID is valid for this session writer.
+	// If not, the session record must be rejected.
+	std::string new_source_id =
+		srec.find_one<string_attribute>(attrid_source).content();
+	if (new_source_id != source_id()) {
+		throw horace_error("unexpected source ID in session record");
 	}
-	if (srec.contains(attrid_ts_end)) {
+
+	if (!srec.contains(attrid_ts_end)) {
+		// This is a start of session record.
+		if (!_srec || !(
+			_srec->find_one<timestamp_attribute>(attrid_ts_begin) ==
+			srec.find_one<timestamp_attribute>(attrid_ts_begin))) {
+
+			// The timestamp has changed: this record marks the
+			// start of a new session.
+			_srec = std::make_unique<record>(srec);
+			handle_session_start(srec);
+		} else if (*_srec != srec) {
+			// The timestamp is unchanged, but the record does
+			// not match for some other reason. This is an
+			// unrecoverable error.
+			throw horace_error("non-matching start of session record");
+		}
+	} else {
+		// This is an end of session record.
 		handle_session_end(srec);
 		_srec = 0;
 	}

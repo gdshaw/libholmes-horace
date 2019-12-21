@@ -84,6 +84,11 @@ void record::log(logger& log) const {
 	}
 }
 
+bool operator==(const record& lhs, const record& rhs) {
+	return ((lhs._channel == rhs._channel) &&
+		(lhs._attributes == rhs._attributes));
+}
+
 std::ostream& operator<<(std::ostream& out, const record& rec) {
 	out << "rec" << rec.channel_number() << "(";
 	for (auto&& attr : rec.attributes()) {
@@ -91,24 +96,6 @@ std::ostream& operator<<(std::ostream& out, const record& rec) {
 		out << " " << *attr;
 	}
 	out << ")" << std::endl;
-}
-
-bool same_session(const record& lhs, const record& rhs) {
-	std::string lsource = lhs.find_one<string_attribute>(
-		attrid_source).content();
-	std::string rsource = rhs.find_one<string_attribute>(
-		attrid_source).content();
-	if (lsource != rsource) return false;
-
-	struct timespec lts = lhs.find_one<timestamp_attribute>(
-		attrid_ts_begin).content();
-	struct timespec rts = rhs.find_one<timestamp_attribute>(
-		attrid_ts_begin).content();
-	if ((lts.tv_sec != rts.tv_sec) || (lts.tv_nsec != rts.tv_nsec)) {
-		return false;
-	}
-
-	return true;
 }
 
 } /* namespace horace */

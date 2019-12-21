@@ -54,6 +54,24 @@ public:
 
 	virtual ~attribute() = default;
 
+	/** Test whether two attributes are equal.
+	 * Attributes compare equal iff they have the same attribute ID
+	 * and equivalent content. In most cases this will imply that they
+	 * also have the same dynamic type, however exceptions are possible
+	 * such as binary_attribute and binary_ref_attribute.
+	 * @param that the attribute to be compared with this
+	 * @return true if equal, otherwise false
+	 */
+	virtual bool operator==(const attribute& that) const = 0;
+
+	/** Test whether two attributes are not equal.
+	 * @param that the attribute to be compared with this
+	 * @return true if not equal, otherwise false
+	 */
+	bool operator!=(const attribute& that) const {
+		return !(*this == that);
+	}
+
 	/** Get the attribute ID
 	 * @return the attribute ID
 	 */

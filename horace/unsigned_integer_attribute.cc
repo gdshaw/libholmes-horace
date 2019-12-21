@@ -28,6 +28,18 @@ unsigned_integer_attribute::unsigned_integer_attribute(int attrid,
 	_content = in.read_unsigned(length);
 }
 
+bool unsigned_integer_attribute::operator==(const attribute& that) const {
+	if (this->attrid() != that.attrid()) {
+		return false;
+	}
+	const unsigned_integer_attribute* _that =
+		dynamic_cast<const unsigned_integer_attribute*>(&that);
+	if (!_that) {
+		return false;
+	}
+	return (_content == _that->_content);
+}
+
 size_t unsigned_integer_attribute::length() const {
 	size_t len = 1;
 	uint64_t rem = _content >> 8;

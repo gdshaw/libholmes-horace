@@ -19,6 +19,18 @@ string_attribute::string_attribute(int attrid, size_t length, octet_reader& in):
 	attribute(attrid),
 	_content(in.read_string(length)) {}
 
+bool string_attribute::operator==(const attribute& that) const {
+	if (this->attrid() != that.attrid()) {
+		return false;
+	}
+	const string_attribute* _that =
+		dynamic_cast<const string_attribute*>(&that);
+	if (!_that) {
+		return false;
+	}
+	return (_content == _that->_content);
+}
+
 size_t string_attribute::length() const {
 	return _content.length();
 }

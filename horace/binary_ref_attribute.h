@@ -33,6 +33,8 @@ public:
 	 */
 	binary_ref_attribute(int attrid, size_t length, const void* content);
 
+	virtual bool operator==(const attribute& that) const;
+
 	/** Get attribute content.
 	 * @return the content
 	 */

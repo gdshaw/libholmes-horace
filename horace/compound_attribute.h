@@ -35,6 +35,8 @@ public:
 	compound_attribute(session_context& session, int attrid,
 		size_t length, octet_reader& in);
 
+	virtual bool operator==(const attribute& that) const;
+
 	/** Get the attribute content.
 	 * @return the content
 	 */

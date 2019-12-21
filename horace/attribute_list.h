@@ -139,6 +139,27 @@ public:
 	 */
 	void write(octet_writer& out) const;
 
+	/** Test whether two attribute lists are equal.
+	 * The attributes must match in value and order for the lists to
+	 * compare as equal.
+	 * @param lhs the left hand side
+	 * @param rhs the right hand side
+	 * @return true if equal, otherwise false
+	 */
+	friend bool operator==(const attribute_list& lhs,
+		const attribute_list& rhs);
+
+	/** Test whether two attribute lists are not equal.
+	 * @param lhs the left hand side
+	 * @param rhs the right hand side
+	 * @return true if not equal, otherwise false
+	 */
+	friend bool operator!=(const attribute_list& lhs,
+		const attribute_list& rhs) {
+
+		return !(lhs == rhs);
+	}
+
 	/** Write attributes in human-readable form to an output stream.
 	 * @param out the stream to which the output should be written
 	 * @param attrlist the list of attributes to be written

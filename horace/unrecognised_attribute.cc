@@ -28,6 +28,24 @@ unrecognised_attribute::unrecognised_attribute(int attrid, size_t length,
 	_content(std::move(content)),
 	_length(length) {}
 
+bool unrecognised_attribute::operator==(const attribute& that) const {
+	if (this->attrid() != that.attrid()) {
+		return false;
+	}
+	const unrecognised_attribute* _that =
+		dynamic_cast<const unrecognised_attribute*>(&that);
+	if (!_that) {
+		 return false;
+	}
+	if (_length != _that->_length) {
+		return false;
+	}
+	if (memcmp(_content.get(), _that->_content.get(), _length)) {
+		return false;
+	}
+	return true;
+}
+
 size_t unrecognised_attribute::length() const {
 	return _length;
 }

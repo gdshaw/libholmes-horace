@@ -65,6 +65,19 @@ timestamp_attribute::timestamp_attribute(int attrid, const timespec& content):
 	}
 }
 
+bool timestamp_attribute::operator==(const attribute& that) const {
+	if (this->attrid() != that.attrid()) {
+		return false;
+	}
+	const timestamp_attribute* _that =
+		dynamic_cast<const timestamp_attribute*>(&that);
+	if (!_that) {
+		return false;
+	}
+	return ((_content.tv_sec == _that->_content.tv_sec) &&
+		(_content.tv_nsec == _that->_content.tv_nsec));
+}
+
 size_t timestamp_attribute::length() const {
 	size_t len = 5;
 	uint64_t rem = _content.tv_sec >> 8;

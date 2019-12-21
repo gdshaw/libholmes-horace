@@ -121,6 +121,25 @@ public:
 	 */
 	void write(octet_writer& out) const;
 
+	/** Test whether two records are equal.
+	 * @param lhs the left hand side
+	 * @param rhs the right hand side
+	 * @return true if equal, otherwise false
+	 */
+	friend bool operator==(const record& lhs,
+		const record& rhs);
+
+	/** Test whether two records are not equal.
+	 * @param lhs the left hand side
+	 * @param rhs the right hand side
+	 * @return true if not equal, otherwise false
+	 */
+	friend bool operator!=(const record& lhs,
+		const record& rhs) {
+
+		return !(lhs == rhs);
+	}
+
 	/** Write a record in human-readable form to an output stream.
 	 * @param out the stream to which the output should be written
 	 * @param attr the record to be written
@@ -128,8 +147,6 @@ public:
 	 */
 	friend std::ostream& operator<<(std::ostream& out, const record& rec);
 };
-
-bool same_session(const record& lhs, const record& rhs);
 
 } /* namespace horace */
 
