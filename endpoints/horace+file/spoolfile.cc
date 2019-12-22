@@ -19,7 +19,7 @@ spoolfile::spoolfile(const std::string& filename):
 	if (_filename.empty()) {
 		throw std::invalid_argument("invalid spoolfile name");
 	}
-	for (std::string::const_iterator it = _filename.begin(); it != _filename.end(); ++it) {
+	for (auto it = _filename.begin(); it != _filename.end(); ++it) {
 		char c = *it;
 		if ((c < '0') || (c > '9')) {
 			throw std::invalid_argument("invalid spoolfile name");

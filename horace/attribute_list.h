@@ -83,7 +83,7 @@ public:
 	/** Get this attribute list as a standard container.
 	 * @return the container
 	 */
-	const std::vector<const attribute*>& attributes() const {
+	const auto& attributes() const {
 		return _attributes;
 	}
 

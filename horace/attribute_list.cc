@@ -15,13 +15,13 @@
 namespace horace {
 
 attribute_list::~attribute_list() {
-	for (const attribute* attr : _owned_attributes) {
+	for (const auto& attr : _owned_attributes) {
 		delete attr;
 	}
 }
 
 attribute_list::attribute_list(const attribute_list& that) {
-	for (auto attr : that._attributes) {
+	for (const auto& attr : that._attributes) {
 		auto attr_copy = attr->clone();
 		_attributes.push_back(attr_copy.get());
 		_owned_attributes.push_back(attr_copy.release());
@@ -36,12 +36,12 @@ attribute_list::attribute_list(attribute_list&& that) {
 attribute_list& attribute_list::operator=(const attribute_list& that) {
 	if (this != &that) {
 		_attributes.clear();
-		for (const attribute* attr : _owned_attributes) {
+		for (const auto& attr : _owned_attributes) {
 			delete attr;
 		}
 		_owned_attributes.clear();
 
-		for (auto attr : that._attributes) {
+		for (const auto& attr : that._attributes) {
 			auto attr_copy = attr->clone();
 			_attributes.push_back(attr_copy.get());
 			_owned_attributes.push_back(attr_copy.release());
@@ -53,7 +53,7 @@ attribute_list& attribute_list::operator=(const attribute_list& that) {
 attribute_list& attribute_list::operator=(attribute_list&& that) {
 	if (this != &that) {
 		_attributes.clear();
-		for (const attribute* attr : _owned_attributes) {
+		for (const auto& attr : _owned_attributes) {
 			delete attr;
 		}
 		_owned_attributes.clear();
@@ -88,7 +88,7 @@ attribute_list::attribute_list(session_context& session, size_t length,
 
 size_t attribute_list::length() const {
 	size_t len = 0;
-	for (auto&& attr : _attributes) {
+	for (const auto& attr : _attributes) {
 		size_t attr_len = attr->length();
 		len += octet_writer::signed_base128_length(attr->attrid());
 		len += octet_writer::unsigned_base128_length(attr_len);
@@ -98,7 +98,7 @@ size_t attribute_list::length() const {
 }
 
 bool attribute_list::contains(int attrid) const {
-	for (auto&& attr : _attributes) {
+	for (const auto& attr : _attributes) {
 		if (attr -> attrid() == attrid) {
 			return true;
 		}
@@ -108,7 +108,7 @@ bool attribute_list::contains(int attrid) const {
 
 const attribute& attribute_list::_find_one(int attrid) const {
 	const attribute* found = 0;
-	for (auto&& attr : _attributes) {
+	for (const auto& attr : _attributes) {
 		if (attr -> attrid() == attrid) {
 			if (found) {
 				std::ostringstream msg;
@@ -151,7 +151,7 @@ attribute_list& attribute_list::append(
 }
 
 void attribute_list::write(octet_writer& out) const {
-	for (auto&& attr : _attributes) {
+	for (const auto& attr : _attributes) {
 		attr->write(out);
 	}
 }
@@ -174,7 +174,7 @@ std::ostream& operator<<(std::ostream& out,
 	const attribute_list& attrlist) {
 
 	out << "(";
-	for (auto&& attr : attrlist._attributes) {
+	for (const auto& attr : attrlist._attributes) {
 		out << std::endl;
 		out << " " << *attr;
 	}

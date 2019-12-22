@@ -36,7 +36,7 @@ void address_filter::_compile() const {
 	// for each. Additionally, it requires 1 instruction to return if
 	// none of the netblocks match.
 	uint32_t inet4_count = _inet4_netblocks.size() * 6 + 1;
-	for (auto&& nb : _inet4_netblocks) {
+	for (const auto& nb : _inet4_netblocks) {
 		if (nb.prefix_length() != 32) {
 			inet4_count += 2;
 		}
@@ -62,7 +62,7 @@ void address_filter::_compile() const {
 	_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, static_cast<uint8_t>(1 + inet4_count), 0, 0x86dd };
 	_filter[idx++] = { BPF_RET, 0, 0, 0xffffffff };
 
-	for (auto&& nb : _inet4_netblocks) {
+	for (const auto& nb : _inet4_netblocks) {
 		// If IPv4 source address matches prefix then reject frame.
 		uint32_t prefix = *reinterpret_cast<const uint32_t*>(nb.prefix());
 		_filter[idx++] = { BPF_LD | BPF_W | BPF_ABS, 0, 0, 26 };
@@ -73,7 +73,7 @@ void address_filter::_compile() const {
 		_filter[idx++] = { BPF_JMP | BPF_K | BPF_JEQ, 0, 1, htonl(prefix) };
 		_filter[idx++] = { BPF_RET, 0, 0, 0 };
 	}
-	for (auto&& nb : _inet4_netblocks) {
+	for (const auto& nb : _inet4_netblocks) {
 		// If IPv4 destination address matches prefix then reject frame.
 		uint32_t prefix = *reinterpret_cast<const uint32_t*>(nb.prefix());
 		_filter[idx++] = { BPF_LD | BPF_W | BPF_ABS, 0, 0, 30 };
@@ -88,7 +88,7 @@ void address_filter::_compile() const {
 	// If IPv4 frame not already rejected then accept it.
 	_filter[idx++] = { BPF_RET, 0, 0, 0xffffffff };
 
-	for (auto&& nb : _inet6_netblocks) {
+	for (const auto& nb : _inet6_netblocks) {
 		// If IPv6 source address matches prefix then reject frame.
 		const uint32_t* prefix = reinterpret_cast<const uint32_t*>(nb.prefix());
 		for (uint32_t i = 0; i != 4; ++i) {
@@ -99,7 +99,7 @@ void address_filter::_compile() const {
 		_filter[idx++] = { BPF_RET, 0, 0, 0 };
 	}
 
-	for (auto&& nb : _inet6_netblocks) {
+	for (const auto& nb : _inet6_netblocks) {
 		// If IPv6 destination address matches prefix then reject frame.
 		const uint32_t* prefix = reinterpret_cast<const uint32_t*>(nb.prefix());
 		for (uint32_t i = 0; i != 4; ++i) {

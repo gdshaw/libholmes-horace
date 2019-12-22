@@ -23,7 +23,7 @@ std::unique_ptr<endpoint> endpoint::make(const std::string& name) {
 	if (prefix.empty() || !isalpha(prefix[0])) {
 		throw endpoint_error("invalid prefix in endpoint " + name);
 	}
-	for (char& c : prefix) {
+	for (char c : prefix) {
 		if (!isalnum(c) && (c != '+') && (c != '.') && (c != '-')) {
 			throw endpoint_error("invalid prefix in endpoint " + name);
 		}

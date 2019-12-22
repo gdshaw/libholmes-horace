@@ -37,7 +37,7 @@ void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
 	} else if (const compound_attribute* _attr = dynamic_cast<const compound_attribute*>(&attr)) {
 		bson_t bson_compound;
 		bson_append_document_begin(&bson, attr_name.c_str(), -1, &bson_compound);
-		for (auto subattr : _attr->content().attributes()) {
+		for (const auto& subattr : _attr->content().attributes()) {
 			_append_bson(bson_compound, *subattr);
 		}
 		bson_append_document_end(&bson, &bson_compound);
@@ -110,7 +110,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 
 	bson_t bson_channels;
 	bson_append_document_begin(&bson_session, "channels", -1, &bson_channels);
-	for (auto attr : srec.attributes()) {
+	for (const auto& attr : srec.attributes()) {
 		if (attr->attrid() == attrid_attr_def) {
 			_session.handle_attr_def(
 				dynamic_cast<const compound_attribute&>(*attr));
@@ -132,7 +132,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 		bson_t bson_channel;
 		bson_append_document_begin(&bson_channels, channel_str.c_str(),
 			-1, &bson_channel);
-		for (auto subattr : channel_def.content().attributes()) {
+		for (const auto& subattr : channel_def.content().attributes()) {
 			_append_bson(bson_channel, *subattr);
 		}
 		bson_append_document_end(&bson_channels, &bson_channel);
@@ -209,7 +209,7 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	bson_append_document_end(&bson_event, &bson_id);
 
 	// Add data from event record.
-	for (auto subattr : rec.attributes()) {
+	for (const auto& subattr : rec.attributes()) {
 		_append_bson(bson_event, *subattr);
 	}
 

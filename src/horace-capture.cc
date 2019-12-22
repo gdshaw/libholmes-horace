@@ -167,7 +167,7 @@ int main2(int argc, char* argv[]) {
 	// Make an event_source for each source endpoint.
 	// While doing this, attach the address filter if there is one.
 	std::vector<std::unique_ptr<event_source>> sources;
-	for (auto& src_ep : endpoints) {
+	for (const auto& src_ep : endpoints) {
 		std::unique_ptr<event_source> src =
 			std::make_unique<event_source>(*src_ep, dst, sb);
 		if (!addrfilt.empty()) {
@@ -181,7 +181,7 @@ int main2(int argc, char* argv[]) {
 	dst.begin_session(*srec);
 
 	// Start capturing events.
-	for (auto& src : sources) {
+	for (const auto& src : sources) {
 		src->start();
 	}
 
@@ -191,7 +191,7 @@ int main2(int argc, char* argv[]) {
 	// Stop listening and exit.
 	std::cerr << strsignal(raised) << std::endl;
 	terminating.set();
-	for (auto& src : sources) {
+	for (const auto& src : sources) {
 		src->stop();
 	}
 	if (signer) {

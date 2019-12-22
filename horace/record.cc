@@ -91,7 +91,7 @@ bool operator==(const record& lhs, const record& rhs) {
 
 std::ostream& operator<<(std::ostream& out, const record& rec) {
 	out << "rec" << rec.channel_number() << "(";
-	for (auto&& attr : rec.attributes()) {
+	for (const auto& attr : rec.attributes()) {
 		out << std::endl;
 		out << " " << *attr;
 	}
