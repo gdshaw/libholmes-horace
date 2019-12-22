@@ -32,7 +32,7 @@
 using namespace horace;
 
 // Pointers to all forwarding threads.
-std::vector<std::thread*> threads;
+std::vector<std::thread> threads;
 
 /** Print help text.
  * @param out the ostream to which the help text should be written
@@ -207,10 +207,10 @@ void forward_all(session_listener_endpoint& src_slep,
 
 			std::unique_ptr<session_reader> src_sr =
 				src_sl->accept();
-			std::thread* th = new std::thread(
+			std::thread th(
 				forward_one_with_retry,
 				std::move(src_sr), std::ref(dst_swep));
-			threads.push_back(th);
+			threads.push_back(std::move(th));
 		}
 	} catch (terminate_exception&) {
 		// No action.
@@ -293,9 +293,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Forward events.
-	std::thread* all_th = new std::thread(forward_all,
+	std::thread all_th(forward_all,
 		std::ref(*src_slep), std::ref(*dst_swep));
-	threads.push_back(all_th);
+	threads.push_back(std::move(all_th));
 
 	// Wait for terminating signal to be raised.
 	int raised = terminating_signals.wait();
@@ -303,10 +303,10 @@ int main(int argc, char* argv[]) {
 	// Stop forwarding and exit.
 	std::cerr << strsignal(raised) << std::endl;
 	terminating.set();
-	for (std::thread* th : threads) {
-		pthread_kill(th->native_handle(), SIGALRM);
+	for (auto& th : threads) {
+		pthread_kill(th.native_handle(), SIGALRM);
 	}
-	for (std::thread* th : threads) {
-		th->join();
+	for (auto& th : threads) {
+		th.join();
 	}
 }
