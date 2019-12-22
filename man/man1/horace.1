@@ -42,6 +42,8 @@ source and writing sessions to a destination.
 This implementation includes endpoint drivers for the following schemes:
 .IP netif
 Event capture from a network interface
+.IP unix
+Event capture from a UNIX-domain datagram socket
 .IP horace+file
 Reading or writing sessions to the local filesystem
 .IP horace+tcp
@@ -70,7 +72,7 @@ for one with a ring buffer using the corresponding API version, defaulting
 to the highest version available).
 .IP snaplen
 Optionally specify the maximum packet length (in octets) that can be
-captured in full.
+captured in full. Defaults to 262144.
 .IP capacity
 Optionally specify the required buffer capacity (in octets).
 .IP promiscuous
@@ -96,6 +98,22 @@ netif:ens3?method=packet&promiscuous=true
 .PP
 would additionally place the interface in promiscuous mode, and capture
 network traffic using a plain AF_PACKET socket (no ring buffer).
+.PP
+For
+.I unix
+endpoints the path component specifies the local pathname where the socket
+should be placed.
+.PP
+If there is already a socket at this location, and if it is unresponsive to
+connection attempts, then it will be deleted first on the assumption that
+it was abandoned from a previous failed session. Other types of filesystem
+object will not to be automatically deleted, and will result in an error if
+present.
+.PP
+The only currently supported parameter is:
+.IP snaplen
+Optionally specify the maximum message length (in octets) that can be
+captured in full. Defaults to 262144.
 .PP
 For
 .I horace+file
