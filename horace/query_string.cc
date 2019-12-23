@@ -17,7 +17,7 @@ static std::string decode(const std::string& encoded) {
 	while (index != encoded.length()) {
 		size_t percent = encoded.find('%', index);
 		if (percent == std::string::npos) {
-			decoded.append(encoded, index);
+			decoded.append(encoded, index, std::string::npos);
 			break;
 		}
 		decoded.append(encoded, index, percent - index);
