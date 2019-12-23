@@ -29,7 +29,7 @@ void event_signer::_run() {
 	// should not be held longer than necessary. In particular:
 	// - It should not be held during the delay period
 	// - It should not be held while the signature is being generated
-	std::unique_lock lk(_mutex, std::defer_lock);
+	std::unique_lock<std::mutex> lk(_mutex, std::defer_lock);
 
 	try {
 		while (true) {
@@ -102,7 +102,7 @@ void event_signer::handle_event(uint64_t seqnum,
 	const std::basic_string<unsigned char>& hash) {
 
 	{
-		std::scoped_lock lk(_mutex);
+		std::lock_guard<std::mutex> lk(_mutex);
 		_seqnum = seqnum;
 		_hash = hash;
 	}
@@ -114,7 +114,7 @@ void event_signer::stop() {
 	// so send it a notification. The mutex must be locked
 	// and then unlocked first, to avoid a potential race
 	// condition.
-	std::unique_lock lk(_mutex);
+	std::unique_lock<std::mutex> lk(_mutex);
 	lk.unlock();
 	_cv.notify_one();
 

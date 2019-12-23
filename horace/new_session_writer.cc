@@ -90,7 +90,7 @@ void new_session_writer::attach_signer(event_signer& signer) {
 }
 
 void new_session_writer::begin_session(const record& srec) {
-	std::scoped_lock lk(_mutex);
+	std::lock_guard<std::mutex> lk(_mutex);
 
 	_srec = &srec;
 	try {
@@ -104,7 +104,7 @@ void new_session_writer::begin_session(const record& srec) {
 }
 
 void new_session_writer::write_event(const record& rec) {
-	std::scoped_lock lk(_mutex);
+	std::lock_guard<std::mutex> lk(_mutex);
 
 	// Append sequence number to record.
 	// This is the same method as was previously used in
@@ -150,14 +150,14 @@ void new_session_writer::write_event(const record& rec) {
 }
 
 void new_session_writer::write_signature(const record& sigrec) {
-	std::scoped_lock lk(_mutex);
+	std::lock_guard<std::mutex> lk(_mutex);
 
 	// Write the signature record (with retry).
 	_write(sigrec);
 }
 
 void new_session_writer::end_session() {
-	std::scoped_lock lk(_mutex);
+	std::lock_guard<std::mutex> lk(_mutex);
 	if (_sw) {
 		attribute_list attrs;
 		attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());
