@@ -13,7 +13,7 @@ man1dir = $(mandir)/man1
 
 pkgname = horace
 
-CPPFLAGS = -MD -MP -I. '-DLIBEXECDIR="$(libexecdir)"' '-DPKGNAME="$(pkgname)"'
+CPPFLAGS = -MD -MP -I. -idirafter ./compat '-DLIBEXECDIR="$(libexecdir)"' '-DPKGNAME="$(pkgname)"'
 CXXFLAGS = -fPIC -O2 --std=c++17
 LDLIBS = -ldl -pthread -lsodium
 

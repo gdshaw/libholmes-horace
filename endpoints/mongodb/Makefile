@@ -5,7 +5,7 @@
 
 ENDPOINT := $(notdir $(shell pwd))
 
-CPPFLAGS = -MD -MP -I../.. `pkg-config --cflags libmongoc-1.0`
+CPPFLAGS = -MD -MP -I../.. -idirafter ../../compat `pkg-config --cflags libmongoc-1.0`
 CXXFLAGS = -fPIC -O2 --std=c++17
 LDLIBS = `pkg-config --libs libmongoc-1.0`
 

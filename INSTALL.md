@@ -10,11 +10,11 @@ is known to be Linux-specific due to the use of AF_PACKET sockets.
 
 This package has the following build-time dependencies.
 
-- g++ (>= 7.4.0)
+- g++ (>= 5.4.0)
 - make (>= 4.1)
 - gzip (>= 1.6)
 - pkg-config (>= 0.29.1)
-- libsodium (>= 1.0.16)
+- libsodium (>= 1.0.8)
 - libmongoc (>= 1.9.2)
 - libbson (>= 1.9.2)
 
@@ -23,7 +23,8 @@ Note that:
 - The versions listed may in some cases be very conservative, however they
   are ones which have been tested and are known to work.
 - A recent version of GCC is likely to be needed, as the code makes
-  extensive use of C++11 and C++17 language features.
+  extensive use of C++11 and C++17 language features, however some changes
+  for backward compatibility has now been made.
 
 ## Building and installing
 
