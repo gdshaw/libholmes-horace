@@ -69,7 +69,7 @@ std::unique_ptr<record> file_session_reader::read() {
 		// Now open the spoolfile.
 		std::string init_pathname = _next_pathname();
 		_sfr = std::make_unique<spoolfile_reader>(*this,
-			init_pathname, _next_pathname(), _session);
+			init_pathname, _next_pathname());
 	}
 
 	// If a sync record has already been returned for the current
@@ -82,7 +82,7 @@ std::unique_ptr<record> file_session_reader::read() {
 	// Attempt to read a record, but be prepared for a possible
 	// end of file error.
 	try {
-		std::unique_ptr<record> rec = _sfr->read();
+		std::unique_ptr<record> rec = std::make_unique<record>(_session, *_sfr);
 		if (rec->channel_number() == channel_session) {
 			struct timespec new_ts = rec->find_one<timestamp_attribute>(
 				attrid_ts_begin).content();
@@ -137,7 +137,7 @@ void file_session_reader::write(const record& rec) {
 
 	// Proceed to the next spoolfile.
 	_sfr = std::make_unique<spoolfile_reader>(*this,
-		_sfr->next_pathname(), _next_pathname(), _session);
+		_sfr->next_pathname(), _next_pathname());
 	_syncrec = 0;
 }
 
