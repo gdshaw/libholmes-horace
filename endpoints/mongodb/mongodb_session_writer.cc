@@ -91,31 +91,37 @@ void mongodb_session_writer::_write_bulk(int channel_number,
 }
 
 void mongodb_session_writer::handle_session_start(const record& srec) {
+	handle_session_update(srec);
+}
+
+void mongodb_session_writer::handle_session_update(const record& srec) {
 	_session_ts = srec.find_one<timestamp_attribute>(
 		attrid_ts_begin).content();
 	_session = session_context();
 
-	bson_t bson_session;
-	bson_init(&bson_session);
-
+	bson_t bson_filter;
+	bson_init(&bson_filter);
 	bson_t bson_id;
-	bson_append_document_begin(&bson_session, "_id", -1, &bson_id);
+	bson_append_document_begin(&bson_filter, "_id", -1, &bson_id);
 	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
 	bson_t bson_ts;
 	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
 	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
 	bson_append_int32(&bson_ts, "nsec", -1, _session_ts.tv_nsec);
 	bson_append_document_end(&bson_id, &bson_ts);
-	bson_append_document_end(&bson_session, &bson_id);
+	bson_append_document_end(&bson_filter, &bson_id);
 
+	bson_t bson_session;
+	bson_init(&bson_session);
 	bson_t bson_channels;
-	bson_append_document_begin(&bson_session, "channels", -1, &bson_channels);
+	bson_init(&bson_channels);
 	for (const auto& attr : srec.attributes()) {
 		if (attr->attrid() == attrid_attr_def) {
 			_session.handle_attr_def(
 				dynamic_cast<const compound_attribute&>(*attr));
 			continue;
-		} else	if (attr->attrid() != attrid_channel_def) {
+		} else if (attr->attrid() != attrid_channel_def) {
+			_append_bson(bson_session, *attr);
 			continue;
 		}
 
@@ -137,52 +143,20 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 		}
 		bson_append_document_end(&bson_channels, &bson_channel);
 	}
-	bson_append_document_end(&bson_session, &bson_channels);
+	bson_append_document(&bson_session, "channels", -1, &bson_channels);
 
 	bson_error_t error;
-	if (!mongoc_collection_insert_one(*_sessions, &bson_session, &_opts_session, 0, &error)) {
-		if (error.code != 11000) {
-			bson_destroy(&bson_session);
-			throw mongodb_error(error);
-		}
+	if (!mongoc_collection_replace_one(*_sessions, &bson_filter, &bson_session, &_opts_session, 0, &error)) {
+		bson_destroy(&bson_filter);
+		bson_destroy(&bson_session);
+		throw mongodb_error(error);
 	}
 
+	bson_destroy(&bson_filter);
 	bson_destroy(&bson_session);
 }
 
-void mongodb_session_writer::handle_session_end(const record& srec) {
-	struct timespec end_ts = srec.find_one<timestamp_attribute>(
-		attrid_ts_end).content();
-
-	bson_t bson_session;
-	bson_t bson_id;
-	bson_init(&bson_session);
-	bson_append_document_begin(&bson_session, "_id", -1, &bson_id);
-	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
-	bson_t bson_ts;
-	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
-	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
-	bson_append_int32(&bson_ts, "nsec", -1, _session_ts.tv_nsec);
-	bson_append_document_end(&bson_id, &bson_ts);
-	bson_append_document_end(&bson_session, &bson_id);
-
-	bson_t bson_update;
-	bson_t bson_set;
-	bson_init(&bson_update);
-	bson_append_document_begin(&bson_update, "$set", -1, &bson_set);
-	bson_t bson_ts2;
-	bson_append_document_begin(&bson_set, "end_ts", -1, &bson_ts2);
-	bson_append_int64(&bson_ts2, "sec", -1, end_ts.tv_sec);
-	bson_append_int32(&bson_ts2, "nsec", -1, end_ts.tv_nsec);
-	bson_append_document_end(&bson_set, &bson_ts2);
-	bson_append_document_end(&bson_update, &bson_set);
-
-	bson_error_t error;
-	if (!mongoc_collection_update_one(*_sessions, &bson_session,
-		&bson_update, 0, 0, &error)) {
-		throw mongodb_error(error);
-	}
-}
+void mongodb_session_writer::handle_session_end(const record& srec) {}
 
 void mongodb_session_writer::handle_sync(const record& crec) {
 	_sync();
@@ -233,6 +207,7 @@ mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
 	mongoc_write_concern_set_journal(_wc, true);
 
 	bson_init(&_opts_session);
+	bson_append_bool(&_opts_session, "upsert", -1, true);
 	mongoc_write_concern_append(_wc, &_opts_session);
 
 	bson_init(&_opts_bulk);

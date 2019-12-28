@@ -89,6 +89,11 @@ bool operator==(const record& lhs, const record& rhs) {
 		(lhs._attributes == rhs._attributes));
 }
 
+bool operator<=(const record& lhs, const record& rhs) {
+	return ((lhs._channel == rhs._channel) &&
+		(lhs._attributes <= rhs._attributes));
+}
+
 std::ostream& operator<<(std::ostream& out, const record& rec) {
 	out << "rec" << rec.channel_number() << "(";
 	for (const auto& attr : rec.attributes()) {

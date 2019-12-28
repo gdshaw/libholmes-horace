@@ -12,6 +12,15 @@
 
 namespace horace {
 
+namespace {
+
+bool same_ts_begin(const record& lhs, const record& rhs) {
+	return lhs.find_one<timestamp_attribute>(attrid_ts_begin) ==
+		rhs.find_one<timestamp_attribute>(attrid_ts_begin);
+}
+
+} /* anonymous namespace */
+
 simple_session_writer::simple_session_writer(const std::string& source_id):
 	session_writer(source_id) {}
 
@@ -24,24 +33,28 @@ void simple_session_writer::_process_session_record(const record& srec) {
 		throw horace_error("unexpected source ID in session record");
 	}
 
-	if (!srec.contains(attrid_ts_end)) {
-		// This is a start of session record.
-		if (!_srec || !(
-			_srec->find_one<timestamp_attribute>(attrid_ts_begin) ==
-			srec.find_one<timestamp_attribute>(attrid_ts_begin))) {
-
-			// The timestamp has changed: this record marks the
-			// start of a new session.
-			_srec = std::make_unique<record>(srec);
-			handle_session_start(srec);
-		} else if (*_srec != srec) {
-			// The timestamp is unchanged, but the record does
-			// not match for some other reason. This is an
-			// unrecoverable error.
-			throw horace_error("non-matching start of session record");
-		}
+	if (!_srec || !same_ts_begin(*_srec, srec)) {
+		// The timestamp has changed: this record marks the
+		// start of a new session.
+		_srec = std::make_unique<record>(srec);
+		handle_session_start(*_srec);
+	} else if (*_srec == srec) {
+		// This is an exact copy of the previous observed
+		// session record: no action required.
+	} else if (*_srec <= srec) {
+		// This is an extension of the previous observed
+		// session record: update the saved copy.
+		_srec = std::make_unique<record>(srec);
+		handle_session_update(*_srec);
 	} else {
-		// This is an end of session record.
+		// The timestamp is unchanged, but this record is
+		// incompatible with the previous observed session
+		// record. This is an unrecoverable error.
+		throw horace_error("non-matching start of session record");
+	}
+
+	if (srec.contains(attrid_ts_end)) {
+		// The session is complete.
 		handle_session_end(srec);
 		_srec = 0;
 	}

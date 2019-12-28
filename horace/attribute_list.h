@@ -160,6 +160,14 @@ public:
 		return !(lhs == rhs);
 	}
 
+	/** Test whether one attribute list is a prefix of another.
+	 * @param lhs the left hand side
+	 * @param rhs the right hand side
+	 * @return true if lhs is a prefix of rhs, otherwise false
+	 */
+	friend bool operator<=(const attribute_list& lhs,
+		const attribute_list& rhs);
+
 	/** Write attributes in human-readable form to an output stream.
 	 * @param out the stream to which the output should be written
 	 * @param attrlist the list of attributes to be written

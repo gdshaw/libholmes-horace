@@ -140,6 +140,14 @@ public:
 		return !(lhs == rhs);
 	}
 
+	/** Test whether one record is a prefix of another.
+	 * @param lhs the left hand side
+	 * @param rhs the right hand side
+	 * @return true if lhs is a prefix of rhs, otherwise false
+	 */
+	friend bool operator<=(const record& lhs,
+		const record& rhs);
+
 	/** Write a record in human-readable form to an output stream.
 	 * @param out the stream to which the output should be written
 	 * @param attr the record to be written

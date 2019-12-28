@@ -170,6 +170,20 @@ bool operator==(const attribute_list& lhs, const attribute_list& rhs) {
 	return true;
 }
 
+bool operator<=(const attribute_list& lhs, const attribute_list& rhs) {
+	if (lhs._attributes.size() > rhs._attributes.size()) {
+		return false;
+	}
+	for (auto i = lhs._attributes.begin(), j = rhs._attributes.begin();
+		i != lhs._attributes.end(); ++i, ++j) {
+
+		if (**i != **j) {
+			return false;
+		}
+	}
+	return true;
+}
+
 std::ostream& operator<<(std::ostream& out,
 	const attribute_list& attrlist) {
 

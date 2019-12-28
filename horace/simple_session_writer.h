@@ -41,6 +41,11 @@ protected:
 	 */
 	virtual void handle_session_end(const record& srec) = 0;
 
+	/** Handle an update to the session record.
+	 * @param srec the session record
+	 */
+	virtual void handle_session_update(const record& srec) = 0;
+
 	/** Handle synchronisation request.
 	 * @param crec the synchronisation record
 	 */

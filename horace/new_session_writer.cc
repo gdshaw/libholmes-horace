@@ -159,13 +159,11 @@ void new_session_writer::write_signature(const record& sigrec) {
 void new_session_writer::end_session() {
 	std::lock_guard<std::mutex> lk(_mutex);
 	if (_sw) {
-		attribute_list attrs;
-		attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());
-		attrs.append(_srec->find_one<timestamp_attribute>(attrid_ts_begin).clone());
+		attribute_list attrs(_srec->attributes());
 		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_end));
-		std::unique_ptr<record> erec = std::make_unique<record>(channel_session, attrs);
-		_sw->write(*erec);
-		erec->log(*log);
+		std::unique_ptr<record> srec = std::make_unique<record>(channel_session, attrs);
+		_sw->write(*srec);
+		srec->log(*log);
 		_sw = 0;
 	}
 }
