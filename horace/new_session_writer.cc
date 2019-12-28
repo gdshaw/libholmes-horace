@@ -161,6 +161,10 @@ void new_session_writer::end_session() {
 	if (_sw) {
 		attribute_list attrs(_srec->attributes());
 		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_end));
+		attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
+		if (_hattr) {
+			attrs.append(std::move(_hattr));
+		}
 		std::unique_ptr<record> srec = std::make_unique<record>(channel_session, attrs);
 		_sw->write(*srec);
 		srec->log(*log);
