@@ -53,7 +53,7 @@ void simple_session_writer::_process_session_record(const record& srec) {
 		throw horace_error("non-matching start of session record");
 	}
 
-	if (srec.contains(attrid_ts_end)) {
+	if (srec.contains(attrid_seqnum)) {
 		// The session is complete.
 		handle_session_end(srec);
 		_srec = 0;
