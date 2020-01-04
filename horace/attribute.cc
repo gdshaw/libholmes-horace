@@ -10,6 +10,7 @@
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
+#include "horace/signed_integer_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/compound_attribute.h"
 #include "horace/unrecognised_attribute.h"
@@ -26,6 +27,8 @@ std::unique_ptr<attribute> attribute::parse(session_context& session,
 		return std::make_unique<compound_attribute>(session, attrid, length, in);
 	case attrtype_unsigned_integer:
 		return std::make_unique<unsigned_integer_attribute>(attrid, length, in);
+	case attrtype_signed_integer:
+		return std::make_unique<signed_integer_attribute>(attrid, length, in);
 	case attrtype_binary:
 		return std::make_unique<binary_attribute>(attrid, length, in);
 	case attrtype_string:

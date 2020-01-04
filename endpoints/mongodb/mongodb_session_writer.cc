@@ -5,6 +5,7 @@
 
 #include "horace/horace_error.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/signed_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/binary_ref_attribute.h"
@@ -22,6 +23,8 @@ namespace horace {
 void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
 	std::string attr_name = _session.get_attr_name(attr.attrid());
 	if (const unsigned_integer_attribute* _attr = dynamic_cast<const unsigned_integer_attribute*>(&attr)) {
+		bson_append_int64(&bson, attr_name.c_str(), -1, _attr->content());
+	} else if (const signed_integer_attribute* _attr = dynamic_cast<const signed_integer_attribute*>(&attr)) {
 		bson_append_int64(&bson, attr_name.c_str(), -1, _attr->content());
 	} else if (const string_attribute* _attr = dynamic_cast<const string_attribute*>(&attr)) {
 		bson_append_utf8(&bson, attr_name.c_str(), -1, _attr->content().c_str(), -1);
@@ -129,8 +132,8 @@ void mongodb_session_writer::handle_session_update(const record& srec) {
 			dynamic_cast<const compound_attribute&>(*attr);
 		_session.handle_channel_def(channel_def);
 
-		uint64_t channel_num = channel_def.content().
-			find_one<unsigned_integer_attribute>(attrid_channel_num).content();
+		int64_t channel_num = channel_def.content().
+			find_one<signed_integer_attribute>(attrid_channel_num).content();
 		std::string channel_label = channel_def.content().
 			find_one<string_attribute>(attrid_channel_label).content();
 

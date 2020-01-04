@@ -8,6 +8,7 @@
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/signed_integer_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/compound_attribute.h"
 #include "horace/record.h"
@@ -30,7 +31,7 @@ int session_builder::define_attribute(const std::string& name,
 	int type) {
 
 	attribute_list subattrs;
-	subattrs.append(std::make_unique<unsigned_integer_attribute>(
+	subattrs.append(std::make_unique<signed_integer_attribute>(
 		attrid_attr_id, _attr_count));
 	subattrs.append(std::make_unique<string_attribute>(
 		attrid_attr_name, name));
@@ -44,7 +45,7 @@ int session_builder::define_attribute(const std::string& name,
 int session_builder::define_channel(const std::string& label,
 	attribute_list&& subattrs) {
 
-	subattrs.append(std::make_unique<unsigned_integer_attribute>(
+	subattrs.append(std::make_unique<signed_integer_attribute>(
 		attrid_channel_num, _chan_count));
 	subattrs.append(std::make_unique<string_attribute>(
 		attrid_channel_label, label));

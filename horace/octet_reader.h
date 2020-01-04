@@ -168,6 +168,12 @@ public:
 	 */
 	uint64_t read_unsigned(size_t width);
 
+	/** Read a signed integer of given width from the stream.
+	 * @param width the required width, in octets
+	 * @return the decoded value of the integer
+	 */
+	int64_t read_signed(size_t width);
+
 	/** Read an unsigned base-128 integer from the stream.
 	 * @return the decoded value of the integer
 	 */

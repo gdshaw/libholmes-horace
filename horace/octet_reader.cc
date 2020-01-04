@@ -73,6 +73,25 @@ uint64_t octet_reader::read_unsigned(size_t width) {
 	return result;
 }
 
+int64_t octet_reader::read_signed(size_t width) {
+	int64_t result = 0;
+	if (width) {
+		uint8_t byte = read();
+		result = (byte & 0x7f) - (byte & 0x80);
+		width -= 1;
+	}
+	while (width--) {
+		// The result can be shifted without overflow if the top
+		// 9 bits are either all ones or all zeros.
+		if (((result >> 55) + 1) >> 1) {
+			throw std::runtime_error("integer overflow");
+		}
+		result <<= 8;
+		result |= read() & 0xff;
+	}
+	return result;
+}
+
 uint64_t octet_reader::read_unsigned_base128() {
 	uint8_t byte = read();
 	uint64_t result = byte & 0x7f;

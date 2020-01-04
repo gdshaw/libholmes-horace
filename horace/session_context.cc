@@ -5,6 +5,7 @@
 
 #include "horace/horace_error.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/signed_integer_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/compound_attribute.h"
 #include "horace/record.h"
@@ -37,11 +38,11 @@ const std::map<int, std::string> _reserved_attr_names = {
  * indexed by attribute ID. */
 const std::map<int, int> _reserved_attr_types = {
 	{ attrid_attr_def, attrtype_compound },
-	{ attrid_attr_id, attrtype_unsigned_integer },
+	{ attrid_attr_id, attrtype_signed_integer },
 	{ attrid_attr_name, attrtype_string },
 	{ attrid_attr_type, attrtype_unsigned_integer },
 	{ attrid_channel_def, attrtype_compound },
-	{ attrid_channel_num, attrtype_unsigned_integer },
+	{ attrid_channel_num, attrtype_signed_integer },
 	{ attrid_channel_label, attrtype_string },
 	{ attrid_source, attrtype_string },
 	{ attrid_seqnum, attrtype_unsigned_integer },
@@ -63,7 +64,7 @@ std::map<int, std::string> _reserved_chan_labels = {
 } /* anonymous namespace */
 
 void session_context::handle_attr_def(const compound_attribute& attr) {
-	uint64_t attrid = attr.content().find_one<unsigned_integer_attribute>(
+	int64_t attrid = attr.content().find_one<signed_integer_attribute>(
 		attrid_attr_id).content();
 	std::string attrname = attr.content().find_one<string_attribute>(
 		attrid_attr_name).content();
@@ -74,7 +75,7 @@ void session_context::handle_attr_def(const compound_attribute& attr) {
 }
 
 void session_context::handle_channel_def(const compound_attribute& attr) {
-	uint64_t num = attr.content().find_one<unsigned_integer_attribute>(
+	int64_t num = attr.content().find_one<signed_integer_attribute>(
 		attrid_channel_num).content();
 	std::string label = attr.content().find_one<string_attribute>(
 		attrid_channel_label).content();

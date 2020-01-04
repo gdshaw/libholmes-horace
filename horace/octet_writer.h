@@ -150,6 +150,12 @@ public:
 	 */
 	void write_unsigned(uint64_t value, size_t width);
 
+	/** Write a signed integer of given width to the stream.
+	 * @param value the value to be written
+	 * @param width the required width, in octets
+	 */
+	void write_signed(int64_t value, size_t width);
+
 	/** Write a character string to the stream.
 	 * @param s the string to be written
 	 */

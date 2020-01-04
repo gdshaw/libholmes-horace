@@ -53,6 +53,13 @@ void octet_writer::write_unsigned(uint64_t value, size_t width) {
 	}
 }
 
+void octet_writer::write_signed(int64_t value, size_t width) {
+	uint64_t uvalue = value;
+	for (size_t i = 0, j = (width - 1) * 8; i != width; i += 1, j -= 8) {
+		write((uvalue >> j) & 0xff);
+	}
+}
+
 void octet_writer::write_string(const std::string& s) {
 	write(s.data(), s.length());
 }
