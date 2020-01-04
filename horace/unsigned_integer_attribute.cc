@@ -8,6 +8,8 @@
 #include "horace/horace_error.h"
 #include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
+#include "horace/unsigned_base128_integer.h"
+#include "horace/signed_base128_integer.h"
 #include "horace/unsigned_integer_attribute.h"
 
 namespace horace {
@@ -61,8 +63,8 @@ void unsigned_integer_attribute::write(std::ostream& out) const {
 
 void unsigned_integer_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_signed_base128(attrid());
-	out.write_unsigned_base128(len);
+	signed_base128_integer(attrid()).write(out);
+	unsigned_base128_integer(len).write(out);
 	out.write_unsigned(_content, len);
 }
 

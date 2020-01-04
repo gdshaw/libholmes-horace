@@ -150,32 +150,10 @@ public:
 	 */
 	void write_unsigned(uint64_t value, size_t width);
 
-	/** Write an unsigned base-128 integer to the stream.
-	 * @param value the value to be written
-	 */
-	void write_unsigned_base128(uint64_t value);
-
-	/** Write a signed base-128 integer to the stream.
-	 * @param value the value to be written
-	 */
-	void write_signed_base128(int64_t value);
-
 	/** Write a character string to the stream.
 	 * @param s the string to be written
 	 */
 	void write_string(const std::string& s);
-
-	/** Calculate the length of an unsigned integer as base-128.
-	 * @param value the value to be written
-	 * @return the length, in octets
-	 */
-	static size_t unsigned_base128_length(uint64_t value);
-
-	/** Calculate the length of a signed integer as base-128.
-	 * @param value the value to be written
-	 * @return the length, in octets
-	 */
-	static size_t signed_base128_length(int64_t value);
 };
 
 } /* namespace horace */

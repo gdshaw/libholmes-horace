@@ -7,6 +7,8 @@
 
 #include "horace/logger.h"
 #include "horace/log_message.h"
+#include "horace/unsigned_base128_integer.h"
+#include "horace/signed_base128_integer.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/attribute_list.h"
 #include "horace/record.h"
@@ -43,8 +45,10 @@ bool spoolfile_writer::write(const record& rec) {
 	// Calculate the number of octets required for this record,
 	// including the channel and length fields.
 	size_t content_len = rec.attributes().length();
-	size_t full_len = octet_writer::signed_base128_length(rec.channel_number()) +
-		octet_writer::unsigned_base128_length(content_len) + content_len;
+	size_t full_len =
+		signed_base128_integer(rec.channel_number()).length() +
+		unsigned_base128_integer(content_len).length() +
+		content_len;
 
 	// Return false if this record would cause the spoolfile capacity
 	// to be exceeded, except that it is always permissible to write

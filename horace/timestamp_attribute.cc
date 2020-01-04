@@ -1,3 +1,4 @@
+
 // This file is part of libholmes.
 // Copyright 2019 Graham Shaw
 // Redistribution and modification are permitted within the terms of the
@@ -10,6 +11,8 @@
 #include "horace/horace_error.h"
 #include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
+#include "horace/unsigned_base128_integer.h"
+#include "horace/signed_base128_integer.h"
 #include "horace/timestamp_attribute.h"
 
 namespace horace {
@@ -100,8 +103,8 @@ void timestamp_attribute::write(std::ostream& out) const {
 
 void timestamp_attribute::write(octet_writer& out) const {
 	int len = length();
-	out.write_signed_base128(attrid());
-	out.write_unsigned_base128(len);
+	signed_base128_integer(attrid()).write(out);
+	unsigned_base128_integer(len).write(out);
 	out.write_unsigned(_content.tv_sec, len - 4);
 	out.write_unsigned(_content.tv_nsec, 4);
 }

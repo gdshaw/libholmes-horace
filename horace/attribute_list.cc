@@ -9,6 +9,8 @@
 #include "horace/horace_error.h"
 #include "horace/octet_reader.h"
 #include "horace/octet_writer.h"
+#include "horace/unsigned_base128_integer.h"
+#include "horace/signed_base128_integer.h"
 #include "horace/attribute.h"
 #include "horace/attribute_list.h"
 
@@ -90,8 +92,8 @@ size_t attribute_list::length() const {
 	size_t len = 0;
 	for (const auto& attr : _attributes) {
 		size_t attr_len = attr->length();
-		len += octet_writer::signed_base128_length(attr->attrid());
-		len += octet_writer::unsigned_base128_length(attr_len);
+		len += signed_base128_integer(attr->attrid()).length();
+		len += unsigned_base128_integer(attr_len).length();
 		len += attr_len;
 	}
 	return len;
