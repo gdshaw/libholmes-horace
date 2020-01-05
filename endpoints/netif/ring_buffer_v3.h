@@ -19,7 +19,7 @@ class ring_buffer_v3:
 	public basic_packet_socket {
 private:
 	/** The mapped ring buffer. */
-	char* _rx_ring;
+	volatile char* _rx_ring;
 
 	/** The requested ring buffer geometry. */
 	struct tpacket_req3 _tpreq;
@@ -32,13 +32,13 @@ private:
 
 	/** The previous block, or 0 if none or already released
 	 * back to the kernel. */
-	struct tpacket_block_desc* _last_block;
+	volatile struct tpacket_block_desc* _last_block;
 
 	/** The current block. */
-	struct tpacket_block_desc* _block;
+	volatile struct tpacket_block_desc* _block;
 
 	/** The current frame, or 0 if waiting for a block. */
-	struct tpacket3_hdr* _frame;
+	volatile struct tpacket3_hdr* _frame;
 
 	/** A builder for making packet records. */
 	packet_record_builder* _builder;

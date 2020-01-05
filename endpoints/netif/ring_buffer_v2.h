@@ -19,7 +19,7 @@ class ring_buffer_v2:
 	public basic_packet_socket {
 private:
 	/** The mapped ring buffer. */
-	char* _rx_ring;
+	volatile char* _rx_ring;
 
 	/** The requested ring buffer geometry. */
 	struct tpacket_req _tpreq;
@@ -34,7 +34,7 @@ private:
 
 	/** The tpacket2_hdr structure for the most recently read frame,
 	 * or 0 if none or already released back to the kernel. */
-	struct tpacket2_hdr* _last_tphdr;
+	volatile struct tpacket2_hdr* _last_tphdr;
 
 	/** A builder for making packet records. */
 	packet_record_builder* _builder;

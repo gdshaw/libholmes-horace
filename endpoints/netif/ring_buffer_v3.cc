@@ -101,7 +101,7 @@ const record& ring_buffer_v3::read() {
 		}
 
 		// Calculate address of first frame.
-		char* block_ptr = (char*)_block;
+		volatile char* block_ptr = (char*)_block;
 		_frame = (struct tpacket3_hdr*)(block_ptr + _block->hdr.bh1.offset_to_first_pkt);
 
 		// Now check for dropped packets.
@@ -123,6 +123,9 @@ const record& ring_buffer_v3::read() {
 	}
 
 	// Extract required data from frame buffer.
+	// Note that whilst the ring buffer as a whole is volatile, the
+	// packet content should be constant for the lifetime of the
+	// pointer that is created here.
 	struct timespec ts;
 	ts.tv_sec = _frame->tp_sec;
 	ts.tv_nsec = _frame->tp_nsec;
@@ -145,7 +148,7 @@ const record& ring_buffer_v3::read() {
 		_block = (tpacket_block_desc*)(_rx_ring + _block_idx * _tpreq.tp_block_size);
 	} else {
 		// Otherwise, calculate the address of the next frame.
-		char* frame_ptr = (char*)_frame;
+		volatile char* frame_ptr = (char*)_frame;
 		_frame = (struct tpacket3_hdr*)(frame_ptr + _frame->tp_next_offset);
 	}
 

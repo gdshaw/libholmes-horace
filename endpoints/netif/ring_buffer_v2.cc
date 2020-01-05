@@ -87,9 +87,9 @@ const record& ring_buffer_v2::read() {
 	size_t buffer_idx = _frame_idx / _frames_per_block;
 	size_t frame_idx_diff = _frame_idx % _frames_per_block;
 
-	char* buffer_ptr = _rx_ring + buffer_idx * _tpreq.tp_block_size;
-	char* frame_ptr = buffer_ptr + frame_idx_diff * _tpreq.tp_frame_size;
-	struct tpacket2_hdr* tphdr = (struct tpacket2_hdr*)frame_ptr;
+	volatile char* buffer_ptr = _rx_ring + buffer_idx * _tpreq.tp_block_size;
+	volatile char* frame_ptr = buffer_ptr + frame_idx_diff * _tpreq.tp_frame_size;
+	volatile struct tpacket2_hdr* tphdr = (struct tpacket2_hdr*)frame_ptr;
 
 	while (!(tphdr->tp_status & TP_STATUS_USER)) {
 		wait(POLLIN);
@@ -100,10 +100,13 @@ const record& ring_buffer_v2::read() {
 		drop_count = drops();
 	}
 
+	// Note that whilst the ring buffer as a whole is volatile, the
+	// packet content should be constant for the lifetime of the
+	// pointer that is created here.
 	struct timespec ts;
 	ts.tv_sec = tphdr->tp_sec;
 	ts.tv_nsec = tphdr->tp_nsec;
-	const char* content = frame_ptr + tphdr->tp_mac;
+	const char* content = const_cast<const char*>(frame_ptr + tphdr->tp_mac);
 	size_t pkt_origlen = tphdr->tp_len;
 	size_t pkt_snaplen = tphdr->tp_snaplen;
 
