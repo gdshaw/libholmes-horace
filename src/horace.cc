@@ -61,12 +61,22 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
+	// The command name will be interpolated into a pathname.
+	// There is unlikely to be any requirement to support commands
+	// containing slash characters, therefore they are forbidden
+	// to avoid unexpected behaviour.
+	const char* cmdname = argv[optind];
+	if (strchr(cmdname, '/')) {
+		std::cerr << "Command not recognised. See horace -h."
+			<< std::endl;
+		exit(1);
+	}
+
 	// Construct pathname for executable corresponding to command.
 	// Also need the filename, for use as what will become argv[0].
 	// This is done by recording the index into the pathname at
 	// which the filename begins.
 	const char* cmdprefix = "horace-";
-	const char* cmdname = argv[optind];
 	char pathname[PATH_MAX];
 	int filename_idx = 0;
 	if (snprintf(pathname, sizeof(pathname), "%s/%s/bin/%n%s%s",
@@ -77,8 +87,14 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	// Invoke the executable at the constructed pathname.
+	// The arguments passed to the command will be argv[optind]
+	// onwards. The first argument should be a filename string
+	// associated with the command to be executed, but it currently
+	// contains only the raw command name. Change it to point to
+	// the filename component within the constructed pathname.
 	argv[optind] = pathname + filename_idx;
+
+	// Attemt to invoke the executable at the constructed pathname.
 	if (execve(pathname, argv + optind, environ) == -1) {
 		// Want to give user-friendly error message for the case
 		// where there is no executable corresponding to the given
