@@ -12,9 +12,9 @@ mongodb_endpoint::mongodb_endpoint(const std::string& name):
 	endpoint(name) {}
 
 std::unique_ptr<session_writer> mongodb_endpoint::make_session_writer(
-	const std::string& source_id) {
+	const std::string& srcid) {
 
-	return std::make_unique<mongodb_session_writer>(*this, source_id);
+	return std::make_unique<mongodb_session_writer>(*this, srcid);
 };
 
 } /* namespace horace */

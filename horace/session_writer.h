@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+#include "horace/source_id.h"
+
 namespace horace {
 
 class record;
@@ -17,18 +19,18 @@ class record;
 class session_writer {
 private:
 	/** The source ID. */
-	std::string _source_id;
+	source_id _srcid;
 public:
 	/** Construct session writer.
-	 * @param source_id the required source ID
+	 * @param srcid the required source ID
 	 */
-	explicit session_writer(const std::string& source_id);
+	explicit session_writer(const std::string& srcid);
 
 	virtual ~session_writer() = default;
 
 	/** Get the source ID. */
-	const std::string& source_id() const {
-		return _source_id;
+	const std::string& srcid() const {
+		return _srcid;
 	}
 
 	/** Write a record to the endpoint.

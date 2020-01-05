@@ -16,13 +16,13 @@
 
 namespace horace {
 
-session_builder::session_builder(const std::string& source_id):
-	_source_id(source_id),
+session_builder::session_builder(const std::string& srcid):
+	_srcid(srcid),
 	_attr_count(0),
 	_chan_count(0) {
 
 	_attributes.append(std::make_unique<string_attribute>(
-		attrid_source, source_id));
+		attrid_source, srcid));
 	_attributes.append(std::make_unique<timestamp_attribute>
 		(attrid_ts_begin));
 }

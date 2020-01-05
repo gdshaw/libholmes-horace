@@ -7,7 +7,7 @@
 
 namespace horace {
 
-session_writer::session_writer(const std::string& source_id):
-	_source_id(source_id) {}
+session_writer::session_writer(const std::string& srcid):
+	_srcid(srcid) {}
 
 } /* namespace horace */

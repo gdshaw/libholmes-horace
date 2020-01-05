@@ -21,9 +21,9 @@
 namespace horace {
 
 tcp_session_writer::tcp_session_writer(tcp_endpoint& dst_ep,
-	const std::string& source_id):
+	const std::string& srcid):
 	_dst_ep(&dst_ep),
-	session_writer(source_id) {}
+	session_writer(srcid) {}
 
 void tcp_session_writer::_open() {
 	// Look up the hostname and portname.

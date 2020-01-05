@@ -72,10 +72,10 @@ void file_session_writer::_write_record(const record& rec) {
 }
 
 file_session_writer::file_session_writer(file_endpoint& dst_ep,
-	const std::string& source_id):
-	simple_session_writer(source_id),
+	const std::string& srcid):
+	simple_session_writer(srcid),
 	_dst_ep(&dst_ep),
-	_pathname(dst_ep.pathname() + "/" + source_id),
+	_pathname(dst_ep.pathname() + "/" + srcid),
 	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
 	_lockfile(_pathname + "/.wrlock") {

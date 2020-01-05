@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "horace/source_id.h"
 #include "horace/attribute_list.h"
 
 namespace horace {
@@ -21,7 +22,7 @@ class record;
 class session_builder {
 private:
 	/** The source ID for this session. */
-	std::string _source_id;
+	source_id _srcid;
 
 	/** An attribute list for the session record. */
 	attribute_list _attributes;
@@ -33,16 +34,9 @@ private:
 	int _chan_count;
 public:
 	/** Construct session builder.
-	 * @param source_id the required source identifier
+	 * @param srcid the required source identifier
 	 */
-	explicit session_builder(const std::string& source_id);
-
-	/** Get the source ID for this session.
-	 * @return the source ID
-	 */
-	const std::string& source_id() const {
-		return _source_id;
-	}
+	explicit session_builder(const std::string& srcid);
 
 	/** Define attribute.
 	 * If a name and type are requested which match a previous

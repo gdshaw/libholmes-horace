@@ -37,9 +37,9 @@ std::unique_ptr<session_listener> tcp_endpoint::make_session_listener() {
 }
 
 std::unique_ptr<session_writer> tcp_endpoint::make_session_writer(
-	const std::string& source_id) {
+	const std::string& srcid) {
 
-	return std::make_unique<tcp_session_writer>(*this, source_id);
+	return std::make_unique<tcp_session_writer>(*this, srcid);
 }
 
 } /* namespace horace */

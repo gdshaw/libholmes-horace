@@ -42,10 +42,10 @@ std::unique_ptr<session_listener> file_endpoint::make_session_listener() {
 }
 
 std::unique_ptr<session_writer> file_endpoint::make_session_writer(
-	const std::string& source_id) {
+	const std::string& srcid) {
 
 	std::unique_ptr<session_writer> writer =
-		std::make_unique<file_session_writer>(*this, source_id);
+		std::make_unique<file_session_writer>(*this, srcid);
 	_fd.fsync();
 	return writer;
 }

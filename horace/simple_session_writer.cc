@@ -21,15 +21,15 @@ bool same_ts_begin(const record& lhs, const record& rhs) {
 
 } /* anonymous namespace */
 
-simple_session_writer::simple_session_writer(const std::string& source_id):
-	session_writer(source_id) {}
+simple_session_writer::simple_session_writer(const std::string& srcid):
+	session_writer(srcid) {}
 
 void simple_session_writer::_process_session_record(const record& srec) {
 	// Check that the source ID is valid for this session writer.
 	// If not, the session record must be rejected.
-	std::string new_source_id =
+	std::string new_srcid =
 		srec.find_one<string_attribute>(attrid_source).content();
-	if (new_source_id != source_id()) {
+	if (new_srcid != srcid()) {
 		throw horace_error("unexpected source ID in session record");
 	}
 

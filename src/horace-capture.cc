@@ -24,6 +24,7 @@
 #include "horace/address_filter.h"
 #include "horace/hash.h"
 #include "horace/keypair.h"
+#include "horace/source_id.h"
 #include "horace/record.h"
 #include "horace/session_builder.h"
 #include "horace/event_reader.h"
@@ -63,7 +64,7 @@ int main2(int argc, char* argv[]) {
 	empty_signal_handler sigalrm_handler(SIGALRM);
 
 	// Get hostname for use as source ID.
-	std::string source_id = hostname();
+	std::string srcid = hostname();
 
 	// Initialise default options.
 	const char* hashfn_name = 0;
@@ -89,7 +90,7 @@ int main2(int argc, char* argv[]) {
 			sigdelay = std::stol(optarg);
 			break;
 		case 'S':
-			source_id = std::string(optarg);
+			srcid = std::string(optarg);
 			break;
 		case 'v':
 			if (severity < logger::log_debug) {
@@ -125,12 +126,7 @@ int main2(int argc, char* argv[]) {
 	}
 
 	// Validate source ID.
-	for (char c : source_id) {
-		if (!isalnum(c) && (c != '-') && (c != '.')) {
-			std::cerr << "Invalid source ID" << std::endl;
-			exit(1);
-		}
-	}
+	source_id vsrcid(srcid);
 
 	// Parse list of endpoints.
 	std::vector<std::unique_ptr<endpoint>> endpoints;
@@ -152,8 +148,8 @@ int main2(int argc, char* argv[]) {
 	endpoints.pop_back();
 
 	// Make a new_session_writer for destination endpoint.
-	session_builder sb(source_id);
-	new_session_writer dst(*dst_ep, sb, source_id, hashfn.get());
+	session_builder sb(vsrcid);
+	new_session_writer dst(*dst_ep, sb, vsrcid, hashfn.get());
 
 	// Attach an event signer to the new session writer if a keyfile
 	// was supplied.

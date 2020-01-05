@@ -25,11 +25,11 @@ class session_writer;
 class session_writer_endpoint {
 public:
 	/** Make a session writer for this endpoint.
-	 * @param source_id the source ID for the session writer
+	 * @param srcid the source ID for the session writer
 	 * @return the resulting session writer
 	 */
 	virtual std::unique_ptr<session_writer> make_session_writer(
-		const std::string& source_id) = 0;
+		const std::string& srcid) = 0;
 };
 
 } /* namespace horace */

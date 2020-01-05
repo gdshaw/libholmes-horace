@@ -72,10 +72,10 @@ public:
 public:
 	/** Construct filestore session reader.
 	 * @param src_ep the source endpoint
-	 * @param source_id the source ID
+	 * @param srcid the source ID
 	 */
 	file_session_reader(file_endpoint& src_ep,
-		const std::string& source_id);
+		const std::string& srcid);
 
 	virtual std::unique_ptr<record> read();
 	virtual void write(const record& rec);

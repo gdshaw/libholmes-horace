@@ -106,7 +106,7 @@ void mongodb_session_writer::handle_session_update(const record& srec) {
 	bson_init(&bson_filter);
 	bson_t bson_id;
 	bson_append_document_begin(&bson_filter, "_id", -1, &bson_id);
-	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
+	bson_append_utf8(&bson_id, "source", -1, srcid().c_str(), -1);
 	bson_t bson_ts;
 	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
 	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
@@ -176,7 +176,7 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	// Add _id field.
 	bson_t bson_id;
 	bson_append_document_begin(&bson_event, "_id", -1, &bson_id);
-	bson_append_utf8(&bson_id, "source", -1, source_id().c_str(), -1);
+	bson_append_utf8(&bson_id, "source", -1, srcid().c_str(), -1);
 	bson_t bson_ts;
 	bson_append_document_begin(&bson_id, "ts", -1, &bson_ts);
 	bson_append_int64(&bson_ts, "sec", -1, _session_ts.tv_sec);
@@ -197,8 +197,8 @@ void mongodb_session_writer::handle_event(const record& rec) {
 }
 
 mongodb_session_writer::mongodb_session_writer(const mongodb_endpoint& dst_ep,
-	const std::string& source_id):
-	simple_session_writer(source_id),
+	const std::string& srcid):
+	simple_session_writer(srcid),
 	_database(dst_ep.name()),
 	_sessions(&_database.collection("sessions")),
 	_bulk(0),

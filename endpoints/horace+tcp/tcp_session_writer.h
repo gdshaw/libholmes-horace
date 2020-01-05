@@ -40,10 +40,10 @@ private:
 public:
 	/** Construct TCP session writer.
 	 * @param dst_ep the destination endpoint
-	 * @param source_id the required source ID
+	 * @param srcid the required source ID
 	 */
 	tcp_session_writer(tcp_endpoint& dst_ep,
-		const std::string& source_id);
+		const std::string& srcid);
 
 	virtual void write(const record& rec);
 	virtual std::unique_ptr<record> read();

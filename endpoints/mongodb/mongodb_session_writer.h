@@ -82,10 +82,10 @@ protected:
 public:
 	/** Construct MongoDB session writer.
 	 * @param dst_ep the destination endpoint
-	 * @param source_id the required source ID
+	 * @param srcid the required source ID
 	 */
 	mongodb_session_writer(const mongodb_endpoint& dst_ep,
-		const std::string& source_id);
+		const std::string& srcid);
 
 	/** Destroy MongoDB session writer. */
 	~mongodb_session_writer();

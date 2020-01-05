@@ -68,9 +68,9 @@ protected:
 	const record& session_record() const;
 public:
 	/** Construct simple session writer.
-	 * @param source_id the required source ID
+	 * @param srcid the required source ID
 	 */
-	explicit simple_session_writer(const std::string& source_id);
+	explicit simple_session_writer(const std::string& srcid);
 
 	virtual void write(const record& rec);
 	virtual std::unique_ptr<record> read();

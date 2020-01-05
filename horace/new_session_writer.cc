@@ -28,9 +28,9 @@
 namespace horace {
 
 new_session_writer::new_session_writer(endpoint& ep, session_builder& sb,
-	const std::string& source_id, hash* hashfn):
+	const std::string& srcid, hash* hashfn):
 	_ep(dynamic_cast<session_writer_endpoint*>(&ep)),
-	_source_id(source_id),
+	_srcid(srcid),
 	_srec(0),
 	_seqnum(0),
 	_hashfn(hashfn),
@@ -50,7 +50,7 @@ void new_session_writer::_open() {
 	if (!_srec) {
 		throw horace_error("session not yet started");
 	}
-	_sw = _ep->make_session_writer(_source_id);
+	_sw = _ep->make_session_writer(_srcid);
 	try {
 		_sw->write(*_srec);
 	} catch (terminate_exception&) {

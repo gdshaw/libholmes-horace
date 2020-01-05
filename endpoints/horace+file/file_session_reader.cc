@@ -23,9 +23,9 @@
 namespace horace {
 
 file_session_reader::file_session_reader(file_endpoint& src_ep,
-	const std::string& source_id):
+	const std::string& srcid):
 	_src_ep(&src_ep),
-	_pathname(src_ep.pathname() + "/" + source_id),
+	_pathname(src_ep.pathname() + "/" + srcid),
 	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
 	_watcher(_pathname),

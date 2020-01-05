@@ -11,6 +11,7 @@
 #include <ctime>
 #include <mutex>
 
+#include "horace/source_id.h"
 #include "horace/binary_attribute.h"
 #include "horace/session_writer.h"
 
@@ -34,7 +35,7 @@ private:
 	session_writer_endpoint* _ep;
 
 	/** The required source ID. */
-	std::string _source_id;
+	source_id _srcid;
 
 	/** The session record, or 0 if not yet created. */
 	const record* _srec;
@@ -67,12 +68,12 @@ public:
 	/** Construct new session writer.
 	 * @param ep the destination endpoint
 	 * @param sb a session builder for the new session
-	 * @param source_id the required source ID
+	 * @param srcid the required source ID
 	 * @param hashfn the hash function to apply to each event record,
 	 *  or 0 if none
 	 */
 	new_session_writer(endpoint& ep, session_builder& sb,
-		const std::string& source_id, hash* hashfn);
+		const std::string& srcid, hash* hashfn);
 
 	/** Attach an event signer.
 	 * @param signer the event signer to be attached

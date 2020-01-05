@@ -72,10 +72,10 @@ protected:
 public:
 	/** Construct filestore session writer.
 	 * @param dst_ep the destination endpoint
-	 * @param source_id the required source ID
+	 * @param srcid the required source ID
 	 */
 	file_session_writer(file_endpoint& dst_ep,
-		const std::string& source_id);
+		const std::string& srcid);
 };
 
 } /* namespace horace */

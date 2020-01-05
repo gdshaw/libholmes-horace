@@ -54,11 +54,11 @@ std::unique_ptr<session_reader> file_session_listener::accept() {
 		// pending set, moving them to the accepted set once
 		// handled.
 		if (!_pending.empty()) {
-			std::string source_id = *_pending.begin();
-			_accepted.insert(source_id);
-			_pending.erase(source_id);
+			std::string srcid = *_pending.begin();
+			_accepted.insert(srcid);
+			_pending.erase(srcid);
 			return std::make_unique<file_session_reader>(
-				*_src_ep, source_id);
+				*_src_ep, srcid);
 		}
 
 		// Wait for any addition to the directory.

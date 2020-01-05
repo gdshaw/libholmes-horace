@@ -57,7 +57,7 @@ public:
 
 	virtual std::unique_ptr<session_listener> make_session_listener();
 	virtual std::unique_ptr<session_writer> make_session_writer(
-		const std::string& source_id);
+		const std::string& srcid);
 };
 
 } /* namespace horace */
