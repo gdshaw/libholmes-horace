@@ -44,6 +44,8 @@ void file_session_writer::_begin_spoolfile(const record& srec) {
 			"failed to write session record to new spoolfile");
 	}
 	_fd.fsync();
+
+	_ready = _dst_ep->ready();
 }
 
 void file_session_writer::_write_record(const record& rec) {
@@ -78,7 +80,8 @@ file_session_writer::file_session_writer(file_endpoint& dst_ep,
 	_pathname(dst_ep.pathname() + "/" + srcid),
 	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
-	_lockfile(_pathname + "/.wrlock") {
+	_lockfile(_pathname + "/.wrlock"),
+	_ready(false) {
 
 	filestore_scanner scanner(_pathname);
 	_next_filenum = scanner.next_filenum();
@@ -111,6 +114,13 @@ void file_session_writer::handle_signature(const record& grec) {
 
 void file_session_writer::handle_event(const record& rec) {
 	_write_record(rec);
+}
+
+bool file_session_writer::ready() {
+	if (!_ready) {
+		_ready = _dst_ep->ready();
+	}
+	return _ready;
 }
 
 } /* namespace horace */

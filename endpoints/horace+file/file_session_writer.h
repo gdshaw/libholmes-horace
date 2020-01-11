@@ -46,6 +46,12 @@ private:
 	/** A writer for the spoolfile. */
 	std::unique_ptr<spoolfile_writer> _sfw;
 
+	/** True if the endpoint is ready to receive data, otherwise false.
+	 * This contains the cached result of _dst_ep->ready(), which is
+	 * called at the start of each spoolfile but not for each record.
+	 */
+	bool _ready;
+
 	/** Get the pathname to use for the next spoolfile when it is
 	 * created.
 	 * This function has the side effect of incrementing the filenum
@@ -76,6 +82,8 @@ public:
 	 */
 	file_session_writer(file_endpoint& dst_ep,
 		const std::string& srcid);
+
+	virtual bool ready();
 };
 
 } /* namespace horace */

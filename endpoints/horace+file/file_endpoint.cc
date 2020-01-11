@@ -7,9 +7,11 @@
 
 #include <fcntl.h>
 
+#include "horace/endpoint_error.h"
 #include "horace/query_string.h"
 #include "horace/record.h"
 
+#include "free_space_checker.h"
 #include "spoolfile_writer.h"
 #include "file_session_listener.h"
 #include "file_session_writer.h"
@@ -31,7 +33,21 @@ file_endpoint::file_endpoint(const std::string& name):
 		query_string params(*query);
 		_filesize = params.find<long>("filesize").value_or(_filesize);
 		_nodelete = params.find<bool>("nodelete").value_or(_nodelete);
+		std::optional<std::string> hwm = params.find<std::string>("hwm");
+		std::optional<std::string> lwm = params.find<std::string>("lwm");
+		if (hwm && lwm) {
+			_fschecker = std::make_unique<free_space_checker>(
+				_pathname, *hwm, *lwm);
+		} else if (hwm) {
+			throw endpoint_error("horace+file endpoint with hwm but not lwm");
+		} else if (lwm) {
+			throw endpoint_error("horace+file endpoint with lwm but not hwm");
+		}
 	}
+}
+
+bool file_endpoint::ready() {
+	return _fschecker ? *_fschecker : true;
 }
 
 std::unique_ptr<session_listener> file_endpoint::make_session_listener() {

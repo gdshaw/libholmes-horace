@@ -13,6 +13,8 @@
 #include "horace/session_listener_endpoint.h"
 #include "horace/session_writer_endpoint.h"
 
+#include "free_space_checker.h"
+
 namespace horace {
 
 /** An endpoint class to represent a set of HORACE filestores. */
@@ -32,6 +34,9 @@ private:
 
 	/** True if deletion of spoolfiles should be suppressed, otherwise false. */
 	bool _nodelete;
+
+	/** An optional object for checking free space thresholds. */
+	std::unique_ptr<free_space_checker> _fschecker;
 public:
 	/** Construct file endpoint.
 	 * @param name the name of this endpoint
@@ -58,6 +63,13 @@ public:
 	bool nodelete() const {
 		return _nodelete;
 	}
+
+	/** Test whether the endpoint is ready to receive data.
+	 * This function should have the same behaviour as
+	 * horace::session_writer::ready.
+	 * @return true if ready, otherwise false
+	 */
+	bool ready();
 
 	virtual std::unique_ptr<session_listener> make_session_listener();
 	virtual std::unique_ptr<session_writer> make_session_writer(

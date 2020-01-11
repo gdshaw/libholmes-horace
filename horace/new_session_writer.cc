@@ -3,6 +3,9 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <signal.h>
+#include <unistd.h>
+
 #include "horace/libc_error.h"
 #include "horace/horace_error.h"
 #include "horace/retry_exception.h"
@@ -81,6 +84,13 @@ void new_session_writer::_write(const record& rec) {
 				log_message msg(*log, logger::log_err);
 				msg << "error during capture (will retry)";
 			}
+		}
+
+		// Data capture should be suspended if the session writer
+		// is not ready to receive it, however there is no mechanism
+		// for this yet so current behaviour is to terminate.
+		if (!_sw->ready()) {
+			kill(getpid(), SIGTERM);
 		}
 	}
 }
