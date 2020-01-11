@@ -10,7 +10,6 @@
 #include <sys/socket.h>
 
 #include "horace/libc_error.h"
-#include "horace/signal_set.h"
 #include "horace/terminate_flag.h"
 #include "horace/file_descriptor.h"
 
@@ -51,19 +50,8 @@ void file_descriptor::interruptible(bool enable) {
 }
 
 void file_descriptor::wait(int events) const {
-	struct pollfd fds[1] = {{0}};
-	fds[0].fd = _fd;
-	fds[0].events = events;
-
-	if (ppoll(fds, 1, 0, terminating_signals) == -1) {
-		if (errno != EINTR) {
-			throw libc_error();
-		}
-		if (interruptible()) {
-			terminating.poll();
-		}
-	}
-	if (fds[0].revents & POLLERR) {
+	int revents = terminating.poll(_fd, events);
+	if (revents & POLLERR) {
 		handle_pollerror();
 	}
 }

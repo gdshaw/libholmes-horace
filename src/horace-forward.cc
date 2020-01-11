@@ -16,7 +16,6 @@
 #include "horace/retry_exception.h"
 #include "horace/horace_error.h"
 #include "horace/signal_set.h"
-#include "horace/empty_signal_handler.h"
 #include "horace/terminate_flag.h"
 #include "horace/hostname.h"
 #include "horace/string_attribute.h"
@@ -221,13 +220,7 @@ void forward_all(session_listener_endpoint& src_slep,
 
 int main(int argc, char* argv[]) {
 	// Mask signals.
-	masked_signals.mask();
-
-	// Install empty signal handlers.
-	empty_signal_handler sigint_handler(SIGINT);
-	empty_signal_handler sigquit_handler(SIGQUIT);
-	empty_signal_handler sigterm_handler(SIGTERM);
-	empty_signal_handler sigalrm_handler(SIGALRM);
+	terminating_signals.mask();
 
 	// Initialise default options.
 	int severity = logger::log_warning;
@@ -303,9 +296,6 @@ int main(int argc, char* argv[]) {
 	// Stop forwarding and exit.
 	std::cerr << strsignal(raised) << std::endl;
 	terminating.set();
-	for (auto& th : threads) {
-		pthread_kill(th.native_handle(), SIGALRM);
-	}
 	for (auto& th : threads) {
 		th.join();
 	}

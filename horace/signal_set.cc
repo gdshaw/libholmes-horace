@@ -33,10 +33,4 @@ signal_set terminating_signals = signal_set()
 	.add(SIGQUIT)
 	.add(SIGTERM);
 
-signal_set masked_signals = signal_set()
-	.add(SIGINT)
-	.add(SIGQUIT)
-	.add(SIGALRM)
-	.add(SIGTERM);
-
 } /* namespace horace */

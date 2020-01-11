@@ -16,7 +16,6 @@
 #include "horace/log_message.h"
 #include "horace/stderr_logger.h"
 #include "horace/signal_set.h"
-#include "horace/empty_signal_handler.h"
 #include "horace/terminate_flag.h"
 #include "horace/hostname.h"
 #include "horace/inet4_netblock.h"
@@ -55,13 +54,7 @@ void write_help(std::ostream& out) {
 
 int main2(int argc, char* argv[]) {
 	// Mask signals.
-	masked_signals.mask();
-
-	// Install empty signal handlers.
-	empty_signal_handler sigint_handler(SIGINT);
-	empty_signal_handler sigquit_handler(SIGQUIT);
-	empty_signal_handler sigterm_handler(SIGTERM);
-	empty_signal_handler sigalrm_handler(SIGALRM);
+	terminating_signals.mask();
 
 	// Get hostname for use as source ID.
 	std::string srcid = hostname();

@@ -57,11 +57,6 @@ public:
  */
 extern signal_set terminating_signals;
 
-/** The set of signals which should normally be masked.
- * These are SIGALRM and the members of terminating_signals.
- */
-extern signal_set masked_signals;
-
 } /* namespace horace */
 
 #endif

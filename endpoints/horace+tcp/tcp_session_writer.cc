@@ -8,7 +8,6 @@
 #include "horace/terminate_exception.h"
 #include "horace/libc_error.h"
 #include "horace/horace_error.h"
-#include "horace/signal_set.h"
 #include "horace/terminate_flag.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
@@ -62,13 +61,7 @@ void tcp_session_writer::_open() {
 				logged = true;
 			}
 
-			struct timespec timeout = {_dst_ep->retry(), 0};
-			if (ppoll(0, 0, &timeout, terminating_signals) == -1) {
-				if (errno != EINTR) {
-					throw libc_error();
-				}
-				terminating.poll();
-			}
+			terminating.millisleep(_dst_ep->retry() * 1000);
 		}
 	}
 

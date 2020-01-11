@@ -19,15 +19,19 @@ class terminate_flag {
 private:
 	/** True if process terminating, otherwise false. */
 	std::atomic_bool _terminating;
+
+	/** File descriptors for a self-pipe.
+	 * This is in the format passed to pipe(2), so the first
+	 * file descriptor is for reading and the second one for
+	 * writing.
+	 */
+	int _pipefd[2];
 public:
 	/** Construct termination flag. */
-	terminate_flag():
-		_terminating(false) {}
+	terminate_flag();
 
 	/** Set termination flag. */
-	void set() {
-		_terminating = true;
-	}
+	void set();
 
 	/** Poll termination flag.
 	 * Throw a terminate_exception if the flag is set.
@@ -37,6 +41,20 @@ public:
 			throw terminate_exception();
 		}
 	}
+
+	/** Poll a given file descriptor, with no timeout.
+	 * @param fd the file descriptor on which to poll
+	 * @param events the required events mask for fd
+	 * @return the resulting revents mask for rd
+	 */
+	int poll(int fd, int events) const;
+
+	/** Sleep for a given number of milliseconds.
+	 * Note that the current implementation does not resume sleeping
+	 * if interrupted by a signal.
+	 * @param time the time for which to sleep, in milliseconds
+	 */
+	void millisleep(int timeout) const;
 };
 
 /** A flag to indicate that the process is terminating. */

@@ -9,7 +9,6 @@
 
 #include "horace/terminate_exception.h"
 #include "horace/libc_error.h"
-#include "horace/signal_set.h"
 #include "horace/terminate_flag.h"
 #include "horace/keypair.h"
 #include "horace/binary_attribute.h"
@@ -41,15 +40,7 @@ void event_signer::_run() {
 			lk.unlock();
 
 			// Sleep for the requested delay period before signing.
-			struct timespec timeout = {
-				_delay / 1000,
-				(_delay % 1000) * 1000000 };
-			if (ppoll(0, 0, &timeout, terminating_signals) == -1) {
-				if (errno != EINTR) {
-					throw libc_error();
-				}
-				terminating.poll();
-			}
+			terminating.millisleep(_delay);
 
 			// Get the sequence number and hash for the most recent
 			// event record captured. Note that this may be different
@@ -117,10 +108,6 @@ void event_signer::stop() {
 	std::unique_lock<std::mutex> lk(_mutex);
 	lk.unlock();
 	_cv.notify_one();
-
-	// Alternatively, the thread may be blocked waiting
-	// on a file descriptor, so raise a signal to unblock.
-	pthread_kill(_thread.native_handle(), SIGALRM);
 
 	// The thread should now exit gracefully.
 	_thread.join();

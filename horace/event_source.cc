@@ -54,7 +54,6 @@ void event_source::start() {
 }
 
 void event_source::stop() {
-	pthread_kill(_thread.native_handle(), SIGALRM);
 	_thread.join();
 }
 
