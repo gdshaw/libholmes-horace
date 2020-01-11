@@ -26,12 +26,19 @@ private:
 	 * writing.
 	 */
 	int _pipefd[2];
+
+	/** Mark a given file descriptor as non-blocking.
+	 * @param fd the file descriptor
+	 */
+	static void _nonblock(int fd);
 public:
 	/** Construct termination flag. */
 	terminate_flag();
 
-	/** Set termination flag. */
-	void set();
+	/** Set or clear the termination flag.
+	 * @param terminating true if terminating, false if not
+	 */
+	terminate_flag& operator=(bool terminating);
 
 	/** Poll termination flag.
 	 * Throw a terminate_exception if the flag is set.

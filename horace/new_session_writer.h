@@ -57,9 +57,6 @@ private:
 	/** An event signer for signing event records, or 0 if none. */
 	event_signer* _signer;
 
-	/** Open a connection to the endpoint. */
-	void _open();
-
 	/** Write any type of record to the endpoint (with retry).
 	 * @param rec the record to be written
 	 */
@@ -74,6 +71,13 @@ public:
 	 */
 	new_session_writer(endpoint& ep, session_builder& sb,
 		const std::string& srcid, hash* hashfn);
+
+	/** Test whether the endpoint is ready to receive data.
+	 * This function has the same behaviour as
+	 * horace::session_writer::ready.
+	 * @return true if ready, otherwise false
+	 */
+	bool ready();
 
 	/** Attach an event signer.
 	 * @param signer the event signer to be attached

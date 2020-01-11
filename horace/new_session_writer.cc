@@ -47,22 +47,7 @@ new_session_writer::new_session_writer(endpoint& ep, session_builder& sb,
 		throw endpoint_error(
 			"destination endpoint unable to receive sessions");
 	}
-}
-
-void new_session_writer::_open() {
-	if (!_srec) {
-		throw horace_error("session not yet started");
-	}
 	_sw = _ep->make_session_writer(_srcid);
-	try {
-		_sw->write(*_srec);
-	} catch (terminate_exception&) {
-		throw;
-	} catch (std::exception& ex) {
-		_sw = 0;
-		throw retry_exception();
-	}
-	_srec->log(*log);
 }
 
 void new_session_writer::_write(const record& rec) {
@@ -71,9 +56,6 @@ void new_session_writer::_write(const record& rec) {
 		retry = false;
 
 		try {
-			if (!_sw) {
-				_open();
-			}
 			_sw->write(rec);
 		} catch (terminate_exception&) {
 			throw;
@@ -81,8 +63,10 @@ void new_session_writer::_write(const record& rec) {
 			_sw = 0;
 			retry = true;
 			if (log->enabled(logger::log_err)) {
-				log_message msg(*log, logger::log_err);
-				msg << "error during capture (will retry)";
+				log_message msg1(*log, logger::log_err);
+				msg1 << ex.what();
+				log_message msg2(*log, logger::log_err);
+				msg2 << "error during capture (will retry)";
 			}
 		}
 
@@ -90,9 +74,25 @@ void new_session_writer::_write(const record& rec) {
 		// is not ready to receive it, however there is no mechanism
 		// for this yet so current behaviour is to terminate.
 		if (!_sw->ready()) {
-			kill(getpid(), SIGTERM);
+			kill(getpid(), SIGALRM);
 		}
 	}
+}
+
+bool new_session_writer::ready() {
+	try {
+		return _sw->ready();
+	} catch (terminate_exception&) {
+		throw;
+	} catch (std::exception& ex) {
+		if (log->enabled(logger::log_err)) {
+			log_message msg1(*log, logger::log_err);
+			msg1 << ex.what();
+			log_message msg2(*log, logger::log_err);
+			msg2 << "endpoint not ready to receive data";
+		}
+	}
+	return false;
 }
 
 void new_session_writer::attach_signer(event_signer& signer) {
@@ -104,12 +104,18 @@ void new_session_writer::begin_session(const record& srec) {
 
 	_srec = &srec;
 	try {
-		_open();
-	} catch (retry_exception&) {
+		_sw->write(*_srec);
+		_srec->log(*log);
+	} catch (terminate_exception&) {
+		throw;
+	} catch (std::exception& ex) {
 		if (log->enabled(logger::log_err)) {
-			log_message msg(*log, logger::log_err);
-			msg << "error during capture (will retry)";
+			log_message msg1(*log, logger::log_err);
+			msg1 << ex.what();
+			log_message msg2(*log, logger::log_err);
+			msg2 << "error during capture (will retry)";
 		}
+		throw retry_exception();
 	}
 }
 

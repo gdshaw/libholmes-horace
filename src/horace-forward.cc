@@ -220,7 +220,7 @@ void forward_all(session_listener_endpoint& src_slep,
 
 int main(int argc, char* argv[]) {
 	// Mask signals.
-	terminating_signals.mask();
+	masked_signals.mask();
 
 	// Initialise default options.
 	int severity = logger::log_warning;
@@ -291,11 +291,11 @@ int main(int argc, char* argv[]) {
 	threads.push_back(std::move(all_th));
 
 	// Wait for terminating signal to be raised.
-	int raised = terminating_signals.wait();
+	int raised = masked_signals.wait();
 
 	// Stop forwarding and exit.
 	std::cerr << strsignal(raised) << std::endl;
-	terminating.set();
+	terminating = true;
 	for (auto& th : threads) {
 		th.join();
 	}

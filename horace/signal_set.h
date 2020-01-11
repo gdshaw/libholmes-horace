@@ -50,12 +50,19 @@ public:
 	 * @return the signal raised
 	 */
 	int wait() const;
+
+	/** Wait for one of the signals in this set to be raised,
+	 * with a timeout.
+	 * @param timeout the required timeout in milliseconds
+	 * @return the signal raised, or -1 if none
+	 */
+	int milliwait(int timeout) const;
 };
 
-/** The set of signals which should terminate the program.
- * These are SIGINT, SIGQUIT and SIGTERM.
+/** The set of signals which should be masked.
+ * These are SIGINT, SIGQUIT and SIGTERM and SIGALRM.
  */
-extern signal_set terminating_signals;
+extern signal_set masked_signals;
 
 } /* namespace horace */
 

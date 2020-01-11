@@ -28,9 +28,21 @@ int signal_set::wait() const {
 	return raised;
 }
 
-signal_set terminating_signals = signal_set()
+int signal_set::milliwait(int timeout) const {
+	struct timespec ts = { timeout / 1000, (timeout % 1000) * 1000000 };
+	int raised = sigtimedwait(_sigset.get(), 0, &ts);
+	if (raised == -1) {
+		if (errno != EAGAIN) {
+			throw libc_error();
+		}
+	}
+	return raised;
+}
+
+signal_set masked_signals = signal_set()
 	.add(SIGINT)
 	.add(SIGQUIT)
-	.add(SIGTERM);
+	.add(SIGTERM)
+	.add(SIGALRM);
 
 } /* namespace horace */

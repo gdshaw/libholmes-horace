@@ -4,6 +4,7 @@
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
 #include <unistd.h>
+#include <fcntl.h>
 #include <poll.h>
 
 #include "horace/libc_error.h"
@@ -17,11 +18,35 @@ terminate_flag::terminate_flag():
 	if (pipe(_pipefd) == -1) {
 		throw libc_error();
 	}
+	_nonblock(_pipefd[0]);
+	_nonblock(_pipefd[1]);
 }
 
-void terminate_flag::set() {
-	_terminating = true;
-	size_t count = write(_pipefd[1], "", 1);
+void terminate_flag::_nonblock(int fd) {
+	int flags = ::fcntl(fd, F_GETFL, 0);
+	if (flags == -1) {
+		throw libc_error();
+	}
+	flags |= O_NONBLOCK;
+	if (fcntl(fd, F_SETFL, flags) == -1) {
+		throw libc_error();
+	}
+}
+
+terminate_flag& terminate_flag::operator=(bool terminating) {
+	bool changed = terminating != _terminating;
+	_terminating = terminating;
+
+	if (changed) {
+		if (terminating) {
+			size_t count = write(_pipefd[1], "", 1);
+		} else {
+			char buffer;
+			while (read(_pipefd[0], &buffer,
+				sizeof(buffer)) > 0) {}
+		}
+	}
+	return *this;
 }
 
 int terminate_flag::poll(int fd, int events) const {

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <thread>
 
+#include <unistd.h>
 #include <getopt.h>
 
 #include "horace/retry_exception.h"
@@ -54,7 +55,7 @@ void write_help(std::ostream& out) {
 
 int main2(int argc, char* argv[]) {
 	// Mask signals.
-	terminating_signals.mask();
+	masked_signals.mask();
 
 	// Get hostname for use as source ID.
 	std::string srcid = hostname();
@@ -140,53 +141,89 @@ int main2(int argc, char* argv[]) {
 	std::unique_ptr<endpoint> dst_ep = std::move(endpoints.back());
 	endpoints.pop_back();
 
-	// Make a new_session_writer for destination endpoint.
-	session_builder sb(vsrcid);
-	new_session_writer dst(*dst_ep, sb, vsrcid, hashfn.get());
+	while (true) {
+		// Make a new_session_writer for destination endpoint.
+		session_builder sb(vsrcid);
+		new_session_writer dst(*dst_ep, sb, vsrcid, hashfn.get());
 
-	// Attach an event signer to the new session writer if a keyfile
-	// was supplied.
-	std::unique_ptr<event_signer> signer;
-	if (kp) {
-		signer = std::make_unique<event_signer>(dst, *kp, sigdelay);
-		signer->build_session(sb);
-		dst.attach_signer(*signer);
-	}
-
-	// Make an event_source for each source endpoint.
-	// While doing this, attach the address filter if there is one.
-	std::vector<std::unique_ptr<event_source>> sources;
-	for (const auto& src_ep : endpoints) {
-		std::unique_ptr<event_source> src =
-			std::make_unique<event_source>(*src_ep, dst, sb);
-		if (!addrfilt.empty()) {
-			src->attach(addrfilt);
+		if (!dst.ready()) {
+			if (log->enabled(logger::log_warning)) {
+				log_message msg(*log, logger::log_warning);
+				msg << "destination endpoint not ready (will retry)";
+			}
+			while (!dst.ready()) {
+				int raised = masked_signals.milliwait(1000);
+				if (raised != -1) {
+					std::cerr << strsignal(raised) << std::endl;
+					throw terminate_exception();
+				}
+			}
 		}
-		sources.push_back(std::move(src));
-	}
 
-	// Start the session.
-	std::unique_ptr<record> srec = sb.build();
-	dst.begin_session(*srec);
+		// Attach an event signer to the new session writer if a
+		// keyfile was supplied.
+		std::unique_ptr<event_signer> signer;
+		if (kp) {
+			signer = std::make_unique<event_signer>(
+				dst, *kp, sigdelay);
+			signer->build_session(sb);
+			dst.attach_signer(*signer);
+		}
 
-	// Start capturing events.
-	for (const auto& src : sources) {
-		src->start();
-	}
+		// Make an event_source for each source endpoint.
+		// While doing this, attach the address filter if there
+		// is one.
+		std::vector<std::unique_ptr<event_source>> sources;
+		for (const auto& src_ep : endpoints) {
+			std::unique_ptr<event_source> src =
+				std::make_unique<event_source>(
+				*src_ep, dst, sb);
+			if (!addrfilt.empty()) {
+				src->attach(addrfilt);
+			}
+			sources.push_back(std::move(src));
+		}
 
-	// Wait for terminating signal to be raised.
-	int raised = terminating_signals.wait();
+		// Start the session.
+		std::unique_ptr<record> srec = sb.build();
+		dst.begin_session(*srec);
 
-	// Stop listening and exit.
-	std::cerr << strsignal(raised) << std::endl;
-	terminating.set();
-	for (const auto& src : sources) {
-		src->stop();
+		// Start capturing events.
+		for (const auto& src : sources) {
+			src->start();
+		}
+
+		// Wait for signal to be raised.
+		int raised = masked_signals.wait();
+
+		// Stop listening and exit.
+		if (raised == SIGALRM) {
+			if (log->enabled(logger::log_warning)) {
+				log_message msg(*log, logger::log_warning);
+				msg << "suspending capture";
+			}
+		} else {
+			std::cerr << strsignal(raised) << std::endl;
+		}
+		terminating = true;
+		for (const auto& src : sources) {
+			src->stop();
+		}
+		if (signer) {
+			signer->stop();
+		}
+		dst.end_session();
+
+		if (raised != SIGALRM) {
+			break;
+		}
+
+		// Cancel termination and consume any outstanding signals.
+		terminating = false;
+		while (raised == SIGALRM) {
+			raised = masked_signals.milliwait(0);
+		}
 	}
-	if (signer) {
-		signer->stop();
-	}
-	dst.end_session();
 }
 
 int main(int argc, char* argv[]) {
