@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include "horace/time_system_detector.h"
 #include "horace/hash.h"
 #include "horace/keypair.h"
 #include "horace/binary_attribute.h"
@@ -21,6 +22,9 @@ session_builder::session_builder(const std::string& srcid):
 	_attr_count(0),
 	_chan_count(0) {
 
+	time_system_detector tsd;
+	_attributes.append(std::make_unique<string_attribute>(
+		attrid_time_system, tsd.time_system()));
 	_attributes.append(std::make_unique<string_attribute>(
 		attrid_source, srcid));
 	_attributes.append(std::make_unique<timestamp_attribute>

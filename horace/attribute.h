@@ -40,6 +40,7 @@ static const int attrid_hash_alg = -13;
 static const int attrid_sig = -14;
 static const int attrid_sig_alg = -15;
 static const int attrid_sig_pubkey = -16;
+static const int attrid_time_system = -17;
 
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {
