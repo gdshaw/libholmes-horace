@@ -33,6 +33,14 @@ public:
 	const std::string& time_system() {
 		return _time_system;
 	}
+
+	/** Validate that a user-requested timezone is consistent with
+	 * the system configuration.
+	 * @param time_system the user-requested time system
+	 * @param leap if non-null, set on exit to true if leap second
+	 *  detection required, otherwise set to false
+	 */
+	void validate(const std::string& time_system, bool* leap);
 };
 
 } /* namespace horace */

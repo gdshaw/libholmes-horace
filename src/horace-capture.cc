@@ -19,6 +19,8 @@
 #include "horace/signal_set.h"
 #include "horace/terminate_flag.h"
 #include "horace/hostname.h"
+#include "horace/time_system_detector.h"
+#include "horace/leap_second_corrector.h"
 #include "horace/inet4_netblock.h"
 #include "horace/inet6_netblock.h"
 #include "horace/address_filter.h"
@@ -46,6 +48,7 @@ void write_help(std::ostream& out) {
 	out << std::endl;
 	out << "  -h  display this help text then exit" << std::endl;
 	out << "  -S  set source identifier" << std::endl;
+	out << "  -T  select time system" << std::endl;
 	out << "  -x  exclude address or netblock" << std::endl;
 	out << "  -D  hash messages with given digest function" << std::endl;
 	out << "  -k  sign messages using key in given file" << std::endl;
@@ -60,16 +63,20 @@ int main2(int argc, char* argv[]) {
 	// Get hostname for use as source ID.
 	std::string srcid = hostname();
 
+	// Detect default time system.
+	time_system_detector tsd;
+
 	// Initialise default options.
 	const char* hashfn_name = 0;
 	const char* keyfile_pathname = 0;
 	long sigdelay = 0;
+	std::string time_system = tsd.time_system();
 	address_filter addrfilt;
 	int severity = logger::log_warning;
 
 	// Parse command line options.
 	int opt;
-	while ((opt = getopt(argc, argv, "+D:hk:R:S:vx:")) != -1) {
+	while ((opt = getopt(argc, argv, "+D:hk:R:S:T:vx:")) != -1) {
 		switch (opt) {
 		case 'D':
 			hashfn_name = optarg;
@@ -85,6 +92,9 @@ int main2(int argc, char* argv[]) {
 			break;
 		case 'S':
 			srcid = std::string(optarg);
+			break;
+		case 'T':
+			time_system = std::string(optarg);
 			break;
 		case 'v':
 			if (severity < logger::log_debug) {
@@ -122,6 +132,9 @@ int main2(int argc, char* argv[]) {
 	// Validate source ID.
 	source_id vsrcid(srcid);
 
+	// Validate time system.
+	tsd.validate(time_system, &detect_leap_seconds);
+
 	// Parse list of endpoints.
 	std::vector<std::unique_ptr<endpoint>> endpoints;
 	while (optind != argc) {
@@ -143,7 +156,7 @@ int main2(int argc, char* argv[]) {
 
 	while (true) {
 		// Make a new_session_writer for destination endpoint.
-		session_builder sb(vsrcid);
+		session_builder sb(vsrcid, time_system);
 		new_session_writer dst(*dst_ep, sb, vsrcid, hashfn.get());
 
 		if (!dst.ready()) {

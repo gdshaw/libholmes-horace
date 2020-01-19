@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "horace/leap_second_corrector.h"
 #include "horace/socket_descriptor.h"
 
 namespace horace {
@@ -35,6 +36,9 @@ private:
 
 	/** A msghdr structure for receiving packets. */
 	struct msghdr _message;
+
+	/** A leap second corrector for correcting timestamps. */
+	leap_second_corrector _lsc;
 
 	/** A builder for making packet records. */
 	packet_record_builder* _builder;

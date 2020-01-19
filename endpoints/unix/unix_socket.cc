@@ -110,6 +110,9 @@ const record& unix_socket::read() {
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
 		throw libc_error();
 	}
+	if (detect_leap_seconds) {
+		_lsc.correct(ts);
+	}
 
 	_builder->build_packet(&ts, _buffer.get(), pkt_snaplen, pkt_origlen, 0);
 	return *_builder->next();

@@ -51,4 +51,31 @@ time_system_detector::time_system_detector() {
 	}
 }
 
+void time_system_detector::validate(const std::string& time_system, bool* leap) {
+	if (time_system == "POSIX") {
+		if (_time_system != time_system) {
+			throw horace_error("system configured to use " + _time_system + " time");
+		}
+		if (leap) {
+			*leap = false;
+		}
+	} else if (time_system == "UTC") {
+		if (_time_system != "POSIX") {
+			throw horace_error("system configured to use " + _time_system + " time");
+		}
+		if (leap) {
+			*leap = true;
+		}
+	} else if (time_system == "TAI-10") {
+		if (_time_system != time_system) {
+			throw horace_error("system configured to use " + _time_system + " time");
+		}
+		if (leap) {
+			*leap = false;
+		}
+	} else {
+		throw horace_error("time system not recognised");
+	}
+}
+
 } /* namespace horace */

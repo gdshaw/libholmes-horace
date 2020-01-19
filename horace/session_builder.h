@@ -35,8 +35,10 @@ private:
 public:
 	/** Construct session builder.
 	 * @param srcid the required source identifier
+	 * @param time_system the required time system
 	 */
-	explicit session_builder(const std::string& srcid);
+	session_builder(const std::string& srcid,
+		const std::string& time_system);
 
 	/** Define attribute.
 	 * If a name and format are requested which match a previous

@@ -122,13 +122,18 @@ const record& ring_buffer_v3::read() {
 		}
 	}
 
-	// Extract required data from frame buffer.
-	// Note that whilst the ring buffer as a whole is volatile, the
-	// packet content should be constant for the lifetime of the
-	// pointer that is created here.
+	// Extract and correct timestamp.
 	struct timespec ts;
 	ts.tv_sec = _frame->tp_sec;
 	ts.tv_nsec = _frame->tp_nsec;
+	if (detect_leap_seconds) {
+		_lsc.correct(ts);
+	}
+
+	// Extract remaining data from frame buffer.
+	// Note that whilst the ring buffer as a whole is volatile, the
+	// packet content should be constant for the lifetime of the
+	// pointer that is created here.
 	const char* content = ((const char*)_frame) + _frame->tp_mac;
 	size_t pkt_origlen = _frame->tp_len;
 	size_t pkt_snaplen = _frame->tp_snaplen;

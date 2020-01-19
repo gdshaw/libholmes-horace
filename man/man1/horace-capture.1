@@ -32,6 +32,8 @@ a subdirectory of /var/spool/horace.
 Display help text then exit.
 .IP -S
 Set source identifier.
+.IP -T
+Select time system.
 .IP -x
 Exclude address or netblock.
 .IP -D
@@ -42,6 +44,36 @@ Sign messages using key in a given file.
 Set delay in milliseconds before signing.
 .IP -v
 Increase verbosity of log messages.
+.SH TIME SYSTEMS
+Three time systems are currently supported:
+.IP POSIX
+An approximation to UTC which disregards leap seconds
+.IP UTC
+Universal Coordinated Time
+.IP TAI-10
+International Atomic Time minus 10 seconds
+.PP
+These time systems are usable only if the system clock behaves
+appropriately. In particular:
+.IP *
+POSIX and UTC interpret the system clock as UTC using the mapping defined
+by the POSIX specification.
+.IP *
+UTC additionally requires that the system clock receive and act upon leap
+second notifications (as opposed to leap seconds being smeared).
+.IP *
+TAI-10 interprets the system clock as a number of TAI seconds since the
+POSIX epoch of 1970-01-01 00:00:00 UTC.
+.PP
+Some limited sanity checking is performed based on the time zone
+configuration, however it is for the user to ensure that the
+requested time system is compatible with the behaviour of the
+system clock.
+.PP
+If a time system is not specified then either POSIX or TAI-10 will be
+selected depending on the timezone configuration (posix or right).
+.PP
+Support for the UTC time system is currently experimental.
 .SH HASHING
 HORACE event records can be hashed at the point of collection, with the
 result being incorporated into the following event record. This causes

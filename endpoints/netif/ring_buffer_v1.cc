@@ -100,12 +100,17 @@ const record& ring_buffer_v1::read() {
 		drop_count = drops();
 	}
 
-	// Note that whilst the ring buffer as a whole is volatile, the
-	// packet content should be constant for the lifetime of the
-	// pointer that is created here.
+	// Extract and correct timestamp.
 	struct timespec ts;
 	ts.tv_sec = tphdr->tp_sec;
 	ts.tv_nsec = tphdr->tp_usec * 1000;
+	if (detect_leap_seconds) {
+		_lsc.correct(ts);
+	}
+
+	// Note that whilst the ring buffer as a whole is volatile, the
+	// packet content should be constant for the lifetime of the
+	// pointer that is created here.
 	const char* content = const_cast<const char*>(frame_ptr + tphdr->tp_mac);
 	size_t pkt_origlen = tphdr->tp_len;
 	size_t pkt_snaplen = tphdr->tp_snaplen;
