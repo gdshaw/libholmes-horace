@@ -19,8 +19,8 @@ private:
 	/** The attribute names for this session, indexed by ID. */
 	std::map<int, std::string> _attr_names;
 
-	/** The attribute types for this session, indexed by ID. */
-	std::map<int, int> _attr_types;
+	/** The attribute formats for this session, indexed by ID. */
+	std::map<int, int> _attr_fmts;
 
 	/** The channel labels for this session, indexed by number. */
 	std::map<int, std::string> _chan_labels;
@@ -41,11 +41,11 @@ public:
 	 */
 	const std::string& get_attr_name(int attrid);
 
-	/** Get the attribute type for a given attribute ID.
+	/** Get the attribute format for a given attribute ID.
 	 * @param attrid the required attribute ID
-	 * @return the corresponding attribute type
+	 * @return the corresponding attribute format
 	 */
-	int get_attr_type(int attrid);
+	int get_attr_fmt(int attrid);
 
 	/** Get the channel label for a given channel number.
 	 * @param channel_num the required channel number

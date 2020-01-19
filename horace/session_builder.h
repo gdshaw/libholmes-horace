@@ -39,14 +39,14 @@ public:
 	explicit session_builder(const std::string& srcid);
 
 	/** Define attribute.
-	 * If a name and type are requested which match a previous
+	 * If a name and format are requested which match a previous
 	 * definition then this function is permitted but not required
 	 * to reuse it.
 	 * @param name the required attribute name
-	 * @param type the required attribute type
+	 * @param fmt the required attribute format
 	 */
 	int define_attribute(const std::string& name,
-		int type);
+		int fmt);
 
 	/** Define channel.
 	 * Invokation of this function always causes a new channel to be

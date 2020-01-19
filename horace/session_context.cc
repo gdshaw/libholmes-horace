@@ -20,7 +20,7 @@ const std::map<int, std::string> _reserved_attr_names = {
 	{ attrid_attr_def, "attributes" },
 	{ attrid_attr_id, "id" },
 	{ attrid_attr_name, "name" },
-	{ attrid_attr_type, "type" },
+	{ attrid_attr_fmt, "format" },
 	{ attrid_channel_def, "channels" },
 	{ attrid_channel_num, "channel" },
 	{ attrid_channel_label, "label" },
@@ -35,26 +35,26 @@ const std::map<int, std::string> _reserved_attr_names = {
 	{ attrid_sig_pubkey, "hash_sig_pubkey" },
 	{ attrid_time_system, "time_system" }};
 
-/** The reserved attribute types applicable to all sessions,
+/** The reserved attribute formats applicable to all sessions,
  * indexed by attribute ID. */
-const std::map<int, int> _reserved_attr_types = {
-	{ attrid_attr_def, attrtype_compound },
-	{ attrid_attr_id, attrtype_signed_integer },
-	{ attrid_attr_name, attrtype_string },
-	{ attrid_attr_type, attrtype_unsigned_integer },
-	{ attrid_channel_def, attrtype_compound },
-	{ attrid_channel_num, attrtype_signed_integer },
-	{ attrid_channel_label, attrtype_string },
-	{ attrid_source, attrtype_string },
-	{ attrid_seqnum, attrtype_unsigned_integer },
-	{ attrid_ts_begin, attrtype_timestamp },
-	{ attrid_ts_end, attrtype_timestamp },
-	{ attrid_hash, attrtype_binary },
-	{ attrid_hash_alg, attrtype_string },
-	{ attrid_sig, attrtype_binary },
-	{ attrid_sig_alg, attrtype_string },
-	{ attrid_sig_pubkey, attrtype_binary },
-	{ attrid_time_system, attrtype_string }};
+const std::map<int, int> _reserved_attr_fmts = {
+	{ attrid_attr_def, attrfmt_compound },
+	{ attrid_attr_id, attrfmt_signed_integer },
+	{ attrid_attr_name, attrfmt_string },
+	{ attrid_attr_fmt, attrfmt_unsigned_integer },
+	{ attrid_channel_def, attrfmt_compound },
+	{ attrid_channel_num, attrfmt_signed_integer },
+	{ attrid_channel_label, attrfmt_string },
+	{ attrid_source, attrfmt_string },
+	{ attrid_seqnum, attrfmt_unsigned_integer },
+	{ attrid_ts_begin, attrfmt_timestamp },
+	{ attrid_ts_end, attrfmt_timestamp },
+	{ attrid_hash, attrfmt_binary },
+	{ attrid_hash_alg, attrfmt_string },
+	{ attrid_sig, attrfmt_binary },
+	{ attrid_sig_alg, attrfmt_string },
+	{ attrid_sig_pubkey, attrfmt_binary },
+	{ attrid_time_system, attrfmt_string }};
 
 /** The reserved channel labels applicable to all sessions,
  * indexed by channel number. */
@@ -70,10 +70,10 @@ void session_context::handle_attr_def(const compound_attribute& attr) {
 		attrid_attr_id).content();
 	std::string attrname = attr.content().find_one<string_attribute>(
 		attrid_attr_name).content();
-	uint64_t attrtype = attr.content().find_one<unsigned_integer_attribute>(
-		attrid_attr_type).content();
+	uint64_t attrfmt = attr.content().find_one<unsigned_integer_attribute>(
+		attrid_attr_fmt).content();
 	_attr_names[attrid] = attrname;
-	_attr_types[attrid] = attrtype;
+	_attr_fmts[attrid] = attrfmt;
 }
 
 void session_context::handle_channel_def(const compound_attribute& attr) {
@@ -100,15 +100,15 @@ const std::string& session_context::get_attr_name(int attrid) {
 		std::to_string(attrid));
 }
 
-int session_context::get_attr_type(int attrid) {
+int session_context::get_attr_fmt(int attrid) {
 	if (attrid < 0) {
-		auto f = _reserved_attr_types.find(attrid);
-		if (f != _reserved_attr_types.end()) {
+		auto f = _reserved_attr_fmts.find(attrid);
+		if (f != _reserved_attr_fmts.end()) {
 			return f->second;
 		}
 	} else {
-		auto f = _attr_types.find(attrid);
-		if (f != _attr_types.end()) {
+		auto f = _attr_fmts.find(attrid);
+		if (f != _attr_fmts.end()) {
 			return f->second;
 		}
 	}

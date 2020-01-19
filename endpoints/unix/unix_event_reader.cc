@@ -22,7 +22,7 @@ unix_event_reader::unix_event_reader(const unix_endpoint& ep,
 
 	attribute_list attrs;
 	attrs.append(std::make_unique<string_attribute>(
-		session.define_attribute("pathname", attrtype_string),
+		session.define_attribute("pathname", attrfmt_string),
 		_ep->pathname()));
 	_channel = session.define_channel("unix", std::move(attrs));
 
