@@ -70,7 +70,7 @@ int terminate_flag::poll(int fd, int events) const {
 void terminate_flag::millisleep(int timeout) const {
 	struct pollfd fds[1] = {{0}};
 	fds[0].fd = _pipefd[0];
-	fds[0].fd = POLLIN;
+	fds[0].events = POLLIN;
 
 	if (::poll(fds, 1, timeout) == -1) {
 		if (errno != EINTR) {
