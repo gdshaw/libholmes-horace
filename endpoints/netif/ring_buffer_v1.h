@@ -8,8 +8,6 @@
 
 #include <linux/if_packet.h>
 
-#include "horace/leap_second_corrector.h"
-
 #include "basic_packet_socket.h"
 
 namespace horace {
@@ -37,9 +35,6 @@ private:
 	/** The tpacket_hdr structure for the most recently read frame,
 	 * or 0 if none or already released back to the kernel. */
 	volatile struct tpacket_hdr* _last_tphdr;
-
-	/** A leap second corrector for correcting timestamps. */
-	leap_second_corrector _lsc;
 
 	/** A builder for making packet records. */
 	packet_record_builder* _builder;

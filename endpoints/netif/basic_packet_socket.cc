@@ -17,6 +17,31 @@ basic_packet_socket::basic_packet_socket():
 	socket_descriptor(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL)) {
 
 	interruptible(true);
+	if (lsmonitor) {
+		lsmonitor->attach(*this);
+	}
+}
+
+basic_packet_socket::~basic_packet_socket() {
+	if (lsmonitor) {
+		lsmonitor->detach(*this);
+	}
+}
+
+void basic_packet_socket::_update_stats() {
+	// The structure tpacket_stats_v3 is identical to
+	// tpacket_stats_v2 except that it contains an additional
+	// field, which is not needed in this instance.
+	std::unique_lock lock(_mutex);
+	struct tpacket_stats_v3 stats;
+	getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
+	_packets += stats.tp_packets - stats.tp_drops;
+	_drops += stats.tp_drops;
+}
+
+void basic_packet_socket::measure() {
+	_update_stats();
+	lsc.record_clock_state(_packets);
 }
 
 void basic_packet_socket::bind(const interface& iface) {
@@ -34,10 +59,12 @@ void basic_packet_socket::set_promiscuous(const interface& iface) {
 	setsockopt(SOL_PACKET, PACKET_ADD_MEMBERSHIP, mreq);
 }
 
-unsigned int basic_packet_socket::drops() const {
-	struct tpacket_stats stats;
-	getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
-	return stats.tp_drops;
+unsigned int basic_packet_socket::drops() {
+	_update_stats();
+	std::unique_lock lock(_mutex);
+	unsigned int drops = _drops;
+	_drops = 0;
+	return drops;
 }
 
 } /* namespace horace */

@@ -95,7 +95,7 @@ const record& packet_socket::read() {
 
         // Correct timestamp.
         if (detect_leap_seconds) {
-                _lsc.correct(*ts);
+                lsc.correct(*ts);
         }
 
 	_builder->build_packet(ts, _buffer.get(), pkt_snaplen, pkt_origlen,

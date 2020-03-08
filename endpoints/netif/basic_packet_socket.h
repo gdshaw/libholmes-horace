@@ -6,7 +6,11 @@
 #ifndef LIBHOLMES_HORACE_BASIC_PACKET_SOCKET
 #define LIBHOLMES_HORACE_BASIC_PACKET_SOCKET
 
+#include <mutex>
+
 #include "horace/socket_descriptor.h"
+#include "horace/leap_second_monitor.h"
+#include "horace/leap_second_corrector.h"
 
 namespace horace {
 
@@ -20,10 +24,34 @@ class interface;
  * that (using recvfrom/recvmsg, or via a ring buffer).
  */
 class basic_packet_socket:
-	public socket_descriptor {
+	public socket_descriptor,
+	public leap_second_monitor::measurable {
+private:
+	/** A mutex protecting _packets and _drops. */
+	std::mutex _mutex;
+
+	/** The total number of packets received.
+	 * This included both packets which have been read, and packets in
+	 * the buffer which are waiting to be read.
+	 */
+	uint64_t _packets;
+
+	/** The number of dropped packets since last checked. */
+	unsigned int _drops;
+
+	/** Update _packets and _drops. */
+	void _update_stats();
+protected:
+	/** A leap second corrector for this socket. */
+	leap_second_corrector lsc;
 public:
 	/** Open basic packet socket. */
 	basic_packet_socket();
+
+	/** Close basic packet socket. */
+	~basic_packet_socket();
+
+	virtual void measure();
 
 	/** Read a packet from this socket.
 	 * This function will block unless a packet is ready for reading.
@@ -45,12 +73,9 @@ public:
 	void set_promiscuous(const interface& iface);
 
 	/** Get the number of dropped packets.
-	 * The default implementation is applicable to sockets without a
-	 * ring buffer, or with a TPACKET_v1 or V2 ring buffer, but it must
-	 * be overridden for sockets using TPACKET_V3.
 	 * @return the number of dropped packets since previous call
 	 */
-	virtual unsigned int drops() const;
+	unsigned int drops();
 
 	/** Get the method name for this socket.
 	 * @return the method name

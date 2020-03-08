@@ -127,7 +127,7 @@ const record& ring_buffer_v3::read() {
 	ts.tv_sec = _frame->tp_sec;
 	ts.tv_nsec = _frame->tp_nsec;
 	if (detect_leap_seconds) {
-		_lsc.correct(ts);
+		lsc.correct(ts);
 	}
 
 	// Extract remaining data from frame buffer.
@@ -159,12 +159,6 @@ const record& ring_buffer_v3::read() {
 
 	_builder->build_packet(&ts, content, pkt_snaplen, pkt_origlen, 0);
 	return *_builder->next();
-}
-
-unsigned int ring_buffer_v3::drops() const {
-	struct tpacket_stats_v3 stats;
-	getsockopt(SOL_PACKET, PACKET_STATISTICS, stats);
-	return stats.tp_drops;
 }
 
 const std::string& ring_buffer_v3::method() const {

@@ -105,7 +105,7 @@ const record& ring_buffer_v1::read() {
 	ts.tv_sec = tphdr->tp_sec;
 	ts.tv_nsec = tphdr->tp_usec * 1000;
 	if (detect_leap_seconds) {
-		_lsc.correct(ts);
+		lsc.correct(ts);
 	}
 
 	// Note that whilst the ring buffer as a whole is volatile, the

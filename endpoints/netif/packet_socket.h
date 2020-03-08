@@ -13,8 +13,6 @@
 #include <sys/socket.h>
 #include <linux/if_packet.h>
 
-#include "horace/leap_second_corrector.h"
-
 #include "basic_packet_socket.h"
 
 namespace horace {
@@ -46,9 +44,6 @@ private:
 
 	/** The most recently observed dropped packet counter. */
 	uint32_t _drop_count;
-
-	/** A leap second corrector for correcting timestamps. */
-	leap_second_corrector _lsc;
 
 	/** A builder for making packet records. */
 	packet_record_builder* _builder;

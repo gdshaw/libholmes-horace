@@ -33,6 +33,7 @@
 #include "horace/event_signer.h"
 #include "horace/new_session_writer.h"
 #include "horace/event_source.h"
+#include "horace/leap_second_monitor.h"
 #include "horace/endpoint.h"
 #include "horace/event_reader_endpoint.h"
 
@@ -173,6 +174,11 @@ int main2(int argc, char* argv[]) {
 			}
 		}
 
+		// Start a leap second monitor.
+		// This must be done before the event sources are created,
+		// so that they can register themselves with it.
+		lsmonitor = std::make_unique<leap_second_monitor>();
+
 		// Attach an event signer to the new session writer if a
 		// keyfile was supplied.
 		std::unique_ptr<event_signer> signer;
@@ -224,6 +230,9 @@ int main2(int argc, char* argv[]) {
 		}
 		if (signer) {
 			signer->stop();
+		}
+		if (lsmonitor) {
+			lsmonitor->stop();
 		}
 		dst.end_session();
 
