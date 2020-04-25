@@ -14,9 +14,9 @@ namespace horace {
 
 namespace {
 
-bool same_ts_begin(const record& lhs, const record& rhs) {
-	return lhs.find_one<timestamp_attribute>(attrid_ts_begin) ==
-		rhs.find_one<timestamp_attribute>(attrid_ts_begin);
+bool same_ts(const record& lhs, const record& rhs) {
+	return lhs.find_one<timestamp_attribute>(attrid_ts) ==
+		rhs.find_one<timestamp_attribute>(attrid_ts);
 }
 
 } /* anonymous namespace */
@@ -33,7 +33,7 @@ void simple_session_writer::_process_session_record(const record& srec) {
 		throw horace_error("unexpected source ID in session record");
 	}
 
-	if (!_srec || !same_ts_begin(*_srec, srec)) {
+	if (!_srec || !same_ts(*_srec, srec)) {
 		// The timestamp has changed: this record marks the
 		// start of a new session.
 		_srec = std::make_unique<record>(srec);

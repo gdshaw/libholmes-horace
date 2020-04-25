@@ -27,7 +27,7 @@ session_builder::session_builder(const std::string& srcid,
 	_attributes.append(std::make_unique<string_attribute>(
 		attrid_source, srcid));
 	_attributes.append(std::make_unique<timestamp_attribute>
-		(attrid_ts_begin));
+		(attrid_ts));
 }
 
 int session_builder::define_attribute(const std::string& name,

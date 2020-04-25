@@ -14,6 +14,7 @@
 #include "horace/log_message.h"
 #include "horace/hash.h"
 #include "horace/keypair.h"
+#include "horace/compound_attribute.h"
 #include "horace/binary_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
 #include "horace/string_attribute.h"
@@ -175,13 +176,18 @@ void new_session_writer::write_signature(const record& sigrec) {
 void new_session_writer::end_session() {
 	std::lock_guard<std::mutex> lk(_mutex);
 	if (_sw) {
-		attribute_list attrs(_srec->attributes());
-		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_end));
-		attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
+                attribute_list end_attrs;
+		end_attrs.append(std::make_unique<timestamp_attribute>(attrid_ts));
+		end_attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
 		if (_hattr) {
-			attrs.append(std::move(_hattr));
+			end_attrs.append(std::move(_hattr));
 		}
-		std::unique_ptr<record> srec = std::make_unique<record>(channel_session, attrs);
+
+		attribute_list attrs(_srec->attributes());
+		attrs.append(std::make_unique<compound_attribute>(
+			attrid_end, std::move(end_attrs)));
+		std::unique_ptr<record> srec = std::make_unique<record>(
+			channel_session, std::move(attrs));
 		_sw->write(*srec);
 		srec->log(*log);
 		_sw = 0;

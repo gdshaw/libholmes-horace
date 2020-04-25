@@ -85,7 +85,7 @@ std::unique_ptr<record> file_session_reader::read() {
 		std::unique_ptr<record> rec = std::make_unique<record>(_session, *_sfr);
 		if (rec->channel_number() == channel_session) {
 			struct timespec new_ts = rec->find_one<timestamp_attribute>(
-				attrid_ts_begin).content();
+				attrid_ts).content();
 			if ((new_ts.tv_sec != _session_ts.tv_sec) ||
 				(new_ts.tv_nsec != _session_ts.tv_nsec)) {
 
@@ -103,7 +103,7 @@ std::unique_ptr<record> file_session_reader::read() {
 		// and a subsequent spoolfile has been detected) then
 		// return a sync record.
 		attribute_list attrs;
-		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts_begin, _session_ts));
+		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts, _session_ts));
 		attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
 		_syncrec = std::make_unique<record>(channel_sync, std::move(attrs));
 		return std::make_unique<record>(*_syncrec);

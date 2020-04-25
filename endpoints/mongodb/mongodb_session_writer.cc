@@ -99,7 +99,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 
 void mongodb_session_writer::handle_session_update(const record& srec) {
 	_session_ts = srec.find_one<timestamp_attribute>(
-		attrid_ts_begin).content();
+		attrid_ts).content();
 	_session = session_context();
 
 	bson_t bson_filter;
