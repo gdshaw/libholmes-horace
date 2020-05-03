@@ -48,8 +48,8 @@ interface::interface(const std::string& ifname):
 	}
 
 	// Interpret the hardware type. Currently only Ethernet is recognised.
-	uint16_t arphrd = ifr.ifr_hwaddr.sa_family;
-	if (arphrd == ARPHRD_ETHER) {
+	_hwtype = ifr.ifr_hwaddr.sa_family;
+	if (_hwtype == ARPHRD_ETHER) {
 		_linktype = linktype_ethernet;
 		unsigned char* hwaddr = reinterpret_cast<unsigned char*>(
 			ifr.ifr_hwaddr.sa_data);

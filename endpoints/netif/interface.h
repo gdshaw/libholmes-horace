@@ -21,6 +21,12 @@ private:
 	/** The linktype. */
 	int _linktype;
 
+	/** The hardware type.
+	 * This takes one of the values defined by the address resolution
+	 * protocol, for example ARPHRD_ETHER for Ethernet.
+	 */
+	uint16_t _hwtype;
+
 	/** The hardware address, or the empty string if not known
 	 * or not applicable. */
 	std::basic_string<unsigned char> _hwaddr;
@@ -52,6 +58,15 @@ public:
 	 */
 	int linktype() const {
 		return _linktype;
+	}
+
+	/** Get the hardware type.
+	 * This takes one of the values defined by the address resolution
+	 * protocol, for example ARPHRD_ETHER for Ethernet.
+	 * @return the hardware type
+	 */
+	uint16_t hwtype() const {
+		return _hwtype;
 	}
 
 	/** Get the hardware address.
