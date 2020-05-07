@@ -18,6 +18,9 @@ private:
 	/** The current session record, or null if none. */
 	std::unique_ptr<const record> _srec;
 
+	/** The current sequence number, or 0 if unspecified. */
+	uint64_t _seqnum;
+
 	/** A record available for reading, or null if none. */
 	std::unique_ptr<record> _reply;
 private:

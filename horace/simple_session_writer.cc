@@ -5,6 +5,7 @@
 
 #include "horace/horace_error.h"
 #include "horace/attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/record.h"
@@ -22,7 +23,8 @@ bool same_ts(const record& lhs, const record& rhs) {
 } /* anonymous namespace */
 
 simple_session_writer::simple_session_writer(const std::string& srcid):
-	session_writer(srcid) {}
+	session_writer(srcid),
+	_seqnum(0) {}
 
 void simple_session_writer::_process_session_record(const record& srec) {
 	// Check that the source ID is valid for this session writer.
@@ -37,6 +39,7 @@ void simple_session_writer::_process_session_record(const record& srec) {
 		// The timestamp has changed: this record marks the
 		// start of a new session.
 		_srec = std::make_unique<record>(srec);
+		_seqnum = 0;
 		handle_session_start(*_srec);
 	} else if (*_srec == srec) {
 		// This is an exact copy of the previous observed
@@ -61,8 +64,19 @@ void simple_session_writer::_process_session_record(const record& srec) {
 }
 
 void simple_session_writer::_process_sync_record(const record& crec) {
+	if (!_srec) {
+		throw horace_error("sync request outside session");
+	}
 	handle_sync(crec);
-	_reply = std::make_unique<record>(channel_sync, crec.attributes());
+
+	// Construct synchronisation status record for return to caller.
+	attribute_list attrs;
+	attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());
+	attrs.append(_srec->find_one<timestamp_attribute>(attrid_ts).clone());
+	attrs.append(std::make_unique<unsigned_integer_attribute>(
+		attrid_seqnum, _seqnum));
+	_reply = std::make_unique<record>(channel_sync, std::move(attrs));
+
 }
 
 void simple_session_writer::handle_signature(const record& grec) {}
@@ -88,6 +102,8 @@ void simple_session_writer::write(const record& rec) {
 	default:
 		if (rec.is_event()) {
 			handle_event(rec);
+			_seqnum = rec.find_one<unsigned_integer_attribute>(
+				attrid_seqnum).content() + 1;
 		}
 	}
 }

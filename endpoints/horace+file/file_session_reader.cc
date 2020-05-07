@@ -11,6 +11,7 @@
 #include "horace/horace_error.h"
 #include "horace/endpoint_error.h"
 #include "horace/unsigned_integer_attribute.h"
+#include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/attribute_list.h"
 
@@ -25,6 +26,7 @@ namespace horace {
 file_session_reader::file_session_reader(file_endpoint& src_ep,
 	const std::string& srcid):
 	_src_ep(&src_ep),
+	_srcid(srcid),
 	_pathname(src_ep.pathname() + "/" + srcid),
 	_dm(_pathname),
 	_fd(_pathname, O_RDONLY),
@@ -33,7 +35,8 @@ file_session_reader::file_session_reader(file_endpoint& src_ep,
 	_next_filenum(0),
 	_minwidth(0),
 	_session_ts({0}),
-	_seqnum(0) {}
+	_seqnum(0),
+	_awaiting_sync(false) {}
 
 std::string file_session_reader::_next_pathname() {
 	// Construct the filename for the new spoolfile, incrementing the
@@ -75,8 +78,8 @@ std::unique_ptr<record> file_session_reader::read() {
 	// If a sync record has already been returned for the current
 	// spoolfile then it is an error to read any more records until
 	// it has been acknowledged.
-	if (_syncrec) {
-		throw horace_error("ack record expected");
+	if (_awaiting_sync) {
+		throw horace_error("sync record expected");
 	}
 
 	// Attempt to read a record, but be prepared for a possible
@@ -102,11 +105,9 @@ std::unique_ptr<record> file_session_reader::read() {
 		// the current spoolfile (because the end has been reached
 		// and a subsequent spoolfile has been detected) then
 		// return a sync record.
+		_awaiting_sync = true;
 		attribute_list attrs;
-		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts, _session_ts));
-		attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
-		_syncrec = std::make_unique<record>(channel_sync, std::move(attrs));
-		return std::make_unique<record>(*_syncrec);
+		return std::make_unique<record>(channel_sync, std::move(attrs));
 	}
 }
 
@@ -119,14 +120,21 @@ void file_session_reader::write(const record& rec) {
 
 	// Furthermore, acknowledgement records should only be written
 	// in response to a sync record.
-	if (!_syncrec) {
+	if (!_awaiting_sync) {
 		throw horace_error("unexpected sync response sent to session reader");
 	}
 
 	// Check that the sync response record matches the outstanding
 	// sync request.
-	if (rec != *_syncrec) {
-		throw horace_error("sync response record does not match sync request");
+	if (rec.find_one<string_attribute>(attrid_source).content() != _srcid) {
+		throw horace_error("incorrect source ID in sync response");
+	}
+	auto sync_ts = rec.find_one<timestamp_attribute>(attrid_ts).content();
+	if ((sync_ts.tv_sec != _session_ts.tv_sec) || (sync_ts.tv_nsec != _session_ts.tv_nsec)) {
+		throw horace_error("incorrect timestamp in sync response");
+	}
+	if (rec.find_one<unsigned_integer_attribute>(attrid_seqnum).content() != _seqnum) {
+		throw horace_error("incorrect sequence number in sync response");
 	}
 
 	// Delete the current spoolfile, unless deletion suppressed.
@@ -138,7 +146,7 @@ void file_session_reader::write(const record& rec) {
 	// Proceed to the next spoolfile.
 	_sfr = std::make_unique<spoolfile_reader>(*this,
 		_sfr->next_pathname(), _next_pathname());
-	_syncrec = 0;
+	_awaiting_sync = false;
 }
 
 bool file_session_reader::reset() {
@@ -147,7 +155,7 @@ bool file_session_reader::reset() {
 		_next_filenum -= 1;
 		_session_ts = {0};
 		_seqnum = 0;
-		_syncrec = 0;
+		_awaiting_sync = false;
 	}
 	return true;
 }

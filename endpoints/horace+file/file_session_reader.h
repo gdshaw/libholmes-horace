@@ -28,6 +28,9 @@ public:
 	/** The source endpoint. */
 	file_endpoint* _src_ep;
 
+	/** The source identifier. */
+	std::string _srcid;
+
 	/** The filestore subdirectory pathname. */
 	std::string _pathname;
 
@@ -61,8 +64,8 @@ public:
 	/** The current sequence number. */
 	uint64_t _seqnum;
 
-	/** The unacknowledged sync record, or 0 if not syncing. */
-	std::unique_ptr<record> _syncrec;
+	/** True if waiting for a sync record, otherwise false. */
+	bool _awaiting_sync;
 
 	/** Get the pathname at which to look for the next spoolfile.
 	 * This function has the side effect of incrementing the filenum
