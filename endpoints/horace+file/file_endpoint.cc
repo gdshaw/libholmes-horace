@@ -46,7 +46,7 @@ file_endpoint::file_endpoint(const std::string& name):
 	}
 }
 
-bool file_endpoint::ready() {
+bool file_endpoint::writable() {
 	return _fschecker ? *_fschecker : true;
 }
 

@@ -88,6 +88,10 @@ const record& simple_session_writer::session_record() const {
 	return *_srec;
 }
 
+bool simple_session_writer::writable() {
+	return true;
+}
+
 void simple_session_writer::write(const record& rec) {
 	switch(rec.channel_number()) {
 	case channel_session:
@@ -106,6 +110,10 @@ void simple_session_writer::write(const record& rec) {
 				attrid_seqnum).content() + 1;
 		}
 	}
+}
+
+bool simple_session_writer::readable() {
+	return !!_reply;
 }
 
 std::unique_ptr<record> simple_session_writer::read() {

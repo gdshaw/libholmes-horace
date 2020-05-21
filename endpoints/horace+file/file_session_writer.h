@@ -46,11 +46,11 @@ private:
 	/** A writer for the spoolfile. */
 	std::unique_ptr<spoolfile_writer> _sfw;
 
-	/** True if the endpoint is ready to receive data, otherwise false.
-	 * This contains the cached result of _dst_ep->ready(), which is
+	/** True if the endpoint is writable, otherwise false.
+	 * This contains the cached result of _dst_ep->writable(), which is
 	 * called at the start of each spoolfile but not for each record.
 	 */
-	bool _ready;
+	bool _writable;
 
 	/** Get the pathname to use for the next spoolfile when it is
 	 * created.
@@ -83,7 +83,7 @@ public:
 	file_session_writer(file_endpoint& dst_ep,
 		const std::string& srcid);
 
-	virtual bool ready();
+	virtual bool writable();
 };
 
 } /* namespace horace */

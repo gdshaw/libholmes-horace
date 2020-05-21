@@ -72,17 +72,17 @@ void new_session_writer::_write(const record& rec) {
 		}
 
 		// Data capture should be suspended if the session writer
-		// is not ready to receive it, however there is no mechanism
+		// is not able to accept it, however there is no mechanism
 		// for this yet so current behaviour is to terminate.
-		if (!_sw->ready()) {
+		if (!_sw->writable()) {
 			kill(getpid(), SIGALRM);
 		}
 	}
 }
 
-bool new_session_writer::ready() {
+bool new_session_writer::writable() {
 	try {
-		return _sw->ready();
+		return _sw->writable();
 	} catch (terminate_exception&) {
 		throw;
 	} catch (std::exception& ex) {

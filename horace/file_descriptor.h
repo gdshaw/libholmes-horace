@@ -95,9 +95,16 @@ public:
 	/** Block awaiting activity.
 	 * This function will block until either one of the specified event
 	 * types is detected on the socket, or it is interrupted by a signal.
-	 * @param events an event mask suitable for passing to ppoll
+	 * @param events an event mask suitable for passing to poll
 	 */
 	void wait(int events) const;
+
+	/** Check whether ready for activity.
+	 * This function does not block.
+	 * @param events an event mask suitable for passing to poll
+	 * @return the events which are ready
+	 */
+	int ready(int events) const;
 
 	/** Handle an revent of POLLERR.
 	 * This function is needed in order to handle failed connection

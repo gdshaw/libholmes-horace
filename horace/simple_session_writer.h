@@ -75,7 +75,9 @@ public:
 	 */
 	explicit simple_session_writer(const std::string& srcid);
 
+	virtual bool writable();
 	virtual void write(const record& rec);
+	virtual bool readable();
 	virtual std::unique_ptr<record> read();
 };
 

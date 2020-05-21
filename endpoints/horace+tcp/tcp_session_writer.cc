@@ -69,11 +69,22 @@ void tcp_session_writer::_open() {
 	_fdor = file_octet_reader(_fd);
 }
 
+bool tcp_session_writer::writable() {
+	return true;
+}
+
 void tcp_session_writer::write(const record& rec) {
 	if (!_fd) {
 		_open();
 	}
 	rec.write(_fdow);
+}
+
+bool tcp_session_writer::readable() {
+	if (!_fd) {
+		_open();
+	}
+	return _fd.ready(POLLIN) & POLLIN;
 }
 
 std::unique_ptr<record> tcp_session_writer::read() {

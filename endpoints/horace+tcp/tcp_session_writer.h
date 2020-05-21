@@ -45,7 +45,9 @@ public:
 	tcp_session_writer(tcp_endpoint& dst_ep,
 		const std::string& srcid);
 
+	virtual bool writable();
 	virtual void write(const record& rec);
+	virtual bool readable();
 	virtual std::unique_ptr<record> read();
 };
 

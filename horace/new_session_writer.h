@@ -72,12 +72,12 @@ public:
 	new_session_writer(endpoint& ep, session_builder& sb,
 		const std::string& srcid, hash* hashfn);
 
-	/** Test whether the endpoint is ready to receive data.
+	/** Test whether the endpoint is writable.
 	 * This function has the same behaviour as
-	 * horace::session_writer::ready.
-	 * @return true if ready, otherwise false
+	 * horace::session_writer::writable.
+	 * @return true if writable, otherwise false
 	 */
-	bool ready();
+	bool writable();
 
 	/** Attach an event signer.
 	 * @param signer the event signer to be attached

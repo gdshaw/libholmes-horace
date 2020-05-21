@@ -10,8 +10,4 @@ namespace horace {
 session_writer::session_writer(const std::string& srcid):
 	_srcid(srcid) {}
 
-bool session_writer::ready() {
-	return true;
-}
-
 } /* namespace horace */

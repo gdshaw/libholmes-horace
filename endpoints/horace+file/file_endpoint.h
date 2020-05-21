@@ -64,12 +64,12 @@ public:
 		return _nodelete;
 	}
 
-	/** Test whether the endpoint is ready to receive data.
+	/** Test whether the endpoint is writable.
 	 * This function should have the same behaviour as
-	 * horace::session_writer::ready.
-	 * @return true if ready, otherwise false
+	 * horace::session_writer::writable.
+	 * @return true if writable, otherwise false
 	 */
-	bool ready();
+	bool writable();
 
 	virtual std::unique_ptr<session_listener> make_session_listener();
 	virtual std::unique_ptr<session_writer> make_session_writer(

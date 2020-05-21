@@ -56,6 +56,19 @@ void file_descriptor::wait(int events) const {
 	}
 }
 
+int file_descriptor::ready(int events) const {
+	struct pollfd fds[1] = {{0}};
+	fds[0].fd = _fd;
+	fds[0].events = events;
+
+	while (::poll(fds, 1, 0) == -1) {
+		if (errno != EINTR) {
+			throw libc_error();
+		}
+	}
+	return fds[0].revents;
+}
+
 size_t file_descriptor::read(void* buf, size_t nbyte) {
 	ssize_t count = -1;
 	while (count < 0) {

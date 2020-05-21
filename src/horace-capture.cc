@@ -160,12 +160,12 @@ int main2(int argc, char* argv[]) {
 		session_builder sb(vsrcid, time_system);
 		new_session_writer dst(*dst_ep, sb, vsrcid, hashfn.get());
 
-		if (!dst.ready()) {
+		if (!dst.writable()) {
 			if (log->enabled(logger::log_warning)) {
 				log_message msg(*log, logger::log_warning);
 				msg << "destination endpoint not ready (will retry)";
 			}
-			while (!dst.ready()) {
+			while (!dst.writable()) {
 				int raised = masked_signals.milliwait(1000);
 				if (raised != -1) {
 					std::cerr << strsignal(raised) << std::endl;
