@@ -13,7 +13,6 @@
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/stderr_logger.h"
-#include "horace/retry_exception.h"
 #include "horace/horace_error.h"
 #include "horace/signal_set.h"
 #include "horace/terminate_flag.h"
@@ -67,17 +66,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	std::unique_ptr<session_writer> dst_sw = dst_swep.make_session_writer(srcid);
 
 	// Attempt to write the session record.
-	try {
-		dst_sw->write(*srec);
-	} catch (terminate_exception&) {
-		throw;
-	} catch (std::exception& ex) {
-		if (log->enabled(logger::log_err)) {
-			log_message msg(*log, logger::log_notice);
-			msg << ex.what();
-		}
-		throw retry_exception();
-	}
+	dst_sw->write(*srec);
 
 	// Copy records from source to destination. Watch for
 	// session records and sync records, which require special
@@ -94,17 +83,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		rec->log(*log);
 
 		// Attempt to write record to destination.
-		try {
-			dst_sw->write(*rec);
-		} catch (terminate_exception&) {
-			throw;
-		} catch (std::exception& ex) {
-			if (log->enabled(logger::log_err)) {
-				log_message msg(*log, logger::log_notice);
-				msg << ex.what();
-			}
-			throw retry_exception();
-		}
+		dst_sw->write(*rec);
 
 		// Perform any special handling required by specific
 		// record types.
@@ -112,18 +91,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		case channel_sync:
 			// Sync records must be acknowledged.
 			{
-				std::unique_ptr<record> arec;
-				try {
-					arec = dst_sw->read();
-				} catch (terminate_exception&) {
-					throw;
-				} catch (std::exception& ex) {
-					if (log->enabled(logger::log_err)) {
-						log_message msg(*log, logger::log_notice);
-						msg << ex.what();
-					}
-					throw retry_exception();
-				}
+				auto arec = dst_sw->read();
 				src_sr.write(*arec);
 				arec->log(*log);
 				break;
@@ -165,19 +133,18 @@ void forward_one_with_retry(std::unique_ptr<session_reader> src_sr,
 		retry = false;
 		try {
 			forward_one(*src_sr, dst_swep);
-		} catch (retry_exception&) {
+		} catch (terminate_exception&) {
+			// No action.
+		} catch (std::exception& ex) {
 			retry = src_sr->reset();
 
 			if (log->enabled(logger::log_err)) {
 				log_message msg(*log, logger::log_err);
-				msg << "error during forwarding";
+				msg << ex.what();
 				if (retry) {
 					msg << " (will retry)";
 				}
 			}
-		} catch (terminate_exception&) {
-			// No action.
-		} catch (std::exception& ex) {
 			std::cerr << ex.what() << std::endl;
 		}
 	}

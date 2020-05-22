@@ -8,7 +8,6 @@
 
 #include "horace/libc_error.h"
 #include "horace/horace_error.h"
-#include "horace/retry_exception.h"
 #include "horace/terminate_exception.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
@@ -104,20 +103,8 @@ void new_session_writer::begin_session(const record& srec) {
 	std::lock_guard<std::mutex> lk(_mutex);
 
 	_srec = &srec;
-	try {
-		_sw->write(*_srec);
-		_srec->log(*log);
-	} catch (terminate_exception&) {
-		throw;
-	} catch (std::exception& ex) {
-		if (log->enabled(logger::log_err)) {
-			log_message msg1(*log, logger::log_err);
-			msg1 << ex.what();
-			log_message msg2(*log, logger::log_err);
-			msg2 << "error during capture (will retry)";
-		}
-		throw retry_exception();
-	}
+	_sw->write(*_srec);
+	_srec->log(*log);
 }
 
 void new_session_writer::write_event(const record& rec) {

@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <getopt.h>
 
-#include "horace/retry_exception.h"
 #include "horace/logger.h"
 #include "horace/log_message.h"
 #include "horace/stderr_logger.h"
