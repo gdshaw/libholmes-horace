@@ -44,6 +44,25 @@ void write_help(std::ostream& out) {
 	out << "  -v  increase verbosity of log messages" << std::endl;
 }
 
+/** Handle an unexpected record type.
+ * @param rec the record to be handled
+ */
+void handle_unexpected_record(session_reader& src_sr, const record& rec) {
+	if (rec.channel_number() == channel_error) {
+		auto msgattr = rec.find_one<string_attribute>(attrid_message);
+		throw horace_error("remote error: " + msgattr.content());
+	} else if (rec.channel_number() == channel_warning) {
+		auto msgattr = rec.find_one<string_attribute>(attrid_message);
+		if (log->enabled(logger::log_warning)) {
+			log_message msg(*log, logger::log_warning);
+			msg << "remote warning: " << msgattr.content();
+		}
+		src_sr.write(rec);
+	} else {
+		throw horace_error("unexpected record type from destination");
+	}
+}
+
 /** Forward records for a single source ID.
  * @param src_sr the source
  * @param dst_swep the destination
@@ -76,6 +95,14 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		// the thread never blocks.
 		terminating.poll();
 
+		// Check whether a record is readable from the destination
+		// endpoint (error or warning).
+		if (dst_sw->readable()) {
+			auto rec = dst_sw->read();
+			rec->log(*log);
+			handle_unexpected_record(src_sr, *rec);
+		}
+
 		// Read record from source endpoint.
 		std::unique_ptr<record> rec = src_sr.read();
 
@@ -90,11 +117,15 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 		switch (rec->channel_number()) {
 		case channel_sync:
 			// Sync records must be acknowledged.
-			{
-				auto arec = dst_sw->read();
-				src_sr.write(*arec);
-				arec->log(*log);
-				break;
+			while (true) {
+				auto rec = dst_sw->read();
+				rec->log(*log);
+				if (rec->channel_number() == channel_sync) {
+					src_sr.write(*rec);
+					break;
+				} else {
+					handle_unexpected_record(src_sr, *rec);
+				}
 			}
 		default:
 			if (rec->is_event()) {
@@ -134,18 +165,38 @@ void forward_one_with_retry(std::unique_ptr<session_reader> src_sr,
 		try {
 			forward_one(*src_sr, dst_swep);
 		} catch (terminate_exception&) {
-			// No action.
+			return;
 		} catch (std::exception& ex) {
-			retry = src_sr->reset();
-
 			if (log->enabled(logger::log_err)) {
 				log_message msg(*log, logger::log_err);
 				msg << ex.what();
-				if (retry) {
-					msg << " (will retry)";
+			}
+
+			// Either retry if that is possible, or response with
+			// an error record if not.
+			retry = src_sr->reset();
+			if (retry) {
+				if (log->enabled(logger::log_notice)) {
+					log_message msg(*log, logger::log_notice);
+					msg << "will retry following error";
+				}
+			} else {
+				try {
+					attribute_list attrs;
+					attrs.append(std::make_unique<string_attribute>(
+						attrid_message, ex.what()));
+					auto errrec = std::make_unique<record>(
+						channel_error, std::move(attrs));
+					src_sr->write(*errrec);
+				} catch (terminate_exception&) {
+					return;
+				} catch (std::exception& ex) {
+					if (log->enabled(logger::log_err)) {
+						log_message msg(*log, logger::log_err);
+						msg << ex.what();
+					}
 				}
 			}
-			std::cerr << ex.what() << std::endl;
 		}
 	}
 }

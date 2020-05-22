@@ -111,15 +111,9 @@ std::unique_ptr<record> file_session_reader::read() {
 	}
 }
 
-void file_session_reader::write(const record& rec) {
-	// The only type of record which should be written is an
-	// acknowledgement record.
-	if (rec.channel_number() != channel_sync) {
-		throw horace_error("unexpected record type sent to session reader");
-	}
-
-	// Furthermore, acknowledgement records should only be written
-	// in response to a sync record.
+void file_session_reader::_handle_sync(const record& rec) {
+	// Sync response records should only be received in response
+	// to a sync request.
 	if (!_awaiting_sync) {
 		throw horace_error("unexpected sync response sent to session reader");
 	}
@@ -147,6 +141,20 @@ void file_session_reader::write(const record& rec) {
 	_sfr = std::make_unique<spoolfile_reader>(*this,
 		_sfr->next_pathname(), _next_pathname());
 	_awaiting_sync = false;
+}
+
+void file_session_reader::write(const record& rec) {
+	switch (rec.channel_number()) {
+	case channel_error:
+	case channel_warning:
+		// No action.
+		break;
+	case channel_sync:
+		_handle_sync(rec);
+		break;
+	default:
+		throw horace_error("unexpected record type sent to session reader");
+	}
 }
 
 bool file_session_reader::reset() {

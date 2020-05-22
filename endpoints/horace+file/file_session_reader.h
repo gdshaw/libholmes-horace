@@ -72,6 +72,11 @@ public:
 	 * each time it is called.
 	 */
 	std::string _next_pathname();
+
+	/** Handle a sync record.
+	 * @param rec the sync record
+	 */
+	void _handle_sync(const record& rec);
 public:
 	/** Construct filestore session reader.
 	 * @param src_ep the source endpoint

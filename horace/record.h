@@ -20,9 +20,10 @@ class session_context;
 
 // Reserved channel numbers.
 static const int channel_error = -1;
-static const int channel_session = -2;
-static const int channel_sync = -3;
-static const int channel_signature = -4;
+static const int channel_warning = -2;
+static const int channel_session = -3;
+static const int channel_sync = -4;
+static const int channel_signature = -5;
 
 /** An abstract base class to represent a HORACE record. */
 class record {

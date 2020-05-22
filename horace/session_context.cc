@@ -33,7 +33,8 @@ const std::map<int, std::string> _reserved_attr_names = {
 	{ attrid_sig, "hash_sig" },
 	{ attrid_sig_alg, "hash_sig_alg" },
 	{ attrid_sig_pubkey, "hash_sig_pubkey" },
-	{ attrid_time_system, "time_system" }};
+	{ attrid_time_system, "time_system" },
+	{ attrid_message, "message" }};
 
 /** The reserved attribute formats applicable to all sessions,
  * indexed by attribute ID. */
@@ -54,7 +55,8 @@ const std::map<int, int> _reserved_attr_fmts = {
 	{ attrid_sig, attrfmt_binary },
 	{ attrid_sig_alg, attrfmt_string },
 	{ attrid_sig_pubkey, attrfmt_binary },
-	{ attrid_time_system, attrfmt_string }};
+	{ attrid_time_system, attrfmt_string },
+	{ attrid_message, attrfmt_string }};
 
 /** The reserved channel labels applicable to all sessions,
  * indexed by channel number. */

@@ -76,7 +76,6 @@ void simple_session_writer::_process_sync_record(const record& crec) {
 	attrs.append(std::make_unique<unsigned_integer_attribute>(
 		attrid_seqnum, _seqnum));
 	_reply = std::make_unique<record>(channel_sync, std::move(attrs));
-
 }
 
 void simple_session_writer::handle_signature(const record& grec) {}

@@ -94,6 +94,11 @@ public:
 	 */
 	size_t recvmsg(struct msghdr* message, int flags);
 
+	/** Shutdown this socket.
+	 * @param how SHUT_RD, SHUT_WR or SHUT_RDWR
+	 */
+	void shutdown(int how);
+
 	/** Get socket option.
 	 * @param level the socket option level
 	 * @param optname the socket option name

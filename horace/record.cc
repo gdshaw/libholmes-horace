@@ -69,6 +69,9 @@ void record::log(logger& log) const {
 		case channel_error:
 			msg << "error record";
 			break;
+		case channel_warning:
+			msg << "warning record";
+			break;
 		case channel_session:
 			msg << "session record";
 			break;
