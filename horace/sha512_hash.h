@@ -20,7 +20,7 @@ private:
 	crypto_hash_sha512_state _state;
 
 	/** The hashed result. */
-	unsigned char _hash[32];
+	unsigned char _hash[64];
 protected:
 	virtual void _write_direct(const void* buf, size_t nbyte);
 public:
