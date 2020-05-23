@@ -34,14 +34,13 @@ static const int attrid_channel_label = -7;
 static const int attrid_source = -8;
 static const int attrid_seqnum = -9;
 static const int attrid_ts = -10;
-static const int attrid_end = -11;
+static const int attrid_message = -11;
 static const int attrid_hash = -12;
 static const int attrid_hash_alg = -13;
 static const int attrid_sig = -14;
 static const int attrid_sig_alg = -15;
 static const int attrid_sig_pubkey = -16;
 static const int attrid_time_system = -17;
-static const int attrid_message = -18;
 
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {

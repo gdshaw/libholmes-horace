@@ -75,8 +75,14 @@ void record::log(logger& log) const {
 		case channel_session:
 			msg << "session record";
 			break;
+		case channel_end:
+			msg << "end record";
+			break;
 		case channel_sync:
 			msg << "sync record";
+			break;
+		case channel_signature:
+			msg << "signature record";
 			break;
 		default:
 			if (_channel >= 0) {

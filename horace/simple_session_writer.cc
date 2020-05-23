@@ -24,7 +24,8 @@ bool same_ts(const record& lhs, const record& rhs) {
 
 simple_session_writer::simple_session_writer(const std::string& srcid):
 	session_writer(srcid),
-	_seqnum(0) {}
+	_seqnum(0),
+	_ended(true) {}
 
 void simple_session_writer::_process_session_record(const record& srec) {
 	// Check that the source ID is valid for this session writer.
@@ -40,33 +41,25 @@ void simple_session_writer::_process_session_record(const record& srec) {
 		// start of a new session.
 		_srec = std::make_unique<record>(srec);
 		_seqnum = 0;
+		_ended = false;
 		handle_session_start(*_srec);
 	} else if (*_srec == srec) {
 		// This is an exact copy of the previous observed
 		// session record: no action required.
-	} else if (*_srec <= srec) {
-		// This is an extension of the previous observed
-		// session record: update the saved copy.
-		_srec = std::make_unique<record>(srec);
-		handle_session_update(*_srec);
 	} else {
-		// The timestamp is unchanged, but this record is
-		// incompatible with the previous observed session
-		// record. This is an unrecoverable error.
+		// The timestamp is unchanged, but the session record
+		// differs from the one previously observed.
+		// This is an unrecoverable error.
 		throw horace_error("non-matching start of session record");
-	}
-
-	if (srec.contains(attrid_end)) {
-		// The session is complete.
-		handle_session_end(srec);
-		_srec = 0;
 	}
 }
 
+void simple_session_writer::_process_end_record(const record& erec) {
+	handle_session_end(erec);
+	_ended = true;
+}
+
 void simple_session_writer::_process_sync_record(const record& crec) {
-	if (!_srec) {
-		throw horace_error("sync request outside session");
-	}
 	handle_sync(crec);
 
 	// Construct synchronisation status record for return to caller.
@@ -92,9 +85,23 @@ bool simple_session_writer::writable() {
 }
 
 void simple_session_writer::write(const record& rec) {
+	int channel = rec.channel_number();
+	if (!_srec) {
+		if (rec.channel_number() != channel_session) {
+			throw horace_error("no session in progress");
+		}
+	} else if (_ended) {
+		if (rec.is_event()) {
+			throw horace_error("session has ended");
+		}
+	}
+
 	switch(rec.channel_number()) {
 	case channel_session:
 		_process_session_record(rec);
+		break;
+	case channel_end:
+		_process_end_record(rec);
 		break;
 	case channel_sync:
 		_process_sync_record(rec);

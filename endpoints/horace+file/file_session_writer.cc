@@ -95,13 +95,10 @@ void file_session_writer::handle_session_start(const record& srec) {
 	_begin_spoolfile(srec);
 }
 
-void file_session_writer::handle_session_end(const record& srec) {
+void file_session_writer::handle_session_end(const record& erec) {
+	_write_record(erec);
 	_sfw->sync();
 	_sfw = 0;
-}
-
-void file_session_writer::handle_session_update(const record& srec) {
-	_write_record(srec);
 }
 
 void file_session_writer::handle_sync(const record& crec) {

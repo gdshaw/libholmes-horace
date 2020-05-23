@@ -21,6 +21,10 @@ private:
 	/** The current sequence number, or 0 if unspecified. */
 	uint64_t _seqnum;
 
+	/** True if the current session has ended, or if there is
+	 * no current session, otherwise false. */
+	bool _ended;
+
 	/** A record available for reading, or null if none. */
 	std::unique_ptr<record> _reply;
 private:
@@ -28,6 +32,11 @@ private:
 	 * @param srec the session record
 	 */
 	void _process_session_record(const record& srec);
+
+	/** Process an end of data record.
+	 * @param erec the end record
+	 */
+	void _process_end_record(const record& erec);
 
 	/** Process a sync record.
 	 * @param crec the sync record
@@ -40,14 +49,9 @@ protected:
 	virtual void handle_session_start(const record& srec) = 0;
 
 	/** Handle the end of a session.
-	 * @param srec the session record
+	 * @param erec the end record
 	 */
-	virtual void handle_session_end(const record& srec) = 0;
-
-	/** Handle an update to the session record.
-	 * @param srec the session record
-	 */
-	virtual void handle_session_update(const record& srec) = 0;
+	virtual void handle_session_end(const record& erec) = 0;
 
 	/** Handle synchronisation request.
 	 * @param crec the synchronisation record
