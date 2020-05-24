@@ -105,6 +105,20 @@ void new_session_writer::begin_session(const record& srec) {
 	_srec = &srec;
 	_sw->write(*_srec);
 	_srec->log(*log);
+
+	if (_hashfn) {
+		_srec->write(*_hashfn);
+		const void* hash = _hashfn->final();
+		size_t hash_len = _hashfn->length();
+
+		if (_signer) {
+			std::basic_string<unsigned char> hash_str(
+				static_cast<const unsigned char*>(hash),
+				hash_len);
+			auto sigrec = _signer->make_signature(0, hash_str);
+			_sw->write(*sigrec);
+		}
+	}
 }
 
 void new_session_writer::write_event(const record& rec) {
@@ -173,6 +187,23 @@ void new_session_writer::end_session() {
 			channel_end, std::move(attrs));
 		_sw->write(*erec);
 		erec->log(*log);
+
+		// Hash and sign the record if appropriate.
+		if (_hashfn) {
+			erec->write(*_hashfn);
+			const void* hash = _hashfn->final();
+			size_t hash_len = _hashfn->length();
+
+			if (_signer) {
+				std::basic_string<unsigned char> hash_str(
+					static_cast<const unsigned char*>(hash),
+					hash_len);
+				auto sigrec = _signer->make_signature(
+					&_seqnum, hash_str);
+				_sw->write(*sigrec);
+			}
+		}
+
 		_sw = 0;
 	}
 }

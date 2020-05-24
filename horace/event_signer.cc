@@ -56,14 +56,8 @@ void event_signer::_run() {
 			lk.unlock();
 
 			// Sign the hashed record, then record the signature.
-			std::string sig = _kp->sign(sig_hash.data(), sig_hash.length());
-			attribute_list sigattrs;
-			sigattrs.append(std::make_unique<unsigned_integer_attribute>(
-				attrid_seqnum, sig_seqnum));
-			sigattrs.append(std::make_unique<binary_attribute>(
-				attrid_sig, sig.length(), sig.data()));
-			record sigrec(channel_signature, std::move(sigattrs));
-			_nsw->write_signature(sigrec);
+			auto sigrec = make_signature(&sig_seqnum, sig_hash);
+			_nsw->write_signature(*sigrec);
 		}
 	} catch (terminate_exception&) {
 		// No action.
@@ -87,6 +81,21 @@ event_signer::event_signer(new_session_writer& nsw, keypair& kp,
 
 void event_signer::build_session(session_builder& sb) {
 	sb.define_keypair(*_kp);
+}
+
+std::unique_ptr<record> event_signer::make_signature(uint64_t* seqnum,
+	const std::basic_string<unsigned char>& hash) {
+
+	std::string sig = _kp->sign(hash.data(), hash.length());
+	attribute_list sigattrs;
+	if (seqnum) {
+		sigattrs.append(std::make_unique<unsigned_integer_attribute>(
+			attrid_seqnum, *seqnum));
+	}
+	sigattrs.append(std::make_unique<binary_attribute>(
+		attrid_sig, sig.length(), sig.data()));
+	return std::make_unique<record>(channel_signature,
+		std::move(sigattrs));
 }
 
 void event_signer::handle_event(uint64_t seqnum,

@@ -73,6 +73,13 @@ public:
 	 */
 	void build_session(session_builder& sb);
 
+	/** Make signature record immedaitely.
+	 * @param seqnum the sequence number, or null if not applicable
+	 * @param hash the hash of the record to be signed
+	 */
+	std::unique_ptr<record> make_signature(uint64_t* seqnum,
+		const std::basic_string<unsigned char>& hash);
+
 	/** Handle event.
 	 * This has the effect of offering the event for signing, but it is
 	 * for the event signer to decide whether and when to sign it.
