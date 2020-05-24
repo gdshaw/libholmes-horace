@@ -22,6 +22,10 @@ session_builder::session_builder(const std::string& srcid,
 	_attr_count(0),
 	_chan_count(0) {
 
+	if (protocol_version) {
+		_attributes.append(std::make_unique<unsigned_integer_attribute>(
+			attrid_protocol, *protocol_version));
+	}
 	_attributes.append(std::make_unique<string_attribute>(
 		attrid_time_system, time_system));
 	_attributes.append(std::make_unique<string_attribute>(

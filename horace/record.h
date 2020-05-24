@@ -18,11 +18,14 @@ class octet_writer;
 class attribute;
 class session_context;
 
+// The supported protocol version.
+extern std::unique_ptr<unsigned int> protocol_version;
+
 // Reserved channel numbers.
-static const int channel_error = -1;
-static const int channel_warning = -2;
-static const int channel_session = -3;
-static const int channel_end = -4;
+static const int channel_session = -1;
+static const int channel_end = -2;
+static const int channel_error = -3;
+static const int channel_warning = -4;
 static const int channel_sync = -5;
 static const int channel_signature = -6;
 

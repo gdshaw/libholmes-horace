@@ -22,6 +22,8 @@
 
 namespace horace {
 
+std::unique_ptr<unsigned int> protocol_version;
+
 record::record(session_context& session, octet_reader& in) {
 	_channel = in.read_signed_base128();
 	size_t remaining = in.read_unsigned_base128();

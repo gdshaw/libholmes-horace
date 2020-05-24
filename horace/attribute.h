@@ -24,23 +24,24 @@ static const int attrfmt_string = 4;
 static const int attrfmt_timestamp = 5;
 
 // Reserved attribute IDs
-static const int attrid_attr_def = -1;
-static const int attrid_attr_id = -2;
-static const int attrid_attr_name = -3;
-static const int attrid_attr_fmt = -4;
-static const int attrid_channel_def = -5;
-static const int attrid_channel_num = -6;
-static const int attrid_channel_label = -7;
-static const int attrid_source = -8;
-static const int attrid_seqnum = -9;
-static const int attrid_ts = -10;
-static const int attrid_message = -11;
-static const int attrid_hash = -12;
-static const int attrid_hash_alg = -13;
-static const int attrid_sig = -14;
-static const int attrid_sig_alg = -15;
-static const int attrid_sig_pubkey = -16;
-static const int attrid_time_system = -17;
+static const int attrid_protocol = -1;
+static const int attrid_source = -2;
+static const int attrid_seqnum = -3;
+static const int attrid_ts = -4;
+static const int attrid_time_system = -5;
+static const int attrid_message = -6;
+static const int attrid_channel_def = -7;
+static const int attrid_channel_num = -8;
+static const int attrid_channel_label = -9;
+static const int attrid_attr_def = -10;
+static const int attrid_attr_id = -11;
+static const int attrid_attr_name = -12;
+static const int attrid_attr_fmt = -13;
+static const int attrid_hash = -14;
+static const int attrid_hash_alg = -15;
+static const int attrid_sig = -16;
+static const int attrid_sig_alg = -17;
+static const int attrid_sig_pubkey = -18;
 
 /** An abstract base class to represent a HORACE attribute. */
 class attribute {

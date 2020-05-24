@@ -78,6 +78,20 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 	}
 	srec->log(*log);
 
+	// Check the protocol version in the session record.
+	if (protocol_version) {
+		if (srec->contains(attrid_protocol)) {
+			unsigned int srec_protocol_version =
+				srec->find_one<unsigned_integer_attribute>(
+					attrid_protocol).content();
+			if (srec_protocol_version != *protocol_version) {
+				throw horace_error("unsupported protocol version");
+			}
+		} else {
+			throw horace_error("unspecified protocol version");
+		}
+	}
+
 	// Create a session writer using the source ID from the
 	// session record.
 	std::string srcid = srec->find_one<string_attribute>(
