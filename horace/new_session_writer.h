@@ -46,6 +46,9 @@ private:
 	/** The sequence number for the next event record. */
 	uint64_t _seqnum;
 
+	/** A hash for the most recent session record. */
+	std::basic_string<unsigned char> _session_hash;
+
 	/** A hash attribute for the most recent event record,
 	 * or 0 if none. */
 	std::unique_ptr<binary_attribute> _hattr;
