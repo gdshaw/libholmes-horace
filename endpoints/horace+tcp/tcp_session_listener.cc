@@ -14,7 +14,8 @@ namespace horace {
 tcp_session_listener::tcp_session_listener(tcp_endpoint& src_ep):
 	_src_ep(&src_ep) {
 
-	address_info ai(src_ep.hostname(), src_ep.portname(), true);
+	address_info ai(src_ep.hostname(), src_ep.portname(),
+		SOCK_STREAM, true);
 	_fd = ai.make_socket();
 	_fd.interruptible(true);
 	_fd.setsockopt<int>(SOL_SOCKET, SO_REUSEADDR, 1);

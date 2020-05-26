@@ -10,12 +10,12 @@
 namespace horace {
 
 address_info::address_info(const std::string& hostname,
-	const std::string& portname, bool server):
+	const std::string& portname, int socktype, bool server):
 	_res(0) {
 
 	struct addrinfo hints = {0};
 	hints.ai_family = server ? AF_INET6 : AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_socktype = socktype;
 	hints.ai_protocol = 0;
 	hints.ai_flags = server ? AI_PASSIVE : AI_ADDRCONFIG;
 	const char* chostname = (hostname.empty()) ? 0 : hostname.c_str();

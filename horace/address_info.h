@@ -25,10 +25,11 @@ public:
 	/** Look up address information.
 	 * @param hostname the hostname
 	 * @param portname the portname
+	 * @param socktype the socktype
 	 * @param server true if address for server, false for client
 	 */
 	address_info(const std::string& hostname,
-		const std::string& portname, bool server);
+		const std::string& portname, int socktype, bool server);
 
 	/** Destroy retrieved address information. */
 	~address_info();

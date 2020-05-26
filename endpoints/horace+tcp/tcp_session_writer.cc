@@ -34,7 +34,7 @@ void tcp_session_writer::_open() {
 	while (!connected) {
 		try {
 			address_info ai(_dst_ep->hostname(),
-				_dst_ep->portname(), false);
+				_dst_ep->portname(), SOCK_STREAM, false);
 			_fd = ai.make_socket();
 			_fd.interruptible(true);
 			ai.connect(_fd);
