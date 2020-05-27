@@ -33,6 +33,24 @@ private:
 	/** The syslog facility attribute. */
 	unsigned_integer_attribute _facility_attr;
 
+	/** The syslog version attribute. */
+	unsigned_integer_attribute _version_attr;
+
+	/** The syslog timestamp attribute. */
+	string_attribute _timestamp_attr;
+
+	/** The syslog hostname attribute. */
+	string_attribute _hostname_attr;
+
+	/** The syslog appname attribute. */
+	string_attribute _appname_attr;
+
+	/** The syslog procid attribute. */
+	string_attribute _procid_attr;
+
+	/** The syslog msgid attribute. */
+	string_attribute _msgid_attr;
+
 	/** The message attribute. */
 	string_attribute _message_attr;
 
@@ -48,15 +66,45 @@ public:
 	 */
 	log_record_builder(session_builder& session, int channel);
 
-	/** Add Syslog severity.
+	/** Add syslog severity.
 	 * @param severity the severity to be added
 	 */
 	void add_severity(unsigned int severity);
 
-	/** Add Syslog facility.
+	/** Add syslog facility.
 	 * @param facility the facility to be added
 	 */
 	void add_facility(unsigned int facility);
+
+	/** Add syslog version.
+	 * @param version the version to be added
+	 */
+	void add_version(unsigned int version);
+
+	/** Add syslog timestamp.
+	 * @param timestamp the timestamp to be added
+	 */
+	void add_timestamp(const std::string& timestamp);
+
+	/** Add syslog hostname.
+	 * @param hostname the hostname to be added
+	 */
+	void add_hostname(const std::string& hostname);
+
+	/** Add syslog appname.
+	 * @param appname the appname to be added
+	 */
+	void add_appname(const std::string& appname);
+
+	/** Add syslog procid.
+	 * @param procid the procid to be added
+	 */
+	void add_procid(const std::string& procid);
+
+	/** Add syslog msgid.
+	 * @param msgid the msgid to be added
+	 */
+	void add_msgid(const std::string& msgid);
 
 	/** Add message.
 	 * @param message the message to be added

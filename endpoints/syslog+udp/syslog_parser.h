@@ -34,10 +34,25 @@ public:
 	/** Read the priority value.
 	 * This must be enclosed within angled brackets, must
 	 * be a decimal number between 0 and 255, and must have
-	 * no leading zeros.
+	 * no unnecessary leading zeros.
 	 * @return the priority value
 	 */
 	unsigned int read_priority();
+
+	/** Read the version number.
+	 * This must be a decimal number between 1 and 999, must
+	 * have no leading zeros, and must be followed by a space.
+	 * @return the version number
+	 */
+	unsigned int read_version();
+
+	/** Read a token.
+	 * This must be a non-empty string of printable US ASCII
+	 * characters, and must be followed by a space (which is
+	 * not included in the string returned).
+	 * @return the token
+	 */
+	std::string read_token();
 
 	/** Read the remainder of the message.
 	 * @return the remainder of the message
