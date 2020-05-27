@@ -31,6 +31,15 @@ public:
 	 */
 	syslog_parser(const char* content, size_t length);
 
+	/** Read decimal integer.
+	 * @param min_width the minimum width, in characters
+	 * @param max_width the maximum width, in characters
+	 * @param allow_lsp true if leading spaces allowed, otherwise false
+	 * @param allow_lz true if leading zeros allowed, otherwise false
+	 */
+	unsigned int read_decimal(size_t min_width, size_t max_width,
+		bool allow_lsp, bool allow_lz);
+
 	/** Read the priority value.
 	 * This must be enclosed within angled brackets, must
 	 * be a decimal number between 0 and 255, and must have
@@ -53,6 +62,11 @@ public:
 	 * @return the token
 	 */
 	std::string read_token();
+
+	/** Read an RFC 3164 timestamp.
+	 * This is required to be of the form "Mmm dd hh:mm:ss".
+	 */
+	std::string read_rfc3164_timestamp();
 
 	/** Read the remainder of the message.
 	 * @return the remainder of the message
