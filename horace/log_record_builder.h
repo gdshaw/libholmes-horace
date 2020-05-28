@@ -51,6 +51,9 @@ private:
 	/** The syslog msgid attribute. */
 	string_attribute _msgid_attr;
 
+	/** The syslog structured data attribute. */
+	string_attribute _sd_attr;
+
 	/** The message attribute. */
 	string_attribute _message_attr;
 
@@ -105,6 +108,11 @@ public:
 	 * @param msgid the msgid to be added
 	 */
 	void add_msgid(const std::string& msgid);
+
+	/** Add syslog structured data.
+	 * @param sd the structured data to be added
+	 */
+	void add_structured_data(const std::string& sd);
 
 	/** Add message.
 	 * @param message the message to be added

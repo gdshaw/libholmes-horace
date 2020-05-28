@@ -19,6 +19,7 @@ log_record_builder::log_record_builder(session_builder& session, int channel):
 	_appname_attr(session.define_attribute("syslog_appname", attrfmt_string), ""),
 	_procid_attr(session.define_attribute("syslog_procid", attrfmt_string), ""),
 	_msgid_attr(session.define_attribute("syslog_msgid", attrfmt_string), ""),
+	_sd_attr(session.define_attribute("syslog_sd", attrfmt_string), ""),
 	_message_attr(session.define_attribute("message", attrfmt_string), "") {}
 
 void log_record_builder::add_severity(unsigned int severity) {
@@ -51,6 +52,10 @@ void log_record_builder::add_procid(const std::string& procid) {
 
 void log_record_builder::add_msgid(const std::string& msgid) {
 	_attrs.append(_msgid_attr = string_attribute(_msgid_attr.attrid(), msgid));
+}
+
+void log_record_builder::add_structured_data(const std::string& sd) {
+	_attrs.append(_sd_attr = string_attribute(_sd_attr.attrid(), sd));
 }
 
 void log_record_builder::add_message(const std::string& message) {

@@ -55,18 +55,26 @@ public:
 	 */
 	unsigned int read_version();
 
+	/** Read a space character. */
+	void read_space();
+
 	/** Read a token.
 	 * This must be a non-empty string of printable US ASCII
-	 * characters, and must be followed by a space (which is
-	 * not included in the string returned).
+	 * characters, not including any space characters.
 	 * @return the token
 	 */
 	std::string read_token();
 
 	/** Read an RFC 3164 timestamp.
 	 * This is required to be of the form "Mmm dd hh:mm:ss".
+	 * @return the timestamp
 	 */
 	std::string read_rfc3164_timestamp();
+
+	/** Read an RFC 5424 STRUCTURED-DATA field.
+	 * @return the structured data field content
+	 */
+	std::string read_rfc5424_structured_data();
 
 	/** Read the remainder of the message.
 	 * @return the remainder of the message

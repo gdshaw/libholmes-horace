@@ -17,7 +17,16 @@ namespace horace {
 syslog_parser::syslog_parser(const char* content, size_t length):
 	_content(content),
 	_length(length),
-	_index(0) {}
+	_index(0) {
+
+	// Treat any terminating CR, LF or CRLF as framing to be ignored.
+	if ((_length != 0) && (_content[_length - 1] == '\n')) {
+		_length--;
+	}
+	if ((_length != 0) && (_content[_length - 1] == '\r')) {
+		_length--;
+	}
+}
 
 unsigned int syslog_parser::read_decimal(size_t min_width, size_t max_width,
 	bool allow_lsp, bool allow_lz) {
@@ -96,7 +105,7 @@ unsigned int syslog_parser::read_version() {
 		if (version == 0) {
 			throw syslog_error("invalid version number");
 		}
-		if ((_index == _length) || (_content[_index++] != ' ')) {
+		if ((_index != _length) && (_content[_index++] != ' ')) {
 			throw syslog_error("' ' expected");
 		}
 		return version;
@@ -117,7 +126,7 @@ std::string syslog_parser::read_token() {
 			throw syslog_error("token expected");
 		}
 		std::string token(_content + base, _index - base);
-		if ((_index == _length) || (_content[_index++] != ' ')) {
+		if ((_index != _length) && (_content[_index++] != ' ')) {
 			throw syslog_error("' ' expected");
 		}
 		return token;
@@ -178,10 +187,58 @@ std::string syslog_parser::read_rfc3164_timestamp() {
 		if (second > 59) {
 			throw syslog_error("invalid second");
 		}
-		if ((_index == _length) || (_content[_index++] != ' ')) {
+
+		std::string timestamp(_content + restore, _index - restore);
+		if ((_index != _length) && (_content[_index++] != ' ')) {
 			throw syslog_error("' ' expected");
 		}
-		return std::string(_content + restore, _index - restore - 1);
+		return timestamp;
+	} catch (syslog_error&) {
+		_index = restore;
+		throw;
+	}
+}
+
+std::string syslog_parser::read_rfc5424_structured_data() {
+	size_t restore = _index;
+	try {
+		if ((_index != _length) && (_content[_index] == '-')) {
+			_index++;
+			if ((_index != _length) && (_content[_index++] != ' ')) {
+				throw syslog_error("' ' expected");
+			}
+			return "-";
+		}
+
+		if ((_index == _length) || (_content[_index++] != '[')) {
+			throw syslog_error("'[' expected");
+		}
+
+		bool quote = false;
+		while ((_index != _length) && (_content[_index] != ']')) {
+			char ch = _content[_index++];
+			if (ch == '"') {
+				quote = !quote;
+			} else if (ch == '\\') {
+				if (quote) {
+					if (_index == _length) {
+						throw syslog_error("']' expected (2)");
+					}
+					++_index;
+				}
+			}
+		}
+		if (quote) {
+			throw syslog_error("'\"' expected");
+		}
+		if ((_index == _length) || (_content[_index++] != ']')) {
+			throw syslog_error("']' expected *3(");
+		}
+		std::string data(_content + restore, _index - restore);
+		if ((_index != _length) && (_content[_index++] != ' ')) {
+			throw syslog_error("' ' expected");
+		}
+		return data;
 	} catch (syslog_error&) {
 		_index = restore;
 		throw;
@@ -195,13 +252,25 @@ std::string syslog_parser::read_remaining() {
 }
 
 void syslog_parser::read_message(log_record_builder& builder) {
+	// Initialise the restore point.
+	// This is the number of characters from the original message
+	// that have been parsed, converted into attributes, and passed
+	// to the record builder.
+	// This includes the terminating space following the most recent
+	// attribute, if one was permitted and observed.
+	size_t restore = _index;
 	try {
+		// Read the priority, split into severity and facility.
 		unsigned int priority = read_priority();
 		builder.add_severity(priority & 7);
 		builder.add_facility(priority >> 3);
+		restore = _index;
 
+		// Read the protocol version number if there is one
+		// (but it is not an error if there is not).
+		// Since a version number number of 0 is not allowed,
+		// use that to represent the absence of a version number.
 		unsigned int version = 0;
-		size_t restore = _index;
 		try {
 			version = read_version();
 		} catch (syslog_error&) {
@@ -209,38 +278,55 @@ void syslog_parser::read_message(log_record_builder& builder) {
 		}
 
 		if (version == 0) {
-			try {
-				restore = _index;
-				std::string timestamp = read_rfc3164_timestamp();
-				builder.add_timestamp(timestamp);
-				restore = _index;
-				std::string hostname = read_token();
-				builder.add_hostname(hostname);
-			} catch (syslog_error&) {
-				_index = restore;
-			}
+			// No version: assume RFC 3164.
+			// Parse the timestamp.
+			std::string timestamp = read_rfc3164_timestamp();
+			builder.add_timestamp(timestamp);
+			restore = _index;
+
+			// Parse the hostname.
+			std::string hostname = read_token();
+			builder.add_hostname(hostname);
+			restore = _index;
 		} else if (version == 1) {
-			try {
-				restore = _index;
-				std::string timestamp = read_token();
-				std::string hostname = read_token();
-				std::string appname = read_token();
-				std::string procid = read_token();
-				std::string msgid = read_token();
-				builder.add_version(version);
-				builder.add_timestamp(timestamp);
-				builder.add_hostname(hostname);
-				builder.add_appname(appname);
-				builder.add_procid(procid);
-				builder.add_msgid(msgid);
-			} catch (syslog_error&) {
-				_index = restore;
-			}
+			// Version 1: RFC 5424
+			// Parse the header (all or nothing).
+			std::string timestamp = read_token();
+			std::string hostname = read_token();
+			std::string appname = read_token();
+			std::string procid = read_token();
+			std::string msgid = read_token();
+			builder.add_version(version);
+			builder.add_timestamp(timestamp);
+			builder.add_hostname(hostname);
+			builder.add_appname(appname);
+			builder.add_procid(procid);
+			builder.add_msgid(msgid);
+			restore = _index;
+
+			// Parse the structured data.
+			// (This ought to be present, but is more likely to
+			// be malformed.)
+			std::string sd = read_rfc5424_structured_data();
+			builder.add_structured_data(sd);
+			restore = _index;
 		}
 	} catch (syslog_error&) {
-		// No action
+		_index = restore;
 	}
-	builder.add_message(read_remaining());
+
+	// Encode any remaining characters as a message attribute.
+	// So that the original message can be reconstructed:
+	// - If the previous field was terminated by a space then
+	//   a message attribute is required (even if it is empty),
+	//   and the message attribute does not include the space.
+	// - Otherwise, a message attribute is required only if it
+	//   would be non-empty.
+	if ((_index != 0) && (_content[_index - 1] == ' ')) {
+		builder.add_message(read_remaining());
+	} else if (_index != _length) {
+		builder.add_message(read_remaining());
+	}
 }
 
 } /* namespace horace */
