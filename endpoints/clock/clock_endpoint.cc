@@ -11,7 +11,15 @@
 namespace horace {
 
 clock_endpoint::clock_endpoint(const std::string& name):
-	endpoint(name) {}
+	endpoint(name),
+	_poll(3600) {
+
+	std::string hostportname = this->name().authority().value_or("");
+	if (std::optional<std::string> query = this->name().query()) {
+		query_string params(*query);
+		_poll = params.find<long>("poll").value_or(_poll);
+	}
+}
 
 std::unique_ptr<event_reader> clock_endpoint::make_event_reader(
 	session_builder& session) {

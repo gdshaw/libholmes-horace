@@ -22,6 +22,9 @@ class clock_endpoint;
 class clock_event_reader:
 	public event_reader {
 private:
+	/** The clock endpoint. */
+	const clock_endpoint* _ep;
+
 	/** The channel number to use for monitored events. */
 	int _channel;
 

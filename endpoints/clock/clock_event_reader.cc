@@ -6,6 +6,8 @@
 #include <sys/timex.h>
 
 #include "horace/terminate_flag.h"
+#include "horace/log_message.h"
+#include "horace/logger.h"
 #include "horace/attribute_list.h"
 #include "horace/string_attribute.h"
 #include "horace/session_builder.h"
@@ -19,11 +21,17 @@ class record;
 
 clock_event_reader::clock_event_reader(const clock_endpoint& ep,
 	session_builder& session):
+	_ep(&ep),
 	_first(true) {
 
 	attribute_list attrs;
 	_channel = session.define_channel("clock", std::move(attrs));
 	_builder = std::make_unique<clock_record_builder>(session, _channel);
+
+	if (log->enabled(logger::log_notice)) {
+		log_message msg(*log, logger::log_notice);
+		msg << "monitoring clock (poll=" << _ep->poll() << ")";
+	}
 }
 
 const record& clock_event_reader::read() {
@@ -32,7 +40,7 @@ const record& clock_event_reader::read() {
 	if (_first) {
 		_first = false;
 	} else {
-		terminating.millisleep(60000);
+		terminating.millisleep(_ep->poll() * 1000);
 	}
 
 	// Read the synchronisation state of the clock.

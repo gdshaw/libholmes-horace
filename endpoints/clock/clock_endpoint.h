@@ -15,11 +15,21 @@ namespace horace {
 class clock_endpoint:
 	public endpoint,
 	public event_reader_endpoint {
+private:
+	/** The polling interval, in seconds. */
+	long _poll;
 public:
 	/** Construct clock endpoint.
 	 * @param name the name of this endpoint
 	 */
 	explicit clock_endpoint(const std::string& name);
+
+	/** Get the polling interval.
+	 * @return the polling interval, in seconds
+	 */
+	long poll() const {
+		return _poll;
+	}
 
 	virtual std::unique_ptr<event_reader> make_event_reader(
 		session_builder& session);
