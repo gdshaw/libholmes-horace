@@ -1,5 +1,5 @@
 // This file is part of libholmes.
-// Copyright 2019 Graham Shaw
+// Copyright 2019-20 Graham Shaw
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
@@ -7,12 +7,13 @@
 
 #include "horace/octet_reader.h"
 #include "horace/attribute.h"
+#include "horace/compound_attribute.h"
+#include "horace/signed_integer_attribute.h"
+#include "horace/unsigned_integer_attribute.h"
 #include "horace/binary_attribute.h"
 #include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
-#include "horace/signed_integer_attribute.h"
-#include "horace/unsigned_integer_attribute.h"
-#include "horace/compound_attribute.h"
+#include "horace/boolean_attribute.h"
 #include "horace/unrecognised_attribute.h"
 #include "horace/session_context.h"
 
@@ -35,6 +36,8 @@ std::unique_ptr<attribute> attribute::parse(session_context& session,
 		return std::make_unique<string_attribute>(attrid, length, in);
 	case attrfmt_timestamp:
 		return std::make_unique<timestamp_attribute>(attrid, length, in);
+	case attrfmt_boolean:
+		return std::make_unique<boolean_attribute>(attrid, length, in);
 	default:
 		return std::make_unique<unrecognised_attribute>(
 			attrid, length, in);

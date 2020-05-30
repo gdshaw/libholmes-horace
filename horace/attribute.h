@@ -1,5 +1,5 @@
 // This file is part of libholmes.
-// Copyright 2019 Graham Shaw
+// Copyright 2019-20 Graham Shaw
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
@@ -22,6 +22,7 @@ static const int attrfmt_signed_integer = 2;
 static const int attrfmt_binary = 3;
 static const int attrfmt_string = 4;
 static const int attrfmt_timestamp = 5;
+static const int attrfmt_boolean = 6;
 
 // Reserved attribute IDs
 static const int attrid_protocol = -1;
