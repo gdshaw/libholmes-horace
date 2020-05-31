@@ -93,11 +93,14 @@ public:
 	}
 
 	/** Block awaiting activity.
-	 * This function will block until either one of the specified event
-	 * types is detected on the socket, or it is interrupted by a signal.
+	 * This function will block until one of the specified event types
+	 * is detected on the socket, or it is interrupted by a signal,
+	 * or the optional timeout expires.
 	 * @param events an event mask suitable for passing to poll
+	 * @param timeout an optional timeout, in milliseconds
+	 * @return the events which are ready
 	 */
-	void wait(int events) const;
+	int wait(int events, int timeout = -1) const;
 
 	/** Check whether ready for activity.
 	 * This function does not block.

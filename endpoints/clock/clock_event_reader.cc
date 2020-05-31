@@ -14,6 +14,7 @@
 
 #include "clock_event_reader.h"
 #include "clock_endpoint.h"
+#include "ntp_client.h"
 
 namespace horace {
 
@@ -26,7 +27,8 @@ clock_event_reader::clock_event_reader(const clock_endpoint& ep,
 
 	attribute_list attrs;
 	_channel = session.define_channel("clock", std::move(attrs));
-	_builder = std::make_unique<clock_record_builder>(session, _channel);
+	_ntp_builder = std::make_unique<ntp_attr_builder>(session);
+	_clock_builder = std::make_unique<clock_record_builder>(session, _channel);
 
 	if (log->enabled(logger::log_notice)) {
 		log_message msg(*log, logger::log_notice);
@@ -47,9 +49,18 @@ const record& clock_event_reader::read() {
 	struct timex tmx;
 	tmx.modes = 0;
 	int clock_state = ntp_adjtime(&tmx);
-	_builder->add_sync(clock_state != TIME_ERROR);
+	_clock_builder->add_sync(clock_state != TIME_ERROR);
 
-	return _builder->build();
+	try {
+		ntp_client client;
+		client.update_peers();
+		client.build(*_ntp_builder);
+	} catch (std::exception& ex) {
+		// No action
+	}
+
+	_clock_builder->add_ntp(_ntp_builder->build());
+	return _clock_builder->build();
 };
 
 } /* namespace horace */

@@ -49,14 +49,14 @@ terminate_flag& terminate_flag::operator=(bool terminating) {
 	return *this;
 }
 
-int terminate_flag::poll(int fd, int events) const {
+int terminate_flag::poll(int fd, int events, int timeout) const {
 	struct pollfd fds[2] = {{0}};
 	fds[0].fd = _pipefd[0];
 	fds[0].events = POLLIN;
 	fds[1].fd = fd;
 	fds[1].events = events;
 
-	while (::poll(fds, 2, -1) == -1) {
+	while (::poll(fds, 2, timeout) == -1) {
 		if (errno != EINTR) {
 			throw libc_error();
 		}

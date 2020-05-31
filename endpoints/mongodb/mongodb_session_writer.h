@@ -60,6 +60,20 @@ private:
 	 */
 	void _append_bson(bson_t& bson, const attribute& attr);
 
+	/** Append attribute to BSON document with given index.
+	 * @param bson the BSON document
+	 * @param index the required index
+	 * @param attr the attribute to be appended
+	 */
+	void _append_bson(bson_t& bson, unsigned int index, const attribute& attr);
+
+	/** Append attribute to BSON document with given name.
+	 * @param bson the BSON document
+	 * @param name the required name
+	 * @param attr the attribute to be appended
+	 */
+	void _append_bson(bson_t& bson, const std::string& name, const attribute& attr);
+
 	/** Ensure details recorded for start of session. */
 	void _start_session();
 

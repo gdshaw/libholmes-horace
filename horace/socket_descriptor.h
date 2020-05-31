@@ -88,11 +88,31 @@ public:
 	 * This function will block if a message is not immediately
 	 * available, unless there is no prospect of any further messages
 	 * being received.
+	 * @param buf a buffer to receive the result
+	 * @param nbyte the maximum number of octets to be read
+	 * @return the number of octets read
+	 */
+	size_t recv(void* buf, size_t nbyte);
+
+	/** Receive a message from this socket.
+	 * This function will block if a message is not immediately
+	 * available, unless there is no prospect of any further messages
+	 * being received.
 	 * @param message a msghdr structure for receiving the message
 	 * @param flags a bitwise combination of zero or more MSG_ flags
 	 * @return the received message length, or 0 if none
 	 */
 	size_t recvmsg(struct msghdr* message, int flags);
+
+	/** Send a message from this socket.
+	 * If the requested number of octets cannot be sent immediately
+	 * then this function will block until either that has been done,
+	 * or there is no further prospect of that happening. In the latter
+	 * case a suitable exception will be thrown.
+	 * @param buf the data to be written
+	 * @param nbyte the number of octets to be written
+	 */
+	size_t send(const void* buf, size_t nbyte);
 
 	/** Shutdown this socket.
 	 * @param how SHUT_RD, SHUT_WR or SHUT_RDWR

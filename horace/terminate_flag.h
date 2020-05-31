@@ -49,17 +49,18 @@ public:
 		}
 	}
 
-	/** Poll a given file descriptor, with no timeout.
+	/** Poll a given file descriptor, with optional timeout.
 	 * @param fd the file descriptor on which to poll
 	 * @param events the required events mask for fd
+	 * @param timeout the optional timeout, in milliseconds
 	 * @return the resulting revents mask for rd
 	 */
-	int poll(int fd, int events) const;
+	int poll(int fd, int events, int timeout = -1) const;
 
 	/** Sleep for a given number of milliseconds.
 	 * Note that the current implementation does not resume sleeping
 	 * if interrupted by a signal.
-	 * @param time the time for which to sleep, in milliseconds
+	 * @param timeout the time for which to sleep, in milliseconds
 	 */
 	void millisleep(int timeout) const;
 };

@@ -49,11 +49,12 @@ void file_descriptor::interruptible(bool enable) {
 	}
 }
 
-void file_descriptor::wait(int events) const {
-	int revents = terminating.poll(_fd, events);
+int file_descriptor::wait(int events, int timeout) const {
+	int revents = terminating.poll(_fd, events, timeout);
 	if (revents & POLLERR) {
 		handle_pollerror();
 	}
+	return revents;
 }
 
 int file_descriptor::ready(int events) const {

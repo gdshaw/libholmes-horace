@@ -3,6 +3,9 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <map>
+#include <list>
+
 #include "horace/horace_error.h"
 #include "horace/compound_attribute.h"
 #include "horace/unsigned_integer_attribute.h"
@@ -22,7 +25,14 @@
 namespace horace {
 
 void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
-	std::string attr_name = _session.get_attr_name(attr.attrid());
+	_append_bson(bson, _session.get_attr_name(attr.attrid()), attr);
+}
+
+void mongodb_session_writer::_append_bson(bson_t& bson, unsigned int index, const attribute& attr) {
+	_append_bson(bson, std::to_string(index), attr);
+}
+
+void mongodb_session_writer::_append_bson(bson_t& bson, const std::string& attr_name, const attribute& attr) {
 	if (const unsigned_integer_attribute* _attr = dynamic_cast<const unsigned_integer_attribute*>(&attr)) {
 		bson_append_int64(&bson, attr_name.c_str(), -1, _attr->content());
 	} else if (const signed_integer_attribute* _attr = dynamic_cast<const signed_integer_attribute*>(&attr)) {
@@ -41,10 +51,28 @@ void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
 	} else if (const boolean_attribute* _attr = dynamic_cast<const boolean_attribute*>(&attr)) {
 		bson_append_bool(&bson, attr_name.c_str(), -1, _attr->content());
 	} else if (const compound_attribute* _attr = dynamic_cast<const compound_attribute*>(&attr)) {
+		std::map<std::string, std::list<const attribute*>> attr_lists;
+		for (const auto& subattr : _attr->content().attributes()) {
+			std::string subattr_name = _session.get_attr_name(subattr->attrid());
+			attr_lists[subattr_name].push_back(subattr);
+		}
+
 		bson_t bson_compound;
 		bson_append_document_begin(&bson, attr_name.c_str(), -1, &bson_compound);
+		for (const auto& pair : attr_lists) {
+			if (pair.second.size() == 1) {
+				_append_bson(bson_compound, *pair.second.front());
+			} else {
+				bson_t bson_compound_array;
+				bson_append_array_begin(&bson_compound, pair.first.c_str(), -1, &bson_compound_array);
+				unsigned int i = 0;
+				for (const auto& subattr : pair.second) {
+					_append_bson(bson_compound_array, i++, *subattr);
+				}
+				bson_append_array_end(&bson_compound, &bson_compound_array);
+			}
+		}
 		for (const auto& subattr : _attr->content().attributes()) {
-			_append_bson(bson_compound, *subattr);
 		}
 		bson_append_document_end(&bson, &bson_compound);
 	} else {

@@ -63,6 +63,21 @@ void socket_descriptor::connect(const struct sockaddr* addr, socklen_t addrlen) 
 	}
 }
 
+size_t socket_descriptor::recv(void* buf, size_t nbyte) {
+	ssize_t count = -1;
+	while (count < 0) {
+		count = ::recv(*this, buf, nbyte, 0);
+		if (count == -1) {
+			if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+				wait(POLLOUT);
+			} else {
+				throw libc_error();
+			}
+		}
+	}
+	return count;
+}
+
 size_t socket_descriptor::recvmsg(struct msghdr* message, int flags) {
 	ssize_t count = -1;
 	while (count < 0) {
@@ -70,6 +85,21 @@ size_t socket_descriptor::recvmsg(struct msghdr* message, int flags) {
 		if (count == -1) {
 			if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
 				wait(POLLIN);
+			} else {
+				throw libc_error();
+			}
+		}
+	}
+	return count;
+}
+
+size_t socket_descriptor::send(const void* buf, size_t nbyte) {
+	ssize_t count = -1;
+	while (count < 0) {
+		count = ::send(*this, buf, nbyte, 0);
+		if (count == -1) {
+			if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
+				wait(POLLOUT);
 			} else {
 				throw libc_error();
 			}

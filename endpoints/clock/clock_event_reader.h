@@ -11,6 +11,7 @@
 #include "horace/record.h"
 #include "horace/event_reader.h"
 
+#include "ntp_attr_builder.h"
 #include "clock_record_builder.h"
 
 namespace horace {
@@ -31,8 +32,11 @@ private:
 	/** True if first record not yet generated, otherwise false. */
 	bool _first;
 
+	/** A builder for NTP attributes. */
+	std::unique_ptr<ntp_attr_builder> _ntp_builder;
+
 	/** A builder for clock records. */
-	std::unique_ptr<clock_record_builder> _builder;
+	std::unique_ptr<clock_record_builder> _clock_builder;
 public:
 	/** Construct clock event reader.
 	 * @param ep the endpoint to read from

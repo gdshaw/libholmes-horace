@@ -18,6 +18,10 @@ void clock_record_builder::add_sync(bool sync) {
 	_attrs.append(_sync_attr = boolean_attribute(_sync_attr.attrid(), sync));
 }
 
+void clock_record_builder::add_ntp(const attribute& ntp_attr) {
+	_attrs.append(ntp_attr);
+}
+
 const record& clock_record_builder::build() {
 	_attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid()));
 	_built = record(_channel, std::move(_attrs));

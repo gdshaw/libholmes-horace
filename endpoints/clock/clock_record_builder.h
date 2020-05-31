@@ -46,6 +46,11 @@ public:
 	 */
 	void add_sync(bool sync);
 
+	/** Add NTP attribute.
+	 * @param ntp_attr the NTP attribute to be added
+	 */
+	void add_ntp(const attribute& ntp_attr);
+
 	/** Build clock record.
 	 */
 	const record& build();
