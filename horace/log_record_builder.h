@@ -27,11 +27,8 @@ private:
 	/** The timestamp attribute. */
 	timestamp_attribute _ts_attr;
 
-	/** The syslog severity attribute. */
-	unsigned_integer_attribute _severity_attr;
-
-	/** The syslog facility attribute. */
-	unsigned_integer_attribute _facility_attr;
+	/** The syslog priority attribute. */
+	unsigned_integer_attribute _priority_attr;
 
 	/** The syslog version attribute. */
 	unsigned_integer_attribute _version_attr;
@@ -69,15 +66,10 @@ public:
 	 */
 	log_record_builder(session_builder& session, int channel);
 
-	/** Add syslog severity.
-	 * @param severity the severity to be added
+	/** Add syslog priority.
+	 * @param priority the priority to be added
 	 */
-	void add_severity(unsigned int severity);
-
-	/** Add syslog facility.
-	 * @param facility the facility to be added
-	 */
-	void add_facility(unsigned int facility);
+	void add_priority(unsigned int priority);
 
 	/** Add syslog version.
 	 * @param version the version to be added

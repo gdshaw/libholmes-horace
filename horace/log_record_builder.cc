@@ -11,23 +11,18 @@ namespace horace {
 log_record_builder::log_record_builder(session_builder& session, int channel):
 	_channel(channel),
 	_ts_attr(attrid_ts, 0, 0),
-	_severity_attr(session.define_attribute("syslog_severity", attrfmt_unsigned_integer), 0),
-	_facility_attr(session.define_attribute("syslog_facility", attrfmt_unsigned_integer), 0),
+	_priority_attr(session.define_attribute("syslog_priority", attrfmt_unsigned_integer), 0),
 	_version_attr(session.define_attribute("syslog_version", attrfmt_unsigned_integer), 0),
 	_timestamp_attr(session.define_attribute("syslog_timestamp", attrfmt_string), ""),
-	_hostname_attr(session.define_attribute("syslog_hostname", attrfmt_string), ""),
+	_hostname_attr(session.define_attribute("hostname", attrfmt_string), ""),
 	_appname_attr(session.define_attribute("syslog_appname", attrfmt_string), ""),
 	_procid_attr(session.define_attribute("syslog_procid", attrfmt_string), ""),
 	_msgid_attr(session.define_attribute("syslog_msgid", attrfmt_string), ""),
 	_sd_attr(session.define_attribute("syslog_sd", attrfmt_string), ""),
 	_message_attr(session.define_attribute("message", attrfmt_string), "") {}
 
-void log_record_builder::add_severity(unsigned int severity) {
-	_attrs.append(_severity_attr = unsigned_integer_attribute(_severity_attr.attrid(), severity));
-}
-
-void log_record_builder::add_facility(unsigned int facility) {
-	_attrs.append(_facility_attr = unsigned_integer_attribute(_facility_attr.attrid(), facility));
+void log_record_builder::add_priority(unsigned int priority) {
+	_attrs.append(_priority_attr = unsigned_integer_attribute(_priority_attr.attrid(), priority));
 }
 
 void log_record_builder::add_version(unsigned int version) {

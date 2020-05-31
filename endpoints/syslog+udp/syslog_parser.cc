@@ -262,8 +262,7 @@ void syslog_parser::read_message(log_record_builder& builder) {
 	try {
 		// Read the priority, split into severity and facility.
 		unsigned int priority = read_priority();
-		builder.add_severity(priority & 7);
-		builder.add_facility(priority >> 3);
+		builder.add_priority(priority);
 		restore = _index;
 
 		// Read the protocol version number if there is one
