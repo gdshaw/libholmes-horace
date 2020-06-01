@@ -28,8 +28,8 @@ private:
 	/** The srchost attribute. */
 	string_attribute _srchost_attr;
 
-	/** The srcadr attribute. */
-	string_attribute _srcadr_attr;
+	/** The srcaddr attribute. */
+	string_attribute _srcaddr_attr;
 
 	/** The srcport attribute. */
 	unsigned_integer_attribute _srcport_attr;
@@ -65,7 +65,7 @@ public:
 
 	/** Add peer.
 	 * @param srchost the remote hostname
-	 * @param srcadr the remote address
+	 * @param srcaddr the remote address
 	 * @param srcport the remote port
 	 * @param status the status code
 	 * @param stratum the stratum number
@@ -73,7 +73,7 @@ public:
 	 * @param offset the peer offset, in nanoseconds
 	 * @param jitter the peer jitter, in nanoseconds
 	 */
-	void add_peer(const std::string& srchost, const std::string& srcadr,
+	void add_peer(const std::string& srchost, const std::string& srcaddr,
 		uint16_t srcport, uint16_t status, unsigned int stratum,
 		int64_t delay, int64_t offset, int64_t jitter);
 

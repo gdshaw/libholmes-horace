@@ -32,6 +32,10 @@ ntp_peer::ntp_peer(const ntp_response& response):
 	}
 }
 
+bool ntp_peer::contains(const std::string& varname) {
+	return _variables.find(varname) != _variables.end();
+}
+
 std::string ntp_peer::get_string(const std::string& varname) {
 	auto f = _variables.find(varname);
 	if (f != _variables.end()) {
@@ -121,9 +125,15 @@ int64_t ntp_peer::get_fixed(const std::string& varname) {
 }
 
 void ntp_peer::build(ntp_attr_builder& builder) {
+	// Support both the name used in RFC 5905 (srcaddr)
+	// and the name used by ntpd (srcadr).
+	std::string srcaddr = (contains("srcaddr")) ?
+		get_string("srcaddr") :
+		get_string("srcadr");
+
 	builder.add_peer(
 		get_quoted_string("srchost"),
-		get_string("srcadr"),
+		srcaddr,
 		get_integer("srcport"),
 		_status,
 		get_integer("stratum"),

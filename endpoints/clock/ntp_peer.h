@@ -26,6 +26,12 @@ public:
 	/** Construct peer state from NTP response. */
 	ntp_peer(const ntp_response& response);
 
+	/** Test whether peer contains a given variable.
+	 * @param name the name of the variable
+	 * @return true if variable present, otherwise false
+	 */
+	bool contains(const std::string& varname);
+
 	/** Get an unquoted string peer variable.
 	 * @param name the name of the variable
 	 * @return the value
