@@ -54,6 +54,32 @@ std::string ntp_peer::get_quoted_string(const std::string& varname) {
 	return std::string();
 }
 
+int64_t ntp_peer::get_integer(const std::string& varname) {
+	auto f = _variables.find(varname);
+	if (f != _variables.end()) {
+		std::string str = f->second;
+		int64_t value = 0;
+		bool negative = false;
+		size_t i = 0;
+
+		if ((i != str.length()) && (str[i] == '-')) {
+			i += 1;
+			negative = true;
+		}
+
+		while ((i != str.length()) && isdigit(str[i])) {
+			value *= 10;
+			value += str[i++] - '0';
+		}
+
+		if (negative) {
+			value = -value;
+		}
+		return value;
+	}
+	return 0;
+}
+
 int64_t ntp_peer::get_fixed(const std::string& varname) {
 	auto f = _variables.find(varname);
 	if (f != _variables.end()) {
@@ -98,6 +124,7 @@ void ntp_peer::build(ntp_attr_builder& builder) {
 	builder.add_peer(
 		get_quoted_string("srchost"),
 		get_string("srcadr"),
+		get_integer("srcport"),
 		_status,
 		get_fixed("delay"),
 		get_fixed("offset"),

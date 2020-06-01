@@ -94,9 +94,6 @@ bool ntp_client::update_peers() {
 			status <<= 8;
 			status += payload[i + 3];
 			_peers[assoc_id] = std::unique_ptr<ntp_peer>();
-
-			printf("%04X: %04X\n", assoc_id, status);
-
 		}
 	}
 

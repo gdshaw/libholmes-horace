@@ -38,6 +38,12 @@ public:
 	 */
 	std::string get_quoted_string(const std::string& varname);
 
+	/** Get an integer decimal peer variable
+	 * @param name the name of the variable
+	 * @return the value
+	 */
+	int64_t get_integer(const std::string& varname);
+
 	/** Get a fixed-point decimal peer variable
 	 * @param name the name of the variable
 	 * @return the value

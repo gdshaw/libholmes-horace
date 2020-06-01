@@ -13,6 +13,7 @@ ntp_attr_builder::ntp_attr_builder(session_builder& session):
 	_ts_attr(attrid_ts, 0, 0),
 	_srchost_attr(session.define_attribute("ntp_srchost", attrfmt_string), ""),
 	_srcadr_attr(session.define_attribute("ntp_srcadr", attrfmt_string), ""),
+	_srcport_attr(session.define_attribute("ntp_srcport", attrfmt_unsigned_integer), 0),
 	_status_attr(session.define_attribute("ntp_status", attrfmt_unsigned_integer), 0),
 	_delay_attr(session.define_attribute("ntp_delay", attrfmt_signed_integer), 0),
 	_offset_attr(session.define_attribute("ntp_offset", attrfmt_signed_integer), 0),
@@ -21,7 +22,7 @@ ntp_attr_builder::ntp_attr_builder(session_builder& session):
 	_ntp_attr(session.define_attribute("ntp", attrfmt_compound), attribute_list()) {}
 
 void ntp_attr_builder::add_peer(const std::string& srchost, const std::string& srcadr,
-	uint16_t status, int64_t delay, int64_t offset, int64_t jitter) {
+	uint16_t srcport, uint16_t status, int64_t delay, int64_t offset, int64_t jitter) {
 
 	attribute_list attrs;
 	if (!srchost.empty()) {
@@ -29,6 +30,9 @@ void ntp_attr_builder::add_peer(const std::string& srchost, const std::string& s
 	}
 	if (!srcadr.empty()) {
 		attrs.append(_srcadr_attr = string_attribute(_srcadr_attr.attrid(), srcadr));
+	}
+	if (srcport != 123) {
+		attrs.append(_srcport_attr = unsigned_integer_attribute(_srcport_attr.attrid(), srcport));
 	}
 	attrs.append(_status_attr = unsigned_integer_attribute(_status_attr.attrid(), status));
 	attrs.append(_delay_attr = signed_integer_attribute(_delay_attr.attrid(), delay));

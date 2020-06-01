@@ -31,6 +31,9 @@ private:
 	/** The srcadr attribute. */
 	string_attribute _srcadr_attr;
 
+	/** The srcport attribute. */
+	unsigned_integer_attribute _srcport_attr;
+
 	/** The status code attribute. */
 	unsigned_integer_attribute _status_attr;
 
@@ -58,15 +61,17 @@ public:
 	ntp_attr_builder(session_builder& session);
 
 	/** Add peer.
-	 * @param srchost the peer hostname
-	 * @param srcadr the peer address, in nanoseconds
+	 * @param srchost the remote hostname
+	 * @param srcadr the remote address
+	 * @param srcport the remote port
 	 * @param status the status code
 	 * @param delay the peer delay, in nanoseconds
 	 * @param offset the peer offset, in nanoseconds
 	 * @param jitter the peer jitter, in nanoseconds
 	 */
 	void add_peer(const std::string& srchost, const std::string& srcadr,
-		uint16_t status, int64_t delay, int64_t offset, int64_t jitter);
+		uint16_t srcport, uint16_t status, int64_t delay,
+		int64_t offset, int64_t jitter);
 
 	/** Build NTP attribute. */
 	const attribute& build();
