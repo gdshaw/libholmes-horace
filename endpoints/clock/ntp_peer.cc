@@ -126,6 +126,7 @@ void ntp_peer::build(ntp_attr_builder& builder) {
 		get_string("srcadr"),
 		get_integer("srcport"),
 		_status,
+		get_integer("stratum"),
 		get_fixed("delay"),
 		get_fixed("offset"),
 		get_fixed("jitter"));

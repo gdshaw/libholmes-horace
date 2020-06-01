@@ -37,6 +37,9 @@ private:
 	/** The status code attribute. */
 	unsigned_integer_attribute _status_attr;
 
+	/** The stratum attribute. */
+	unsigned_integer_attribute _stratum_attr;
+
 	/** The delay attribute. */
 	signed_integer_attribute _delay_attr;
 
@@ -65,13 +68,14 @@ public:
 	 * @param srcadr the remote address
 	 * @param srcport the remote port
 	 * @param status the status code
+	 * @param stratum the stratum number
 	 * @param delay the peer delay, in nanoseconds
 	 * @param offset the peer offset, in nanoseconds
 	 * @param jitter the peer jitter, in nanoseconds
 	 */
 	void add_peer(const std::string& srchost, const std::string& srcadr,
-		uint16_t srcport, uint16_t status, int64_t delay,
-		int64_t offset, int64_t jitter);
+		uint16_t srcport, uint16_t status, unsigned int stratum,
+		int64_t delay, int64_t offset, int64_t jitter);
 
 	/** Build NTP attribute. */
 	const attribute& build();
