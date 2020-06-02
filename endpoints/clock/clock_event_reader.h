@@ -11,6 +11,7 @@
 #include "horace/record.h"
 #include "horace/event_reader.h"
 
+#include "ntp_assoc_attr_builder.h"
 #include "ntp_attr_builder.h"
 #include "clock_record_builder.h"
 
@@ -31,6 +32,9 @@ private:
 
 	/** True if first record not yet generated, otherwise false. */
 	bool _first;
+
+	/** A builder for NTP association attributes. */
+	std::unique_ptr<ntp_assoc_attr_builder> _ntp_assoc_builder;
 
 	/** A builder for NTP attributes. */
 	std::unique_ptr<ntp_attr_builder> _ntp_builder;

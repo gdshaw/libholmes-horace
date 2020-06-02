@@ -16,6 +16,9 @@
 
 namespace horace {
 
+class ntp_assoc_attr_builder;
+class ntp_attr_builder;
+
 /** A class for making mode 6 requests to an NTP server. */
 class ntp_client {
 private:
@@ -83,7 +86,8 @@ public:
 	/** Build NTP attribute.
 	 * @param builder an NTP attribute builder
 	 */
-	void build(ntp_attr_builder& builder);
+	void build(ntp_attr_builder& builder,
+		ntp_assoc_attr_builder& assoc_builder);
 };
 
 } /* namespace horace */

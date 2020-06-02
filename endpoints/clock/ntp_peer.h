@@ -10,7 +10,7 @@
 
 namespace horace {
 
-class ntp_attr_builder;
+class ntp_assoc_attr_builder;
 
 /** A class to represent the state of an NTP peer.
  * Escaping within quoted strings is not yet implemented.
@@ -56,10 +56,10 @@ public:
 	 */
 	int64_t get_fixed(const std::string& varname);
 
-	/** Build NTP peer attribute.
-	 * @param builder an NTP builder object
+	/** Build NTP association attribute.
+	 * @param builder an NTP association attribute builder object
 	 */
-	void build(ntp_attr_builder& builder);
+	void build(ntp_assoc_attr_builder& builder);
 };
 
 } /* namespace horace */

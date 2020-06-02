@@ -6,7 +6,7 @@
 #include "ntp_error.h"
 #include "ntp_response.h"
 #include "ntp_peer.h"
-#include "ntp_attr_builder.h"
+#include "ntp_assoc_attr_builder.h"
 
 namespace horace {
 
@@ -124,22 +124,36 @@ int64_t ntp_peer::get_fixed(const std::string& varname) {
 	return 0;
 }
 
-void ntp_peer::build(ntp_attr_builder& builder) {
+void ntp_peer::build(ntp_assoc_attr_builder& builder) {
 	// Support both the name used in RFC 5905 (srcaddr)
 	// and the name used by ntpd (srcadr).
-	std::string srcaddr = (contains("srcaddr")) ?
-		get_string("srcaddr") :
-		get_string("srcadr");
-
-	builder.add_peer(
-		get_quoted_string("srchost"),
-		srcaddr,
-		get_integer("srcport"),
-		_status,
-		get_integer("stratum"),
-		get_fixed("delay"),
-		get_fixed("offset"),
-		get_fixed("jitter"));
+	builder.add_status(_status);
+	if (contains("srchost")) {
+		builder.add_srchost(get_quoted_string("srchost"));
+	}
+	if (contains("srcaddr")) {
+		builder.add_srcaddr(get_string("srcaddr"));
+	} else if (contains("srcadr")) {
+		builder.add_srcaddr(get_string("srcadr"));
+	}
+	if (contains("srcport")) {
+		uint16_t srcport = get_integer("srcport");
+		if (srcport != 123) {
+			builder.add_srcport(srcport);
+		}
+	}
+	if (contains("stratum")) {
+		builder.add_stratum(get_integer("stratum"));
+	}
+	if (contains("delay")) {
+		builder.add_delay(get_integer("delay"));
+	}
+	if (contains("offset")) {
+		builder.add_offset(get_integer("offset"));
+	}
+	if (contains("jitter")) {
+		builder.add_jitter(get_integer("jitter"));
+	}
 }
 
 } /* namespace horace */

@@ -29,6 +29,7 @@ clock_event_reader::clock_event_reader(const clock_endpoint& ep,
 
 	attribute_list attrs;
 	_channel = session.define_channel("clock", std::move(attrs));
+	_ntp_assoc_builder = std::make_unique<ntp_assoc_attr_builder>(session);
 	_ntp_builder = std::make_unique<ntp_attr_builder>(session);
 	_clock_builder = std::make_unique<clock_record_builder>(session, _channel);
 
@@ -51,7 +52,7 @@ const record& clock_event_reader::read() {
 	try {
 		ntp_client client;
 		client.update_peers();
-		client.build(*_ntp_builder);
+		client.build(*_ntp_builder, *_ntp_assoc_builder);
 	} catch (std::exception& ex) {
 		// No action
 	}

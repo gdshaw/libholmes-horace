@@ -7,6 +7,8 @@
 
 #include "horace/address_info.h"
 
+#include "ntp_assoc_attr_builder.h"
+#include "ntp_attr_builder.h"
 #include "ntp_client.h"
 
 namespace horace {
@@ -117,9 +119,10 @@ bool ntp_client::update_peers() {
 	}
 }
 
-void ntp_client::build(ntp_attr_builder& builder) {
+void ntp_client::build(ntp_attr_builder& builder, ntp_assoc_attr_builder& assoc_builder) {
 	for (auto& i : _peers) {
-		i.second->build(builder);
+		i.second->build(assoc_builder);
+		builder.add_assoc_attr(assoc_builder.build());
 	}
 }
 
