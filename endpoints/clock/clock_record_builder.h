@@ -7,6 +7,8 @@
 #define LIBHOLMES_HORACE_CLOCK_RECORD_BUILDER
 
 #include "horace/attribute_list.h"
+#include "horace/signed_integer_attribute.h"
+#include "horace/string_attribute.h"
 #include "horace/timestamp_attribute.h"
 #include "horace/boolean_attribute.h"
 #include "horace/record.h"
@@ -17,6 +19,9 @@ class session_builder;
 
 /** A class for building HORACE clock records.
  * A maximum of one attribute of each type may be added to each record.
+ * Unlike other types of record builder, the timestamp attribute must be
+ * explicitly added. This provides access to the timestamp value, which
+ * can then be used to synchronously determine the timezone.
  */
 class clock_record_builder {
 private:
@@ -28,6 +33,12 @@ private:
 
 	/** The clock syncronised attribute. */
 	boolean_attribute _sync_attr;
+
+	/** The timezone offset attribute. */
+	signed_integer_attribute _tzoffset_attr;
+
+	/** The timezone name attribute. */
+	string_attribute _tzname_attr;
 
 	/** The attribute list under construction. */
 	attribute_list _attrs;
@@ -41,10 +52,26 @@ public:
 	 */
 	clock_record_builder(session_builder& session, int channel);
 
+	/** Add timestamp.
+	 * @return the time recorded in the timestamp
+	 */
+	const struct timespec& add_ts();
+
 	/** Add clock sync state.
 	 * @param sync the clock sync state to be added
 	 */
 	void add_sync(bool sync);
+
+	/** Add timezone offset.
+	 * This is the offset from UTC to local time.
+	 * @param tzoffset the timezone offset, in seconds
+	 */
+	void add_tzoffset(long tzoffset);
+
+	/** Add timezone name.
+	 * @param tzname the timezone name
+	 */
+	void add_tzname(const std::string& tzname);
 
 	/** Add NTP attribute.
 	 * @param ntp_attr the NTP attribute to be added

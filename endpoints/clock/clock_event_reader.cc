@@ -3,6 +3,7 @@
 // Redistribution and modification are permitted within the terms of the
 // BSD-3-Clause licence as defined by v3.4 of the SPDX Licence List.
 
+#include <time.h>
 #include <sys/timex.h>
 
 #include "horace/terminate_flag.h"
@@ -14,6 +15,7 @@
 
 #include "clock_event_reader.h"
 #include "clock_endpoint.h"
+#include "local_timezone.h"
 #include "ntp_client.h"
 
 namespace horace {
@@ -45,12 +47,7 @@ const record& clock_event_reader::read() {
 		terminating.millisleep(_ep->poll() * 1000);
 	}
 
-	// Read the synchronisation state of the clock.
-	struct timex tmx;
-	tmx.modes = 0;
-	int clock_state = ntp_adjtime(&tmx);
-	_clock_builder->add_sync(clock_state != TIME_ERROR);
-
+	// Add the NTP status.
 	try {
 		ntp_client client;
 		client.update_peers();
@@ -58,8 +55,22 @@ const record& clock_event_reader::read() {
 	} catch (std::exception& ex) {
 		// No action
 	}
-
 	_clock_builder->add_ntp(_ntp_builder->build());
+
+	// Add the timestamp.
+	const struct timespec& ts = _clock_builder->add_ts();
+
+	// Add the timezone offset and name.
+	local_timezone ltz(ts.tv_sec);
+	_clock_builder->add_tzoffset(ltz.tzoffset());
+	_clock_builder->add_tzname(ltz.tzname());
+
+	// Read the synchronisation state of the clock.
+	struct timex tmx;
+	tmx.modes = 0;
+	int clock_state = ntp_adjtime(&tmx);
+	_clock_builder->add_sync(clock_state != TIME_ERROR);
+
 	return _clock_builder->build();
 };
 
