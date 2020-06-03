@@ -41,6 +41,12 @@ public:
 	 */
 	std::string text_payload() const;
 
+	/** Get the association ID.
+	 * This is taken from the first fragment.
+	 * @return the association ID
+	 */
+	uint16_t associd() const;
+
 	/** Get the status code.
 	 * This is taken from the first fragment.
 	 * @return the status code

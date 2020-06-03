@@ -11,6 +11,7 @@
 namespace horace {
 
 ntp_peer::ntp_peer(const ntp_response& response):
+	_associd(response.associd()),
 	_status(response.status()) {
 
 	std::string payload = response.text_payload();
@@ -127,6 +128,7 @@ int64_t ntp_peer::get_fixed(const std::string& varname) {
 void ntp_peer::build(ntp_assoc_attr_builder& builder) {
 	// Support both the name used in RFC 5905 (srcaddr)
 	// and the name used by ntpd (srcadr).
+	builder.add_associd(_associd);
 	builder.add_status(_status);
 	if (contains("srchost")) {
 		builder.add_srchost(get_quoted_string("srchost"));
@@ -146,13 +148,13 @@ void ntp_peer::build(ntp_assoc_attr_builder& builder) {
 		builder.add_stratum(get_integer("stratum"));
 	}
 	if (contains("delay")) {
-		builder.add_delay(get_integer("delay"));
+		builder.add_delay(get_fixed("delay"));
 	}
 	if (contains("offset")) {
-		builder.add_offset(get_integer("offset"));
+		builder.add_offset(get_fixed("offset"));
 	}
 	if (contains("jitter")) {
-		builder.add_jitter(get_integer("jitter"));
+		builder.add_jitter(get_fixed("jitter"));
 	}
 }
 

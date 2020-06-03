@@ -10,6 +10,7 @@
 namespace horace {
 
 ntp_assoc_attr_builder::ntp_assoc_attr_builder(session_builder& session):
+	_associd_attr(session.define_attribute("ntp_associd", attrfmt_unsigned_integer), 0),
 	_status_attr(session.define_attribute("ntp_status", attrfmt_unsigned_integer), 0),
 	_srchost_attr(session.define_attribute("ntp_srchost", attrfmt_string), ""),
 	_srcaddr_attr(session.define_attribute("ntp_srcaddr", attrfmt_string), ""),
@@ -19,6 +20,10 @@ ntp_assoc_attr_builder::ntp_assoc_attr_builder(session_builder& session):
 	_offset_attr(session.define_attribute("ntp_offset", attrfmt_signed_integer), 0),
 	_jitter_attr(session.define_attribute("ntp_jitter", attrfmt_signed_integer), 0),
 	_assoc_attr(session.define_attribute("ntp_assoc", attrfmt_compound), attribute_list()) {}
+
+void ntp_assoc_attr_builder::add_associd(uint16_t associd) {
+	_attrs.append(_associd_attr = unsigned_integer_attribute(_associd_attr.attrid(), associd));
+}
 
 void ntp_assoc_attr_builder::add_status(uint16_t status) {
 	_attrs.append(_status_attr = unsigned_integer_attribute(_status_attr.attrid(), status));

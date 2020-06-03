@@ -36,11 +36,11 @@ std::unique_ptr<ntp_datagram> ntp_client::recv() {
 	return std::unique_ptr<ntp_datagram>();
 }
 
-void ntp_client::update_peer(uint16_t assoc_id) {
+void ntp_client::update_peer(uint16_t associd) {
 	// Create and record the request and response objects.
 	uint16_t seqnum = _seqnum++;
 	_requests[seqnum] = std::make_unique<ntp_datagram>(
-		2, seqnum, assoc_id);
+		2, seqnum, associd);
 	_responses[seqnum] = std::make_unique<ntp_response>();
 
 	// Send the request to the server.
@@ -59,7 +59,7 @@ void ntp_client::update_peer(uint16_t assoc_id) {
 				if (fragment->responds_to(*f->second)) {
 					g->second->add(fragment);
 					if (g->second->complete()) {
-						_peers[f->second->assoc_id()] =
+						_peers[f->second->associd()] =
 							std::make_unique<ntp_peer>(*g->second);
 					}
 				}
@@ -75,6 +75,9 @@ bool ntp_client::update_peers() {
 	_responses.clear();
 	_peers.clear();
 
+	// Always report on association ID 0.
+	_peers[0] = std::unique_ptr<ntp_peer>();
+
 	ntp_datagram request(1, _seqnum++, 0);
 	std::unique_ptr<ntp_datagram> response;
 	for (unsigned int retry = 0; retry != 5; ++retry) {
@@ -88,14 +91,14 @@ bool ntp_client::update_peers() {
 	if (response) {
 		std::basic_string<unsigned char> payload = response->payload();
 		for (int i = 0; i < payload.length(); i += 4) {
-			unsigned int assoc_id = payload[i + 0];
-			assoc_id <<= 8;
-			assoc_id += payload[i + 1];
+			unsigned int associd = payload[i + 0];
+			associd <<= 8;
+			associd += payload[i + 1];
 
 			unsigned int status = payload[i + 2];
 			status <<= 8;
 			status += payload[i + 3];
-			_peers[assoc_id] = std::unique_ptr<ntp_peer>();
+			_peers[associd] = std::unique_ptr<ntp_peer>();
 		}
 	}
 
@@ -117,6 +120,7 @@ bool ntp_client::update_peers() {
 			break;
 		}
 	}
+	return (missing == 0);
 }
 
 void ntp_client::build(ntp_attr_builder& builder, ntp_assoc_attr_builder& assoc_builder) {

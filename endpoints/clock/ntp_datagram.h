@@ -26,9 +26,9 @@ public:
 	/** Construct NTP datagram for given parameters.
 	 * @param opcode the required opcode
 	 * @param seqnum the sequence number
-	 * @param assoc_id the required association ID
+	 * @param associd the required association ID
 	 */
-	ntp_datagram(unsigned int opcode, uint16_t seqnum, uint16_t assoc_id);
+	ntp_datagram(unsigned int opcode, uint16_t seqnum, uint16_t associd);
 
 	/** Get the raw content of this datagram.
 	 * @return the raw content
@@ -95,11 +95,11 @@ public:
 	/** Get the association ID.
 	 * @return the association ID
 	 */
-	uint16_t assoc_id() const {
-		uint16_t assoc_id = _content[6];
-		assoc_id <<= 8;
-		assoc_id |= _content[7];
-		return assoc_id;
+	uint16_t associd() const {
+		uint16_t associd = _content[6];
+		associd <<= 8;
+		associd |= _content[7];
+		return associd;
 	}
 
 	/** Get the offset.

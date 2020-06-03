@@ -66,6 +66,14 @@ std::string ntp_response::text_payload() const {
 	return payload;
 }
 
+uint16_t ntp_response::associd() const {
+	auto f = _fragments.find(0);
+	if (f == _fragments.end()) {
+		throw ntp_error("incomplete NTP response");
+	}
+	return f->second->associd();
+}
+
 uint16_t ntp_response::status() const {
 	auto f = _fragments.find(0);
 	if (f == _fragments.end()) {

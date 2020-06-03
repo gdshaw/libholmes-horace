@@ -67,9 +67,9 @@ public:
 	 * other association IDs first (in order to give the
 	 * maximum amount of time for any delayed response to be
 	 * received).
-	 * @param assoc_id the association ID for the peer
+	 * @param associd the association ID for the peer
 	 */
-	void update_peer(uint16_t assoc_id);
+	void update_peer(uint16_t associd);
 
 	/** Request an update for the list of peers.
 	 * This function will wait for a response up to the normal

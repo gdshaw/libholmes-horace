@@ -19,6 +19,9 @@ class session_builder;
 /** A class for building HORACE NTP association attributes. */
 class ntp_assoc_attr_builder {
 private:
+	/** The association ID attribute. */
+	unsigned_integer_attribute _associd_attr;
+
 	/** The status code attribute. */
 	unsigned_integer_attribute _status_attr;
 
@@ -53,6 +56,11 @@ public:
 	 * @param session the applicable session builder
 	 */
 	ntp_assoc_attr_builder(session_builder& session);
+
+	/** Add association ID.
+	 * @param associd the association ID
+	 */
+	void add_associd(uint16_t associd);
 
 	/** Add status code.
 	 * @param status the status code

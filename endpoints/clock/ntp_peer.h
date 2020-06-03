@@ -17,6 +17,9 @@ class ntp_assoc_attr_builder;
  */
 class ntp_peer {
 private:
+	/** The association ID. */
+	uint16_t _associd;
+
 	/** The status code. */
 	uint16_t _status;
 
