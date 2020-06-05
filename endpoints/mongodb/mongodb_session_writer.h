@@ -67,12 +67,13 @@ private:
 	 */
 	void _append_bson(bson_t& bson, unsigned int index, const attribute& attr);
 
-	/** Append attribute to BSON document with given name.
+	/** Append attribute to BSON document with given label.
 	 * @param bson the BSON document
-	 * @param name the required name
+	 * @param attr_label the attribute label
 	 * @param attr the attribute to be appended
 	 */
-	void _append_bson(bson_t& bson, const std::string& name, const attribute& attr);
+	void _append_bson(bson_t& bson, const std::string& attr_label,
+		const attribute& attr);
 
 	/** Ensure details recorded for start of session. */
 	void _start_session();
@@ -82,10 +83,10 @@ private:
 
 	/** Write event document as part of bulk operation.
 	 * @param channel_number the channel number
-	 * @param channel_name the channel name
+	 * @param channel_label the channel label
 	 * @param doc the event document to be written
 	 */
-	void _write_bulk(int channel_number, const std::string& channel_name,
+	void _write_bulk(int channel_number, const std::string& channel_label,
 		const bson_t& doc);
 protected:
 	virtual void handle_session_start(const record& srec);

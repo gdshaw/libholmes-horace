@@ -25,40 +25,40 @@
 namespace horace {
 
 void mongodb_session_writer::_append_bson(bson_t& bson, const attribute& attr) {
-	_append_bson(bson, _session.get_attr_name(attr.attrid()), attr);
+	_append_bson(bson, _session.get_attr_label(attr.attrid()), attr);
 }
 
 void mongodb_session_writer::_append_bson(bson_t& bson, unsigned int index, const attribute& attr) {
 	_append_bson(bson, std::to_string(index), attr);
 }
 
-void mongodb_session_writer::_append_bson(bson_t& bson, const std::string& attr_name, const attribute& attr) {
+void mongodb_session_writer::_append_bson(bson_t& bson, const std::string& attr_label, const attribute& attr) {
 	if (const unsigned_integer_attribute* _attr = dynamic_cast<const unsigned_integer_attribute*>(&attr)) {
-		bson_append_int64(&bson, attr_name.c_str(), -1, _attr->content());
+		bson_append_int64(&bson, attr_label.c_str(), -1, _attr->content());
 	} else if (const signed_integer_attribute* _attr = dynamic_cast<const signed_integer_attribute*>(&attr)) {
-		bson_append_int64(&bson, attr_name.c_str(), -1, _attr->content());
+		bson_append_int64(&bson, attr_label.c_str(), -1, _attr->content());
 	} else if (const string_attribute* _attr = dynamic_cast<const string_attribute*>(&attr)) {
-		bson_append_utf8(&bson, attr_name.c_str(), -1, _attr->content().c_str(), -1);
+		bson_append_utf8(&bson, attr_label.c_str(), -1, _attr->content().c_str(), -1);
 	} else if (const binary_ref_attribute* _attr = dynamic_cast<const binary_ref_attribute*>(&attr)) {
-		bson_append_binary(&bson, attr_name.c_str(), -1, BSON_SUBTYPE_BINARY,
+		bson_append_binary(&bson, attr_label.c_str(), -1, BSON_SUBTYPE_BINARY,
 			reinterpret_cast<const uint8_t*>(_attr->content()), _attr->length());
 	} else if (const timestamp_attribute* _attr = dynamic_cast<const timestamp_attribute*>(&attr)) {
 		bson_t bson_ts;
-		bson_append_document_begin(&bson, attr_name.c_str(), -1, &bson_ts);
+		bson_append_document_begin(&bson, attr_label.c_str(), -1, &bson_ts);
 		bson_append_int64(&bson_ts, "sec", -1, _attr->content().tv_sec);
 		bson_append_int32(&bson_ts, "nsec", -1, _attr->content().tv_nsec);
 		bson_append_document_end(&bson, &bson_ts);
 	} else if (const boolean_attribute* _attr = dynamic_cast<const boolean_attribute*>(&attr)) {
-		bson_append_bool(&bson, attr_name.c_str(), -1, _attr->content());
+		bson_append_bool(&bson, attr_label.c_str(), -1, _attr->content());
 	} else if (const compound_attribute* _attr = dynamic_cast<const compound_attribute*>(&attr)) {
 		std::map<std::string, std::list<const attribute*>> attr_lists;
 		for (const auto& subattr : _attr->content().attributes()) {
-			std::string subattr_name = _session.get_attr_name(subattr->attrid());
-			attr_lists[subattr_name].push_back(subattr);
+			std::string subattr_label = _session.get_attr_label(subattr->attrid());
+			attr_lists[subattr_label].push_back(subattr);
 		}
 
 		bson_t bson_compound;
-		bson_append_document_begin(&bson, attr_name.c_str(), -1, &bson_compound);
+		bson_append_document_begin(&bson, attr_label.c_str(), -1, &bson_compound);
 		for (const auto& pair : attr_lists) {
 			if (pair.second.size() == 1) {
 				_append_bson(bson_compound, *pair.second.front());
@@ -99,14 +99,14 @@ void mongodb_session_writer::_sync() {
 }
 
 void mongodb_session_writer::_write_bulk(int channel_number,
-	const std::string& channel_name, const bson_t& doc) {
+	const std::string& channel_label, const bson_t& doc) {
 
 	if (_bulk && (_bulk_channel != channel_number)) {
 		sync();
 	}
 
 	if (!_bulk) {
-		mongodb_collection& coll = _database.collection(channel_name);
+		mongodb_collection& coll = _database.collection(channel_label);
 		_bulk = mongoc_collection_create_bulk_operation_with_opts(coll, &_opts_bulk);
 	}
 

@@ -16,8 +16,8 @@ class compound_attribute;
 /** A class for tracking the context of a HORACE session. */
 class session_context {
 private:
-	/** The attribute names for this session, indexed by ID. */
-	std::map<int, std::string> _attr_names;
+	/** The attribute labels for this session, indexed by ID. */
+	std::map<int, std::string> _attr_labels;
 
 	/** The attribute formats for this session, indexed by ID. */
 	std::map<int, int> _attr_fmts;
@@ -35,11 +35,11 @@ public:
 	 */
 	void handle_channel_def(const compound_attribute& attr);
 
-	/** Get the attribute name for a given attribute ID.
+	/** Get the attribute label for a given attribute ID.
 	 * @param attrid the required attribute ID
-	 * @return the corresponding attribute name
+	 * @return the corresponding attribute label
 	 */
-	const std::string& get_attr_name(int attrid);
+	const std::string& get_attr_label(int attrid);
 
 	/** Get the attribute format for a given attribute ID.
 	 * @param attrid the required attribute ID

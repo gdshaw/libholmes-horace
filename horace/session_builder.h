@@ -41,13 +41,13 @@ public:
 		const std::string& time_system);
 
 	/** Define attribute.
-	 * If a name and format are requested which match a previous
+	 * If a label and format are requested which match a previous
 	 * definition then this function is permitted but not required
 	 * to reuse it.
-	 * @param name the required attribute name
+	 * @param label the required attribute label
 	 * @param fmt the required attribute format
 	 */
-	int define_attribute(const std::string& name,
+	int define_attribute(const std::string& label,
 		int fmt);
 
 	/** Define channel.

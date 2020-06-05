@@ -14,9 +14,9 @@
 namespace horace {
 namespace {
 
-/** The reserved attribute names applicable to all sessions,
+/** The reserved attribute labels applicable to all sessions,
  * indexed by attribute ID. */
-const std::map<int, std::string> _reserved_attr_names = {
+const std::map<int, std::string> _reserved_attr_labels = {
 	{ attrid_protocol, "protocol" },
 	{ attrid_source, "source" },
 	{ attrid_seqnum, "seqnum" },
@@ -28,7 +28,7 @@ const std::map<int, std::string> _reserved_attr_names = {
 	{ attrid_channel_label, "label" },
 	{ attrid_attr_def, "attributes" },
 	{ attrid_attr_id, "id" },
-	{ attrid_attr_name, "name" },
+	{ attrid_attr_label, "label" },
 	{ attrid_attr_fmt, "format" },
 	{ attrid_hash, "hash" },
 	{ attrid_hash_alg, "hash_alg" },
@@ -50,7 +50,7 @@ const std::map<int, int> _reserved_attr_fmts = {
 	{ attrid_channel_label, attrfmt_string },
 	{ attrid_attr_def, attrfmt_compound },
 	{ attrid_attr_id, attrfmt_signed_integer },
-	{ attrid_attr_name, attrfmt_string },
+	{ attrid_attr_label, attrfmt_string },
 	{ attrid_attr_fmt, attrfmt_unsigned_integer },
 	{ attrid_hash, attrfmt_binary },
 	{ attrid_hash_alg, attrfmt_string },
@@ -70,11 +70,11 @@ std::map<int, std::string> _reserved_chan_labels = {
 void session_context::handle_attr_def(const compound_attribute& attr) {
 	int64_t attrid = attr.content().find_one<signed_integer_attribute>(
 		attrid_attr_id).content();
-	std::string attrname = attr.content().find_one<string_attribute>(
-		attrid_attr_name).content();
+	std::string attrlabel = attr.content().find_one<string_attribute>(
+		attrid_attr_label).content();
 	uint64_t attrfmt = attr.content().find_one<unsigned_integer_attribute>(
 		attrid_attr_fmt).content();
-	_attr_names[attrid] = attrname;
+	_attr_labels[attrid] = attrlabel;
 	_attr_fmts[attrid] = attrfmt;
 }
 
@@ -86,15 +86,15 @@ void session_context::handle_channel_def(const compound_attribute& attr) {
 	_chan_labels[num] = label;
 }
 
-const std::string& session_context::get_attr_name(int attrid) {
+const std::string& session_context::get_attr_label(int attrid) {
 	if (attrid < 0) {
-		auto f = _reserved_attr_names.find(attrid);
-		if (f != _reserved_attr_names.end()) {
+		auto f = _reserved_attr_labels.find(attrid);
+		if (f != _reserved_attr_labels.end()) {
 			return f->second;
 		}
 	} else {
-		auto f = _attr_names.find(attrid);
-		if (f != _attr_names.end()) {
+		auto f = _attr_labels.find(attrid);
+		if (f != _attr_labels.end()) {
 			return f->second;
 		}
 	}
