@@ -39,7 +39,7 @@ record::record(session_context& session, octet_reader& in) {
 			session.handle_attr_def(
 				dynamic_cast<compound_attribute&>(*attr));
 			break;
-		case attrid_channel_def:
+		case attrid_chan_def:
 			session.handle_channel_def(
 				dynamic_cast<compound_attribute&>(*attr));
 			break;
@@ -108,7 +108,7 @@ bool operator<=(const record& lhs, const record& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& out, const record& rec) {
-	out << "rec" << rec.channel_number() << "(";
+	out << "rec" << rec.channel_id() << "(";
 	for (const auto& attr : rec.attributes()) {
 		out << std::endl;
 		out << " " << *attr;

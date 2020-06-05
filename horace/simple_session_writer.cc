@@ -85,9 +85,9 @@ bool simple_session_writer::writable() {
 }
 
 void simple_session_writer::write(const record& rec) {
-	int channel = rec.channel_number();
+	int channel = rec.channel_id();
 	if (!_srec) {
-		if (rec.channel_number() != channel_session) {
+		if (rec.channel_id() != channel_session) {
 			throw horace_error("no session in progress");
 		}
 	} else if (_ended) {
@@ -96,7 +96,7 @@ void simple_session_writer::write(const record& rec) {
 		}
 	}
 
-	switch(rec.channel_number()) {
+	switch(rec.channel_id()) {
 	case channel_session:
 		_process_session_record(rec);
 		break;

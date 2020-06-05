@@ -21,7 +21,7 @@ class session_context;
 // The supported protocol version.
 extern std::unique_ptr<unsigned int> protocol_version;
 
-// Reserved channel numbers.
+// Reserved channel IDs.
 static const int channel_session = -1;
 static const int channel_end = -2;
 static const int channel_error = -3;
@@ -32,7 +32,7 @@ static const int channel_signature = -6;
 /** An abstract base class to represent a HORACE record. */
 class record {
 private:
-	/** The channel number. */
+	/** The channel ID. */
 	int _channel;
 
 	/** The attribute list. */
@@ -46,7 +46,7 @@ public:
 		_channel(0) {}
 
 	/** Construct record from attribute list.
-	 * @param channel the channel number
+	 * @param channel the channel ID
 	 * @param attributes the list of attributes
 	 */
 	record(int channel, const attribute_list& attributes):
@@ -54,7 +54,7 @@ public:
 		_attributes(attributes) {}
 
 	/** Construct record from attribute list.
-	 * @param channel the channel number
+	 * @param channel the channel ID
 	 * @param attributes the list of attributes
 	 */
 	record(int channel, attribute_list&& attributes):
@@ -68,15 +68,15 @@ public:
 	 */
 	record(session_context& session, octet_reader& in);
 
-	/** Get the channel number for this record.
-	 * @return the channel number
+	/** Get the channel ID for this record.
+	 * @return the channel ID
 	 */
-	virtual int channel_number() const {
+	virtual int channel_id() const {
 		return _channel;
 	}
 
 	/** Determine whether this is an event record.
-	 * Event records have a non-negative channel number.
+	 * Event records have a non-negative channel ID.
 	 * @return true if an event record, otherwise false
 	 */
 	bool is_event() const {

@@ -140,7 +140,7 @@ void new_session_writer::write_event(const record& rec) {
 	if (_hattr) {
 		attrs.append(std::move(_hattr));
 	}
-	record nrec(rec.channel_number(), std::move(attrs));
+	record nrec(rec.channel_id(), std::move(attrs));
 
 	// Write the record (with retry).
 	_write(nrec);

@@ -43,10 +43,10 @@ void spoolfile_writer::sync() const {
 
 bool spoolfile_writer::write(const record& rec) {
 	// Calculate the number of octets required for this record,
-	// including the channel and length fields.
+	// including the channel ID and length fields.
 	size_t content_len = rec.attributes().length();
 	size_t full_len =
-		signed_base128_integer(rec.channel_number()).length() +
+		signed_base128_integer(rec.channel_id()).length() +
 		unsigned_base128_integer(content_len).length() +
 		content_len;
 

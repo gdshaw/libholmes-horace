@@ -98,10 +98,10 @@ void mongodb_session_writer::_sync() {
 	_bulk_channel = 0;
 }
 
-void mongodb_session_writer::_write_bulk(int channel_number,
+void mongodb_session_writer::_write_bulk(int channel_id,
 	const std::string& channel_label, const bson_t& doc) {
 
-	if (_bulk && (_bulk_channel != channel_number)) {
+	if (_bulk && (_bulk_channel != channel_id)) {
 		sync();
 	}
 
@@ -148,7 +148,7 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 			_session.handle_attr_def(
 				dynamic_cast<const compound_attribute&>(*attr));
 			continue;
-		} else if (attr->attrid() != attrid_channel_def) {
+		} else if (attr->attrid() != attrid_chan_def) {
 			_append_bson(bson_session, *attr);
 			continue;
 		}
@@ -157,12 +157,12 @@ void mongodb_session_writer::handle_session_start(const record& srec) {
 			dynamic_cast<const compound_attribute&>(*attr);
 		_session.handle_channel_def(channel_def);
 
-		int64_t channel_num = channel_def.content().
-			find_one<signed_integer_attribute>(attrid_channel_num).content();
+		int64_t channel_id = channel_def.content().
+			find_one<signed_integer_attribute>(attrid_chan_id).content();
 		std::string channel_label = channel_def.content().
-			find_one<string_attribute>(attrid_channel_label).content();
+			find_one<string_attribute>(attrid_chan_label).content();
 
-		std::string channel_str = std::string("channel") + std::to_string(channel_num);
+		std::string channel_str = std::string("channel") + std::to_string(channel_id);
 		bson_t bson_channel;
 		bson_append_document_begin(&bson_channels, channel_str.c_str(),
 			-1, &bson_channel);
@@ -262,8 +262,8 @@ void mongodb_session_writer::handle_event(const record& rec) {
 	}
 
 	// Append to the next bulk-write operation.
-	std::string label = _session.get_channel_label(rec.channel_number());
-	_write_bulk(rec.channel_number(), label, bson_event);
+	std::string label = _session.get_channel_label(rec.channel_id());
+	_write_bulk(rec.channel_id(), label, bson_event);
 	bson_destroy(&bson_event);
 }
 

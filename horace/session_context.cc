@@ -23,13 +23,13 @@ const std::map<int, std::string> _reserved_attr_labels = {
 	{ attrid_ts, "ts" },
 	{ attrid_time_system, "time_system" },
 	{ attrid_message, "message" },
-	{ attrid_channel_def, "channels" },
-	{ attrid_channel_num, "channel" },
-	{ attrid_channel_label, "label" },
-	{ attrid_attr_def, "attributes" },
-	{ attrid_attr_id, "id" },
-	{ attrid_attr_label, "label" },
-	{ attrid_attr_fmt, "format" },
+	{ attrid_chan_def, "chan_def" },
+	{ attrid_chan_id, "chan_id" },
+	{ attrid_chan_label, "chan_label" },
+	{ attrid_attr_def, "attr_def" },
+	{ attrid_attr_id, "attr_id" },
+	{ attrid_attr_label, "attr_label" },
+	{ attrid_attr_fmt, "attr_fmt" },
 	{ attrid_hash, "hash" },
 	{ attrid_hash_alg, "hash_alg" },
 	{ attrid_sig, "hash_sig" },
@@ -45,9 +45,9 @@ const std::map<int, int> _reserved_attr_fmts = {
 	{ attrid_ts, attrfmt_timestamp },
 	{ attrid_time_system, attrfmt_string },
 	{ attrid_message, attrfmt_string },
-	{ attrid_channel_def, attrfmt_compound },
-	{ attrid_channel_num, attrfmt_signed_integer },
-	{ attrid_channel_label, attrfmt_string },
+	{ attrid_chan_def, attrfmt_compound },
+	{ attrid_chan_id, attrfmt_signed_integer },
+	{ attrid_chan_label, attrfmt_string },
 	{ attrid_attr_def, attrfmt_compound },
 	{ attrid_attr_id, attrfmt_signed_integer },
 	{ attrid_attr_label, attrfmt_string },
@@ -59,7 +59,7 @@ const std::map<int, int> _reserved_attr_fmts = {
 	{ attrid_sig_pubkey, attrfmt_binary }};
 
 /** The reserved channel labels applicable to all sessions,
- * indexed by channel number. */
+ * indexed by channel ID. */
 std::map<int, std::string> _reserved_chan_labels = {
 	{ channel_error, "error" },
 	{ channel_session, "session" },
@@ -79,11 +79,11 @@ void session_context::handle_attr_def(const compound_attribute& attr) {
 }
 
 void session_context::handle_channel_def(const compound_attribute& attr) {
-	int64_t num = attr.content().find_one<signed_integer_attribute>(
-		attrid_channel_num).content();
+	int64_t chanid = attr.content().find_one<signed_integer_attribute>(
+		attrid_chan_id).content();
 	std::string label = attr.content().find_one<string_attribute>(
-		attrid_channel_label).content();
-	_chan_labels[num] = label;
+		attrid_chan_label).content();
+	_chan_labels[chanid] = label;
 }
 
 const std::string& session_context::get_attr_label(int attrid) {
@@ -118,20 +118,20 @@ int session_context::get_attr_fmt(int attrid) {
 		std::to_string(attrid));
 }
 
-const std::string& session_context::get_channel_label(int channel_num) {
-	if (channel_num < 0) {
-		auto f = _reserved_chan_labels.find(channel_num);
+const std::string& session_context::get_channel_label(int channel_id) {
+	if (channel_id < 0) {
+		auto f = _reserved_chan_labels.find(channel_id);
 		if (f != _reserved_chan_labels.end()) {
 			return f->second;
 		}
 	} else {
-		auto f = _chan_labels.find(channel_num);
+		auto f = _chan_labels.find(channel_id);
 		if (f != _chan_labels.end()) {
 			return f->second;
 		}
 	}
-	throw horace_error(std::string("unrecognised channel number") +
-		std::to_string(channel_num));
+	throw horace_error(std::string("unrecognised channel ID") +
+		std::to_string(channel_id));
 }
 
 } /* namespace horace */

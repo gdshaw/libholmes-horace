@@ -86,7 +86,7 @@ std::unique_ptr<record> file_session_reader::read() {
 	// end of file error.
 	try {
 		std::unique_ptr<record> rec = std::make_unique<record>(_session, *_sfr);
-		if (rec->channel_number() == channel_session) {
+		if (rec->channel_id() == channel_session) {
 			struct timespec new_ts = rec->find_one<timestamp_attribute>(
 				attrid_ts).content();
 			if ((new_ts.tv_sec != _session_ts.tv_sec) ||
@@ -144,7 +144,7 @@ void file_session_reader::_handle_sync(const record& rec) {
 }
 
 void file_session_reader::write(const record& rec) {
-	switch (rec.channel_number()) {
+	switch (rec.channel_id()) {
 	case channel_error:
 	case channel_warning:
 		// No action.

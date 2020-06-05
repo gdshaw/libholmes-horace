@@ -31,7 +31,7 @@ void tcp_session_reader::write(const record& rec) {
 	rec.write(_fdow);
 	_fdow.flush();
 
-	if (rec.channel_number() == channel_error) {
+	if (rec.channel_id() == channel_error) {
 		_fd.shutdown(SHUT_WR);
 		bool done = false;
 		while (!done) {

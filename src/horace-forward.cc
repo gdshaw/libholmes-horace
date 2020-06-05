@@ -48,10 +48,10 @@ void write_help(std::ostream& out) {
  * @param rec the record to be handled
  */
 void handle_unexpected_record(session_reader& src_sr, const record& rec) {
-	if (rec.channel_number() == channel_error) {
+	if (rec.channel_id() == channel_error) {
 		auto msgattr = rec.find_one<string_attribute>(attrid_message);
 		throw horace_error("remote error: " + msgattr.content());
-	} else if (rec.channel_number() == channel_warning) {
+	} else if (rec.channel_id() == channel_warning) {
 		auto msgattr = rec.find_one<string_attribute>(attrid_message);
 		if (log->enabled(logger::log_warning)) {
 			log_message msg(*log, logger::log_warning);
@@ -73,7 +73,7 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 
 	// Read the session record.
 	std::unique_ptr<record> srec = src_sr.read();
-	if (srec->channel_number() != channel_session) {
+	if (srec->channel_id() != channel_session) {
 		throw horace_error("session record expected");
 	}
 	srec->log(*log);
@@ -128,13 +128,13 @@ void forward_one(session_reader& src_sr, session_writer_endpoint& dst_swep) {
 
 		// Perform any special handling required by specific
 		// record types.
-		switch (rec->channel_number()) {
+		switch (rec->channel_id()) {
 		case channel_sync:
 			// Sync records must be acknowledged.
 			while (true) {
 				auto rec = dst_sw->read();
 				rec->log(*log);
-				if (rec->channel_number() == channel_sync) {
+				if (rec->channel_id() == channel_sync) {
 					src_sr.write(*rec);
 					break;
 				} else {

@@ -53,11 +53,11 @@ int session_builder::define_channel(const std::string& label,
 	attribute_list&& subattrs) {
 
 	subattrs.append(std::make_unique<signed_integer_attribute>(
-		attrid_channel_num, _chan_count));
+		attrid_chan_id, _chan_count));
 	subattrs.append(std::make_unique<string_attribute>(
-		attrid_channel_label, label));
+		attrid_chan_label, label));
 	_attributes.append(std::make_unique<compound_attribute>(
-		attrid_channel_def, std::move(subattrs)));
+		attrid_chan_def, std::move(subattrs)));
 	return _chan_count++;
 }
 

@@ -22,7 +22,7 @@ private:
 	/** The attribute formats for this session, indexed by ID. */
 	std::map<int, int> _attr_fmts;
 
-	/** The channel labels for this session, indexed by number. */
+	/** The channel labels for this session, indexed by ID. */
 	std::map<int, std::string> _chan_labels;
 public:
 	/** Handle an attribute definition.
@@ -47,11 +47,11 @@ public:
 	 */
 	int get_attr_fmt(int attrid);
 
-	/** Get the channel label for a given channel number.
-	 * @param channel_num the required channel number
+	/** Get the channel label for a given channel ID.
+	 * @param channel_id the required channel ID
 	 * @return the corresponding channel label
 	 */
-	const std::string& get_channel_label(int channel_num);
+	const std::string& get_channel_label(int channel_id);
 };
 
 } /* namespace horace */
