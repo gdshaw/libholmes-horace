@@ -15,14 +15,14 @@ class octet_reader;
 class octet_writer;
 class session_context;
 
-// Attribute format codes.
-static const int attrfmt_compound = 0;
-static const int attrfmt_unsigned_integer = 1;
-static const int attrfmt_signed_integer = 2;
-static const int attrfmt_binary = 3;
-static const int attrfmt_string = 4;
-static const int attrfmt_timestamp = 5;
-static const int attrfmt_boolean = 6;
+// Content types
+static const int type_compound = 0;
+static const int type_unsigned_integer = 1;
+static const int type_signed_integer = 2;
+static const int type_binary = 3;
+static const int type_string = 4;
+static const int type_timestamp = 5;
+static const int type_boolean = 6;
 
 // Reserved attribute IDs
 static const int attrid_protocol = -1;
@@ -37,7 +37,7 @@ static const int attrid_chan_label = -9;
 static const int attrid_attr_def = -10;
 static const int attrid_attr_id = -11;
 static const int attrid_attr_label = -12;
-static const int attrid_attr_fmt = -13;
+static const int attrid_type = -13;
 static const int attrid_hash = -14;
 static const int attrid_hash_alg = -15;
 static const int attrid_sig = -16;

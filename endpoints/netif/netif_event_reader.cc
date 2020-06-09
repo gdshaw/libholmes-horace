@@ -30,19 +30,19 @@ netif_event_reader::netif_event_reader(const netif_endpoint& ep,
 
 	attribute_list attrs;
 	attrs.append(std::make_unique<unsigned_integer_attribute>(
-		session.define_attribute("ifindex", attrfmt_unsigned_integer),
+		session.define_attribute("ifindex", type_unsigned_integer),
 		_ep->netif().ifindex()));
 	attrs.append(std::make_unique<string_attribute>(
-		session.define_attribute("ifname", attrfmt_string),
+		session.define_attribute("ifname", type_string),
 		_ep->netifname()));
 	attrs.append(std::make_unique<unsigned_integer_attribute>(
-		session.define_attribute("hwtype", attrfmt_unsigned_integer),
+		session.define_attribute("hwtype", type_unsigned_integer),
 		_ep->netif().hwtype()));
 	attrs.append(std::make_unique<binary_attribute>(
-		session.define_attribute("hwaddr", attrfmt_binary),
+		session.define_attribute("hwaddr", type_binary),
 		_ep->netif().hwaddr().length(), _ep->netif().hwaddr().data()));
 	attrs.append(std::make_unique<unsigned_integer_attribute>(
-		session.define_attribute("linktype", attrfmt_unsigned_integer),
+		session.define_attribute("linktype", type_unsigned_integer),
 		_ep->netif().linktype()));
 	_channel = session.define_channel("packets", std::move(attrs));
 

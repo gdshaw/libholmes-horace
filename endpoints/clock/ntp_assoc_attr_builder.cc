@@ -10,16 +10,16 @@
 namespace horace {
 
 ntp_assoc_attr_builder::ntp_assoc_attr_builder(session_builder& session):
-	_associd_attr(session.define_attribute("ntp_associd", attrfmt_unsigned_integer), 0),
-	_status_attr(session.define_attribute("ntp_status", attrfmt_unsigned_integer), 0),
-	_srchost_attr(session.define_attribute("ntp_srchost", attrfmt_string), ""),
-	_srcaddr_attr(session.define_attribute("ntp_srcaddr", attrfmt_string), ""),
-	_srcport_attr(session.define_attribute("ntp_srcport", attrfmt_unsigned_integer), 0),
-	_stratum_attr(session.define_attribute("ntp_stratum", attrfmt_unsigned_integer), 0),
-	_delay_attr(session.define_attribute("ntp_delay", attrfmt_signed_integer), 0),
-	_offset_attr(session.define_attribute("ntp_offset", attrfmt_signed_integer), 0),
-	_jitter_attr(session.define_attribute("ntp_jitter", attrfmt_signed_integer), 0),
-	_assoc_attr(session.define_attribute("ntp_assoc", attrfmt_compound), attribute_list()) {}
+	_associd_attr(session.define_attribute("ntp_associd", type_unsigned_integer), 0),
+	_status_attr(session.define_attribute("ntp_status", type_unsigned_integer), 0),
+	_srchost_attr(session.define_attribute("ntp_srchost", type_string), ""),
+	_srcaddr_attr(session.define_attribute("ntp_srcaddr", type_string), ""),
+	_srcport_attr(session.define_attribute("ntp_srcport", type_unsigned_integer), 0),
+	_stratum_attr(session.define_attribute("ntp_stratum", type_unsigned_integer), 0),
+	_delay_attr(session.define_attribute("ntp_delay", type_signed_integer), 0),
+	_offset_attr(session.define_attribute("ntp_offset", type_signed_integer), 0),
+	_jitter_attr(session.define_attribute("ntp_jitter", type_signed_integer), 0),
+	_assoc_attr(session.define_attribute("ntp_assoc", type_compound), attribute_list()) {}
 
 void ntp_assoc_attr_builder::add_associd(uint16_t associd) {
 	_attrs.append(_associd_attr = unsigned_integer_attribute(_associd_attr.attrid(), associd));

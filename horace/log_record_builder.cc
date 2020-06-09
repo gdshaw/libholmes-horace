@@ -11,15 +11,15 @@ namespace horace {
 log_record_builder::log_record_builder(session_builder& session, int channel):
 	_channel(channel),
 	_ts_attr(attrid_ts, 0, 0),
-	_priority_attr(session.define_attribute("syslog_priority", attrfmt_unsigned_integer), 0),
-	_version_attr(session.define_attribute("syslog_version", attrfmt_unsigned_integer), 0),
-	_timestamp_attr(session.define_attribute("syslog_timestamp", attrfmt_string), ""),
-	_hostname_attr(session.define_attribute("hostname", attrfmt_string), ""),
-	_appname_attr(session.define_attribute("syslog_appname", attrfmt_string), ""),
-	_procid_attr(session.define_attribute("syslog_procid", attrfmt_string), ""),
-	_msgid_attr(session.define_attribute("syslog_msgid", attrfmt_string), ""),
-	_sd_attr(session.define_attribute("syslog_sd", attrfmt_string), ""),
-	_message_attr(session.define_attribute("message", attrfmt_string), "") {}
+	_priority_attr(session.define_attribute("syslog_priority", type_unsigned_integer), 0),
+	_version_attr(session.define_attribute("syslog_version", type_unsigned_integer), 0),
+	_timestamp_attr(session.define_attribute("syslog_timestamp", type_string), ""),
+	_hostname_attr(session.define_attribute("hostname", type_string), ""),
+	_appname_attr(session.define_attribute("syslog_appname", type_string), ""),
+	_procid_attr(session.define_attribute("syslog_procid", type_string), ""),
+	_msgid_attr(session.define_attribute("syslog_msgid", type_string), ""),
+	_sd_attr(session.define_attribute("syslog_sd", type_string), ""),
+	_message_attr(session.define_attribute("message", type_string), "") {}
 
 void log_record_builder::add_priority(unsigned int priority) {
 	_attrs.append(_priority_attr = unsigned_integer_attribute(_priority_attr.attrid(), priority));

@@ -10,7 +10,7 @@
 namespace horace {
 
 ntp_attr_builder::ntp_attr_builder(session_builder& session):
-	_ntp_attr(session.define_attribute("ntp", attrfmt_compound), attribute_list()) {}
+	_ntp_attr(session.define_attribute("ntp", type_compound), attribute_list()) {}
 
 void ntp_attr_builder::add_assoc_attr(const attribute& ntp_assoc_attr) {
 	_attrs.append(ntp_assoc_attr.clone());

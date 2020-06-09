@@ -12,9 +12,9 @@ namespace horace {
 clock_record_builder::clock_record_builder(session_builder& session, int channel):
 	_channel(channel),
 	_ts_attr(attrid_ts, 0, 0),
-	_sync_attr(session.define_attribute("clock_sync", attrfmt_boolean), 0),
-	_tzoffset_attr(session.define_attribute("tz_offset", attrfmt_signed_integer), 0),
-	_tzname_attr(session.define_attribute("tz_name", attrfmt_string), "") {}
+	_sync_attr(session.define_attribute("clock_sync", type_boolean), 0),
+	_tzoffset_attr(session.define_attribute("tz_offset", type_signed_integer), 0),
+	_tzname_attr(session.define_attribute("tz_name", type_string), "") {}
 
 const struct timespec& clock_record_builder::add_ts() {
 	_attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid()));

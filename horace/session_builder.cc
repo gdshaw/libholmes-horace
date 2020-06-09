@@ -34,16 +34,14 @@ session_builder::session_builder(const std::string& srcid,
 		(attrid_ts));
 }
 
-int session_builder::define_attribute(const std::string& label,
-	int fmt) {
-
+int session_builder::define_attribute(const std::string& label, int type) {
 	attribute_list subattrs;
 	subattrs.append(std::make_unique<signed_integer_attribute>(
 		attrid_attr_id, _attr_count));
 	subattrs.append(std::make_unique<string_attribute>(
 		attrid_attr_label, label));
 	subattrs.append(std::make_unique<unsigned_integer_attribute>(
-		attrid_attr_fmt, fmt));
+		attrid_type, type));
 	_attributes.append(std::make_unique<compound_attribute>(
 		attrid_attr_def, std::move(subattrs)));
 	return _attr_count++;

@@ -12,9 +12,9 @@ namespace horace {
 packet_record_builder::packet_record_builder(session_builder& session, int channel):
 	_channel(channel),
 	_ts_attr(attrid_ts, 0, 0),
-	_pkt_attr(session.define_attribute("packet", attrfmt_binary), 0, 0),
-	_origlen_attr(session.define_attribute("origlen", attrfmt_unsigned_integer), 0),
-	_rpt_attr(session.define_attribute("repeat", attrfmt_unsigned_integer), 0),
+	_pkt_attr(session.define_attribute("packet", type_binary), 0, 0),
+	_origlen_attr(session.define_attribute("origlen", type_unsigned_integer), 0),
+	_rpt_attr(session.define_attribute("repeat", type_unsigned_integer), 0),
 	_count(0) {
 
 	_buffer.emplace_back();

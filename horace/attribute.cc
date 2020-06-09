@@ -22,21 +22,21 @@ namespace horace {
 std::unique_ptr<attribute> attribute::parse(session_context& session,
 	int attrid, size_t length, octet_reader& in) {
 
-	int attrfmt = session.get_attr_fmt(attrid);
-	switch (attrfmt) {
-	case attrfmt_compound:
+	int type = session.get_attr_type(attrid);
+	switch (type) {
+	case type_compound:
 		return std::make_unique<compound_attribute>(session, attrid, length, in);
-	case attrfmt_unsigned_integer:
+	case type_unsigned_integer:
 		return std::make_unique<unsigned_integer_attribute>(attrid, length, in);
-	case attrfmt_signed_integer:
+	case type_signed_integer:
 		return std::make_unique<signed_integer_attribute>(attrid, length, in);
-	case attrfmt_binary:
+	case type_binary:
 		return std::make_unique<binary_attribute>(attrid, length, in);
-	case attrfmt_string:
+	case type_string:
 		return std::make_unique<string_attribute>(attrid, length, in);
-	case attrfmt_timestamp:
+	case type_timestamp:
 		return std::make_unique<timestamp_attribute>(attrid, length, in);
-	case attrfmt_boolean:
+	case type_boolean:
 		return std::make_unique<boolean_attribute>(attrid, length, in);
 	default:
 		return std::make_unique<unrecognised_attribute>(
