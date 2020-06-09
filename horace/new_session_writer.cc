@@ -136,9 +136,9 @@ void new_session_writer::write_event(const record& rec) {
 	// the current event reader API does not allow for one.
 	attribute_list attrs = rec.attributes();
 	unsigned_integer_attribute seqnum_attr(attrid_seqnum, _seqnum);
-	attrs.append(seqnum_attr);
+	attrs.insert(seqnum_attr);
 	if (_hattr) {
-		attrs.append(std::move(_hattr));
+		attrs.insert(std::move(_hattr));
 	}
 	record nrec(rec.channel_id(), std::move(attrs));
 
@@ -180,10 +180,10 @@ void new_session_writer::end_session() {
 	std::lock_guard<std::mutex> lk(_mutex);
 	if (_sw) {
 		attribute_list attrs;
-		attrs.append(std::make_unique<timestamp_attribute>(attrid_ts));
-		attrs.append(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
+		attrs.insert(std::make_unique<timestamp_attribute>(attrid_ts));
+		attrs.insert(std::make_unique<unsigned_integer_attribute>(attrid_seqnum, _seqnum));
 		if (_hattr) {
-			attrs.append(std::move(_hattr));
+			attrs.insert(std::move(_hattr));
 		}
 		std::unique_ptr<record> erec = std::make_unique<record>(
 			channel_end, std::move(attrs));

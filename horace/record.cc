@@ -47,7 +47,7 @@ record::record(session_context& session, octet_reader& in) {
 			// no action
 			break;
 		}
-		_attributes.append(attr);
+		_attributes.insert(attr);
 
 		size_t length = hdr_len + attr_len;
 		if (length > remaining) {

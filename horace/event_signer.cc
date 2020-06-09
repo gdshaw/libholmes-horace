@@ -89,10 +89,10 @@ std::unique_ptr<record> event_signer::make_signature(uint64_t* seqnum,
 	std::string sig = _kp->sign(hash.data(), hash.length());
 	attribute_list sigattrs;
 	if (seqnum) {
-		sigattrs.append(std::make_unique<unsigned_integer_attribute>(
+		sigattrs.insert(std::make_unique<unsigned_integer_attribute>(
 			attrid_seqnum, *seqnum));
 	}
-	sigattrs.append(std::make_unique<binary_attribute>(
+	sigattrs.insert(std::make_unique<binary_attribute>(
 		attrid_sig, sig.length(), sig.data()));
 	return std::make_unique<record>(channel_signature,
 		std::move(sigattrs));

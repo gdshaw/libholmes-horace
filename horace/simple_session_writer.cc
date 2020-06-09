@@ -64,9 +64,9 @@ void simple_session_writer::_process_sync_record(const record& crec) {
 
 	// Construct synchronisation status record for return to caller.
 	attribute_list attrs;
-	attrs.append(_srec->find_one<string_attribute>(attrid_source).clone());
-	attrs.append(_srec->find_one<timestamp_attribute>(attrid_ts).clone());
-	attrs.append(std::make_unique<unsigned_integer_attribute>(
+	attrs.insert(_srec->find_one<string_attribute>(attrid_source).clone());
+	attrs.insert(_srec->find_one<timestamp_attribute>(attrid_ts).clone());
+	attrs.insert(std::make_unique<unsigned_integer_attribute>(
 		attrid_seqnum, _seqnum));
 	_reply = std::make_unique<record>(channel_sync, std::move(attrs));
 }

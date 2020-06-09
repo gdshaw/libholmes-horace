@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #include "horace/horace_error.h"
 #include "horace/octet_reader.h"
@@ -15,6 +16,27 @@
 #include "horace/attribute_list.h"
 
 namespace horace {
+
+/** A class for comparing attributes by ID, in canonical order.
+ * The ordering is:
+ * - Attributes with reserved IDs are listed before user-defined IDs.
+ * - Otherwise, attributes are listed in ascending order of the absolute
+ *   value of the ID.
+ * - Otherwise, attributes with the same ID are listed in their order
+ *   of insertion.
+ */
+class attrid_less {
+public:
+	bool operator()(const attribute* lhs, const attribute* rhs) const;
+};
+
+bool attrid_less::operator()(const attribute* lhs, const attribute* rhs) const {
+	uint64_t id_lhs = lhs->attrid();
+	uint64_t id_rhs = rhs->attrid();
+	uint64_t order_lhs = -(id_lhs ^ (((id_lhs >> 63) - 1) >> 1));
+	uint64_t order_rhs = -(id_rhs ^ (((id_rhs >> 63) - 1) >> 1));
+	return order_lhs < order_rhs;
+}
 
 attribute_list::~attribute_list() {
 	for (const auto& attr : _owned_attributes) {
@@ -77,7 +99,7 @@ attribute_list::attribute_list(session_context& session, size_t length,
 
 		std::unique_ptr<attribute> attr =
 			attribute::parse(session, attr_id, attr_len, in);
-		append(attr);
+		insert(attr);
 
 		size_t length = hdr_len + attr_len;
 		if (length > remaining) {
@@ -129,26 +151,32 @@ const attribute& attribute_list::_find_one(int attrid) const {
 	return *found;
 }
 
-attribute_list& attribute_list::append(
+attribute_list& attribute_list::insert(
 	std::unique_ptr<attribute>& attr) {
 
-	_attributes.push_back(attr.get());
+	auto f = std::upper_bound(_attributes.begin(), _attributes.end(),
+		attr.get(), attrid_less());
+	_attributes.insert(f, attr.get());
 	_owned_attributes.push_back(attr.release());
 	return *this;
 }
 
-attribute_list& attribute_list::append(
+attribute_list& attribute_list::insert(
 	std::unique_ptr<attribute>&& attr) {
 
-	_attributes.push_back(attr.get());
+	auto f = std::upper_bound(_attributes.begin(), _attributes.end(),
+		attr.get(), attrid_less());
+	_attributes.insert(f, attr.get());
 	_owned_attributes.push_back(attr.release());
 	return *this;
 }
 
-attribute_list& attribute_list::append(
+attribute_list& attribute_list::insert(
 	const attribute& attr) {
 
-	_attributes.push_back(&attr);
+	auto f = std::upper_bound(_attributes.begin(), _attributes.end(),
+		&attr, attrid_less());
+	_attributes.insert(f, &attr);
 	return *this;
 }
 

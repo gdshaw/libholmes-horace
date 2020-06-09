@@ -111,26 +111,26 @@ public:
 		return dynamic_cast<const T&>(_find_one(attrid));
 	}
 
-	/** Append an attribute to this list, with transfer of ownership.
-	 * @param attr the attribute to be appended
+	/** Insert an attribute to this list, with transfer of ownership.
+	 * @param attr the attribute to be inserted
 	 * @return a reference to this
 	 */
-	attribute_list& append(std::unique_ptr<attribute>& attr);
+	attribute_list& insert(std::unique_ptr<attribute>& attr);
 
-	/** Append an attribute to this list, with transfer of ownership.
-	 * @param attr the attribute to be appended
+	/** Insert an attribute to this list, with transfer of ownership.
+	 * @param attr the attribute to be inserted
 	 * @return a reference to this
 	 */
-	attribute_list& append(std::unique_ptr<attribute>&& attr);
+	attribute_list& insert(std::unique_ptr<attribute>&& attr);
 
-	/** Append an attribute to this record, without transfer of ownership.
+	/** Insert an attribute to this record, without transfer of ownership.
 	 * It is the caller's responsibility to ensure that the attribute
 	 * remains in existence until there is no further possibility of it
 	 * being accessed.
-	 * @param attr the attribute to be appended
+	 * @param attr the attribute to be inserted
 	 * @return a reference to this
 	 */
-	attribute_list& append(const attribute& attr);
+	attribute_list& insert(const attribute& attr);
 
 	/** Write this attribute list to an octet writer.
 	 * An ID and length field are written for each attribute, but not

@@ -23,26 +23,26 @@ session_builder::session_builder(const std::string& srcid,
 	_chan_count(0) {
 
 	if (protocol_version) {
-		_attributes.append(std::make_unique<unsigned_integer_attribute>(
+		_attributes.insert(std::make_unique<unsigned_integer_attribute>(
 			attrid_protocol, *protocol_version));
 	}
-	_attributes.append(std::make_unique<string_attribute>(
+	_attributes.insert(std::make_unique<string_attribute>(
 		attrid_time_system, time_system));
-	_attributes.append(std::make_unique<string_attribute>(
+	_attributes.insert(std::make_unique<string_attribute>(
 		attrid_source, srcid));
-	_attributes.append(std::make_unique<timestamp_attribute>
+	_attributes.insert(std::make_unique<timestamp_attribute>
 		(attrid_ts));
 }
 
 int session_builder::define_attribute(const std::string& label, int type) {
 	attribute_list subattrs;
-	subattrs.append(std::make_unique<signed_integer_attribute>(
+	subattrs.insert(std::make_unique<signed_integer_attribute>(
 		attrid_attr_id, _attr_count));
-	subattrs.append(std::make_unique<string_attribute>(
+	subattrs.insert(std::make_unique<string_attribute>(
 		attrid_attr_label, label));
-	subattrs.append(std::make_unique<unsigned_integer_attribute>(
+	subattrs.insert(std::make_unique<unsigned_integer_attribute>(
 		attrid_type, type));
-	_attributes.append(std::make_unique<compound_attribute>(
+	_attributes.insert(std::make_unique<compound_attribute>(
 		attrid_attr_def, std::move(subattrs)));
 	return _attr_count++;
 }
@@ -50,25 +50,25 @@ int session_builder::define_attribute(const std::string& label, int type) {
 int session_builder::define_channel(const std::string& label,
 	attribute_list&& subattrs) {
 
-	subattrs.append(std::make_unique<signed_integer_attribute>(
+	subattrs.insert(std::make_unique<signed_integer_attribute>(
 		attrid_chan_id, _chan_count));
-	subattrs.append(std::make_unique<string_attribute>(
+	subattrs.insert(std::make_unique<string_attribute>(
 		attrid_chan_label, label));
-	_attributes.append(std::make_unique<compound_attribute>(
+	_attributes.insert(std::make_unique<compound_attribute>(
 		attrid_chan_def, std::move(subattrs)));
 	return _chan_count++;
 }
 
 void session_builder::define_hash(const hash& hashfn) {
-	_attributes.append(std::make_unique<string_attribute>(
+	_attributes.insert(std::make_unique<string_attribute>(
 		attrid_hash_alg, hashfn.algorithm()));
 }
 
 void session_builder::define_keypair(const keypair& kp) {
-	_attributes.append(std::make_unique<string_attribute>(
+	_attributes.insert(std::make_unique<string_attribute>(
 		attrid_sig_alg, kp.algorithm()));
 	std::basic_string<unsigned char> pubkey = kp.public_key();
-	_attributes.append(std::make_unique<binary_attribute>(
+	_attributes.insert(std::make_unique<binary_attribute>(
 		attrid_sig_pubkey, pubkey.length(), pubkey.data()));
 }
 

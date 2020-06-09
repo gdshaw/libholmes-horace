@@ -17,24 +17,24 @@ clock_record_builder::clock_record_builder(session_builder& session, int channel
 	_tzname_attr(session.define_attribute("tz_name", type_string), "") {}
 
 const struct timespec& clock_record_builder::add_ts() {
-	_attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid()));
+	_attrs.insert(_ts_attr = timestamp_attribute(_ts_attr.attrid()));
 	return _ts_attr.content();
 }
 
 void clock_record_builder::add_sync(bool sync) {
-	_attrs.append(_sync_attr = boolean_attribute(_sync_attr.attrid(), sync));
+	_attrs.insert(_sync_attr = boolean_attribute(_sync_attr.attrid(), sync));
 }
 
 void clock_record_builder::add_tzoffset(long tzoffset) {
-	_attrs.append(_tzoffset_attr = signed_integer_attribute(_tzoffset_attr.attrid(), tzoffset));
+	_attrs.insert(_tzoffset_attr = signed_integer_attribute(_tzoffset_attr.attrid(), tzoffset));
 }
 
 void clock_record_builder::add_tzname(const std::string& tzname) {
-	_attrs.append(_tzname_attr = string_attribute(_tzname_attr.attrid(), tzname));
+	_attrs.insert(_tzname_attr = string_attribute(_tzname_attr.attrid(), tzname));
 }
 
 void clock_record_builder::add_ntp(const attribute& ntp_attr) {
-	_attrs.append(ntp_attr);
+	_attrs.insert(ntp_attr);
 }
 
 const record& clock_record_builder::build() {

@@ -22,43 +22,43 @@ log_record_builder::log_record_builder(session_builder& session, int channel):
 	_message_attr(session.define_attribute("message", type_string), "") {}
 
 void log_record_builder::add_priority(unsigned int priority) {
-	_attrs.append(_priority_attr = unsigned_integer_attribute(_priority_attr.attrid(), priority));
+	_attrs.insert(_priority_attr = unsigned_integer_attribute(_priority_attr.attrid(), priority));
 }
 
 void log_record_builder::add_version(unsigned int version) {
-	_attrs.append(_version_attr = unsigned_integer_attribute(_version_attr.attrid(), version));
+	_attrs.insert(_version_attr = unsigned_integer_attribute(_version_attr.attrid(), version));
 }
 
 void log_record_builder::add_timestamp(const std::string& timestamp) {
-	_attrs.append(_timestamp_attr = string_attribute(_timestamp_attr.attrid(), timestamp));
+	_attrs.insert(_timestamp_attr = string_attribute(_timestamp_attr.attrid(), timestamp));
 }
 
 void log_record_builder::add_hostname(const std::string& hostname) {
-	_attrs.append(_hostname_attr = string_attribute(_hostname_attr.attrid(), hostname));
+	_attrs.insert(_hostname_attr = string_attribute(_hostname_attr.attrid(), hostname));
 }
 
 void log_record_builder::add_appname(const std::string& appname) {
-	_attrs.append(_appname_attr = string_attribute(_appname_attr.attrid(), appname));
+	_attrs.insert(_appname_attr = string_attribute(_appname_attr.attrid(), appname));
 }
 
 void log_record_builder::add_procid(const std::string& procid) {
-	_attrs.append(_procid_attr = string_attribute(_procid_attr.attrid(), procid));
+	_attrs.insert(_procid_attr = string_attribute(_procid_attr.attrid(), procid));
 }
 
 void log_record_builder::add_msgid(const std::string& msgid) {
-	_attrs.append(_msgid_attr = string_attribute(_msgid_attr.attrid(), msgid));
+	_attrs.insert(_msgid_attr = string_attribute(_msgid_attr.attrid(), msgid));
 }
 
 void log_record_builder::add_structured_data(const std::string& sd) {
-	_attrs.append(_sd_attr = string_attribute(_sd_attr.attrid(), sd));
+	_attrs.insert(_sd_attr = string_attribute(_sd_attr.attrid(), sd));
 }
 
 void log_record_builder::add_message(const std::string& message) {
-	_attrs.append(_message_attr = string_attribute(_message_attr.attrid(), message));
+	_attrs.insert(_message_attr = string_attribute(_message_attr.attrid(), message));
 }
 
 const record& log_record_builder::build() {
-	_attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid()));
+	_attrs.insert(_ts_attr = timestamp_attribute(_ts_attr.attrid()));
 	_built = record(_channel, std::move(_attrs));
 	return _built;
 }

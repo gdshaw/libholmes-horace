@@ -197,7 +197,7 @@ void forward_one_with_retry(std::unique_ptr<session_reader> src_sr,
 			} else {
 				try {
 					attribute_list attrs;
-					attrs.append(std::make_unique<string_attribute>(
+					attrs.insert(std::make_unique<string_attribute>(
 						attrid_message, ex.what()));
 					auto errrec = std::make_unique<record>(
 						channel_error, std::move(attrs));

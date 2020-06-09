@@ -28,11 +28,11 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 	attribute_list attrs;
 	_count = 0;
 	if (ts) {
-		attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid(), *ts));
+		attrs.insert(_ts_attr = timestamp_attribute(_ts_attr.attrid(), *ts));
 	}
-	attrs.append(_pkt_attr = binary_ref_attribute(_pkt_attr.attrid(), snaplen, content));
+	attrs.insert(_pkt_attr = binary_ref_attribute(_pkt_attr.attrid(), snaplen, content));
 	if (snaplen != origlen) {
-		attrs.append(_origlen_attr = unsigned_integer_attribute(_origlen_attr.attrid(), origlen));
+		attrs.insert(_origlen_attr = unsigned_integer_attribute(_origlen_attr.attrid(), origlen));
 	}
 	_buffer[_count] = record(_channel, std::move(attrs));
 	_count += 1;
@@ -40,9 +40,9 @@ void packet_record_builder::build_packet(const struct timespec* ts,
 	if (dropped != 0) {
 		attribute_list attrs;
 		if (ts) {
-			attrs.append(_ts_attr);
+			attrs.insert(_ts_attr);
 		}
-		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.attrid(), dropped));
+		attrs.insert(_rpt_attr = unsigned_integer_attribute(_rpt_attr.attrid(), dropped));
 		_buffer[_count] = record(_channel, std::move(attrs));
 		_count += 1;
 	}
@@ -55,9 +55,9 @@ void packet_record_builder::build_dropped(const struct timespec* ts,
 	_count = 0;
 	if (dropped != 0) {
 		if (ts) {
-			attrs.append(_ts_attr = timestamp_attribute(_ts_attr.attrid(), *ts));
+			attrs.insert(_ts_attr = timestamp_attribute(_ts_attr.attrid(), *ts));
 		}
-		attrs.append(_rpt_attr = unsigned_integer_attribute(_rpt_attr.attrid(), dropped));
+		attrs.insert(_rpt_attr = unsigned_integer_attribute(_rpt_attr.attrid(), dropped));
 		_buffer[_count] = record(_channel, std::move(attrs));
 		_count += 1;
 	}
