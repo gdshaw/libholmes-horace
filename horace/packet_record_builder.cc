@@ -13,7 +13,7 @@ packet_record_builder::packet_record_builder(session_builder& session, int chann
 	_channel(channel),
 	_ts_attr(attrid_ts, 0, 0),
 	_pkt_attr(session.define_attribute("packet", type_binary), 0, 0),
-	_origlen_attr(session.define_attribute("origlen", type_unsigned_integer), 0),
+	_origlen_attr(session.define_attribute("packet_len", type_unsigned_integer), 0),
 	_rpt_attr(session.define_attribute("repeat", type_unsigned_integer), 0),
 	_count(0) {
 
