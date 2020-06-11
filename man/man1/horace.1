@@ -50,6 +50,10 @@ Reading or writing sessions to the local filesystem
 Transmission or reception of sessions via a TCP connection
 .IP mongodb
 Storage of sessions in a MongoDB database
+.IP syslog+udp
+Recording of log messages using the Syslog protocol via UDP
+.IP clock
+Monitoring the status of the system clock
 .PP
 For any of the above, if query component is present then it contains a
 set of named parameters in x-www-form-urlencoded format.
@@ -182,6 +186,23 @@ mongodb://localhost/holmes
 .PP
 would refer to a MongoDB database named 'holmes' hosted on the local
 machine.
+.PP
+For
+.I syslog+udp
+endpoints the host and port components may be used to specify the local
+socket address used for accepting log messages. The host defaults to the
+wildcard address. The port defaults to 'syslog', which should normally
+resolve to 514.
+.PP
+There are no currently supported parameters.
+.PP
+For
+.I clock
+endpoints the authority and path components are not currently used, and
+should be left empty. The only currently supported parameter is:
+.IP poll
+Optionally specify the maximum number of seconds between clock records.
+Defaults to 3600 (one hour).
 .PP
 Endpoint drivers are implemented using an extensible plug-in system,
 therefore it is possible for new schemes to be implemented without
