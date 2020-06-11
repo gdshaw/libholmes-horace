@@ -15,7 +15,7 @@ syslog_udp_endpoint::syslog_udp_endpoint(const std::string& name):
 	size_t index = hostportname.rfind(':');
 	if (index == std::string::npos) {
 		_hostname = hostportname;
-		_portname = "40960";
+		_portname = "syslog";
 	} else {
 		_hostname = hostportname.substr(0, index);
 		_portname = hostportname.substr(
