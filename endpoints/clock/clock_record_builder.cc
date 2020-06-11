@@ -14,6 +14,7 @@ clock_record_builder::clock_record_builder(session_builder& session, int channel
 	_ts_attr(attrid_ts, 0, 0),
 	_sync_attr(session.define_attribute("clock_sync", type_boolean), 0),
 	_tzoffset_attr(session.define_attribute("tz_offset", type_signed_integer), 0),
+	_tzabbrev_attr(session.define_attribute("tz_abbrev", type_string), ""),
 	_tzname_attr(session.define_attribute("tz_name", type_string), "") {}
 
 const struct timespec& clock_record_builder::add_ts() {
@@ -27,6 +28,10 @@ void clock_record_builder::add_sync(bool sync) {
 
 void clock_record_builder::add_tzoffset(long tzoffset) {
 	_attrs.insert(_tzoffset_attr = signed_integer_attribute(_tzoffset_attr.attrid(), tzoffset));
+}
+
+void clock_record_builder::add_tzabbrev(const std::string& tzabbrev) {
+	_attrs.insert(_tzabbrev_attr = string_attribute(_tzabbrev_attr.attrid(), tzabbrev));
 }
 
 void clock_record_builder::add_tzname(const std::string& tzname) {

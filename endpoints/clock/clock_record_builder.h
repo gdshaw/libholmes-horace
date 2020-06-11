@@ -37,6 +37,9 @@ private:
 	/** The timezone offset attribute. */
 	signed_integer_attribute _tzoffset_attr;
 
+	/** The timezone abbreviation attribute. */
+	string_attribute _tzabbrev_attr;
+
 	/** The timezone name attribute. */
 	string_attribute _tzname_attr;
 
@@ -67,6 +70,11 @@ public:
 	 * @param tzoffset the timezone offset, in seconds
 	 */
 	void add_tzoffset(long tzoffset);
+
+	/** Add timezone abbreviation.
+	 * @param tzabbrev the timezone abbreviation
+	 */
+	void add_tzabbrev(const std::string& tzabbrev);
 
 	/** Add timezone name.
 	 * @param tzname the timezone name

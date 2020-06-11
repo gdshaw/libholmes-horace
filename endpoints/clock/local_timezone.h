@@ -13,11 +13,29 @@ namespace horace {
 /** A class for querying the local timezone. */
 class local_timezone {
 private:
+	/** The epoch time for the query. */
+	time_t _t;
+
+	/** The broken-down local time for the query. */
+	struct tm _ltm;
+
 	/** The offset from UTC to local time, in seconds. */
 	long _tzoffset;
 
+	/** The abbreviation for the local timezone. */
+	std::string _tzabbrev;
+
 	/** The name of the local timezone. */
 	std::string _tzname;
+
+	/** Initialise tzoffset. */
+	void _init_tzoffset();
+
+	/** Initialise tzabbrev. */
+	void _init_tzabbrev();
+
+	/** Initialise tznamet. */
+	void _init_tzname();
 public:
 	/** Query local timezone.
 	 * @param t the epoch time for which to perform the query
@@ -31,8 +49,14 @@ public:
 		return _tzoffset;
 	}
 
-	/** Get the name of the local timezone.
-	 * @return the name
+	/** Get the abbreviation for the local timezone.
+	 * @return the abbreviation
+	 */
+	const std::string& tzabbrev() const {
+		return _tzabbrev;
+	}
+
+	/** Get the name of the local timezone.	 * @return the name
 	 */
 	const std::string& tzname() const {
 		return _tzname;

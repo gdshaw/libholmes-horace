@@ -61,9 +61,10 @@ const record& clock_event_reader::read() {
 	// Add the timestamp.
 	const struct timespec& ts = _clock_builder->add_ts();
 
-	// Add the timezone offset and name.
+	// Add the timezone offset, abbreviation and name.
 	local_timezone ltz(ts.tv_sec);
 	_clock_builder->add_tzoffset(ltz.tzoffset());
+	_clock_builder->add_tzabbrev(ltz.tzabbrev());
 	_clock_builder->add_tzname(ltz.tzname());
 
 	// Read the synchronisation state of the clock.
