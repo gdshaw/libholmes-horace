@@ -34,6 +34,12 @@ private:
 	/** The clock syncronised attribute. */
 	boolean_attribute _sync_attr;
 
+	/** The estimated error attribute. */
+	signed_integer_attribute _esterror_attr;
+
+	/** The maximum error attribute. */
+	signed_integer_attribute _maxerror_attr;
+
 	/** The timezone offset attribute. */
 	signed_integer_attribute _tzoffset_attr;
 
@@ -64,6 +70,16 @@ public:
 	 * @param sync the clock sync state to be added
 	 */
 	void add_sync(bool sync);
+
+	/** Add estimated clock error.
+	 * @param esterror the estimated error, in microseconds.
+	 */
+	void add_esterror(int64_t esterror);
+
+	/** Add maximum clock error.
+	 * @param maxerror the maximum error, in microseconds.
+	 */
+	void add_maxerror(int64_t maxerror);
 
 	/** Add timezone offset.
 	 * This is the offset from UTC to local time.

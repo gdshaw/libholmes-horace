@@ -71,7 +71,14 @@ const record& clock_event_reader::read() {
 	struct timex tmx;
 	tmx.modes = 0;
 	int clock_state = ntp_adjtime(&tmx);
-	_clock_builder->add_sync(clock_state != TIME_ERROR);
+	bool clock_sync = clock_state != TIME_ERROR;
+	_clock_builder->add_sync(clock_sync);
+	if (clock_sync) {
+		_clock_builder->add_esterror(
+			static_cast<int64_t>(tmx.esterror) * 1000);
+		_clock_builder->add_maxerror(
+			static_cast<int64_t>(tmx.maxerror) * 1000);
+	}
 
 	return _clock_builder->build();
 };
