@@ -11,7 +11,7 @@
 namespace horace {
 
 /** A class for detecting the time system used by the system clock.
- * The current implementation is able to recognise the POSIX and TAI-10
+ * The current implementation is able to recognise the posix and tai-10
  * time systems, provided that the system has been properly configured to
  * interpret time_t values in that manner.
  *

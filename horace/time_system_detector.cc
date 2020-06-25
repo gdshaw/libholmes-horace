@@ -14,14 +14,14 @@ namespace horace {
 //
 // A result of 2000-01-01 00:00:00 indicates that the time_t is being
 // interpreted as UTC. Since leap second detection is not yet implemented,
-// the time system is reported to be "POSIX".
+// the time system is reported to be "posix".
 //
 // A result of 1999-12-31 23:59:38 indicates that it is being interpreted
 // as TAI minus 10 seconds (which is equivalent to using the POSIX epoch of
 // 1970-01-01 00:00:00 UTC, but including leap seconds in the count). This
 // outcome is not POSIX-compliant, however it is how the gmtime function
 // behaves when using the "right" configuration of the IANA Time Zone
-// Database. It is reported as "TAI-10".
+// Database. It is reported as "tai-10".
 //
 // Any other value would be unusual and is not recognised.
 //
@@ -39,34 +39,34 @@ time_system_detector::time_system_detector() {
 		(tms.tm_mon == 0) && (tms.tm_year == 100) &&
 		(tms.tm_isdst == 0)) {
 
-		_time_system = "POSIX";
+		_time_system = "posix";
 	} else if ((tms.tm_sec == 38) && (tms.tm_min == 59) &&
 		(tms.tm_hour == 23) && (tms.tm_mday == 31) &&
 		(tms.tm_mon == 11) && (tms.tm_year == 99) &&
 		(tms.tm_isdst == 0)) {
 
-		_time_system = "TAI-10";
+		_time_system = "tai-10";
 	} else {
 		throw horace_error("time system not recognised");
 	}
 }
 
 void time_system_detector::validate(const std::string& time_system, bool* leap) {
-	if (time_system == "POSIX") {
+	if (time_system == "posix") {
 		if (_time_system != time_system) {
 			throw horace_error("system configured to use " + _time_system + " time");
 		}
 		if (leap) {
 			*leap = false;
 		}
-	} else if (time_system == "UTC") {
-		if (_time_system != "POSIX") {
+	} else if (time_system == "utc") {
+		if (_time_system != "posix") {
 			throw horace_error("system configured to use " + _time_system + " time");
 		}
 		if (leap) {
 			*leap = true;
 		}
-	} else if (time_system == "TAI-10") {
+	} else if (time_system == "tai-10") {
 		if (_time_system != time_system) {
 			throw horace_error("system configured to use " + _time_system + " time");
 		}
