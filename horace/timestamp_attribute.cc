@@ -82,8 +82,8 @@ bool timestamp_attribute::operator==(const attribute& that) const {
 }
 
 size_t timestamp_attribute::length() const {
-	size_t len = 5;
-	uint64_t rem = _content.tv_sec >> 8;
+	size_t len = 4;
+	uint64_t rem = _content.tv_sec;
 	while (rem) {
 		len += 1;
 		rem >>= 8;

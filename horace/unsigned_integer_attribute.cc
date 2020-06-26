@@ -43,8 +43,8 @@ bool unsigned_integer_attribute::operator==(const attribute& that) const {
 }
 
 size_t unsigned_integer_attribute::length() const {
-	size_t len = 1;
-	uint64_t rem = _content >> 8;
+	size_t len = 0;
+	uint64_t rem = _content;
 	while (rem) {
 		len += 1;
 		rem >>= 8;

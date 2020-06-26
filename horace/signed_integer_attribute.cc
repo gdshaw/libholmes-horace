@@ -43,12 +43,14 @@ bool signed_integer_attribute::operator==(const attribute& that) const {
 }
 
 size_t signed_integer_attribute::length() const {
-	int64_t term = (_content >= 0) ? 0 : -1;
-	unsigned int size = 7;
-	size_t count = 1;
-	while ((_content >> size) != term) {
-		size += 8;
-		count += 1;
+	size_t count = 0;
+	if (_content) {
+		int64_t term = (_content >= 0) ? 0 : -1;
+		unsigned int size = 7;
+		while ((_content >> size) != term) {
+			size += 8;
+			count += 1;
+		}
 	}
 	return count;
 }
