@@ -23,7 +23,7 @@ signed_integer_attribute::signed_integer_attribute(int attrid,
 	size_t length, octet_reader& in):
 	attribute(attrid) {
 
-	if ((length < 1) || (length > 8)) {
+	if (length > 8) {
 		throw horace_error(
 			"invalid length for signed integer attribute");
 	}
@@ -45,6 +45,7 @@ bool signed_integer_attribute::operator==(const attribute& that) const {
 size_t signed_integer_attribute::length() const {
 	size_t count = 0;
 	if (_content) {
+		count += 1;
 		int64_t term = (_content >= 0) ? 0 : -1;
 		unsigned int size = 7;
 		while ((_content >> size) != term) {

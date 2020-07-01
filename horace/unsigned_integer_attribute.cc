@@ -23,7 +23,7 @@ unsigned_integer_attribute::unsigned_integer_attribute(int attrid,
 	size_t length, octet_reader& in):
 	attribute(attrid) {
 
-	if ((length < 1) || (length > 8)) {
+	if (length > 8) {
 		throw horace_error(
 			"invalid length for unsigned integer attribute");
 	}
