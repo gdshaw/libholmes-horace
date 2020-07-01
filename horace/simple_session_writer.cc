@@ -73,6 +73,8 @@ void simple_session_writer::_process_sync_record(const record& crec) {
 
 void simple_session_writer::handle_signature(const record& grec) {}
 
+void simple_session_writer::handle_control(const record& rec) {}
+
 const record& simple_session_writer::session_record() const {
 	if (!_srec) {
 		throw horace_error("no session in progress");
@@ -114,6 +116,8 @@ void simple_session_writer::write(const record& rec) {
 			handle_event(rec);
 			_seqnum = rec.find_one<unsigned_integer_attribute>(
 				attrid_seqnum).content() + 1;
+		} else {
+			handle_control(rec);
 		}
 	}
 }

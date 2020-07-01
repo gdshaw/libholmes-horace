@@ -28,6 +28,9 @@ private:
 
 	/** The retry interval, in seconds. */
 	long _retry;
+
+	/** True for unidirectional operation, false for bidirectional. */
+	bool _diode;
 public:
 	/** Construct TCP endpoint.
 	 * @param name the name of this endpoint
@@ -53,6 +56,13 @@ public:
 	 */
 	long retry() const {
 		return _retry;
+	}
+
+	/** Check whether unidirectional operation requested.
+	 * @return true for unidirectional operation, false for bidirectional
+	 */
+	bool diode() const {
+		return _diode;
 	}
 
 	virtual std::unique_ptr<session_listener> make_session_listener();

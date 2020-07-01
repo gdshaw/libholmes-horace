@@ -28,11 +28,17 @@ std::unique_ptr<record> tcp_session_reader::read() {
 }
 
 void tcp_session_reader::write(const record& rec) {
-	rec.write(_fdow);
-	_fdow.flush();
+	if (!_src_ep->diode()) {
+		rec.write(_fdow);
+		_fdow.flush();
+	}
 
 	if (rec.channel_id() == channel_error) {
-		_fd.shutdown(SHUT_WR);
+		if (_src_ep->diode()) {
+			_fd.shutdown(SHUT_RD);
+		} else {
+			_fd.shutdown(SHUT_WR);
+		}
 		bool done = false;
 		while (!done) {
 			try {

@@ -22,7 +22,7 @@ namespace horace {
 tcp_session_writer::tcp_session_writer(tcp_endpoint& dst_ep,
 	const std::string& srcid):
 	_dst_ep(&dst_ep),
-	session_writer(srcid) {}
+	simple_session_writer(srcid) {}
 
 void tcp_session_writer::_open() {
 	// Look up the hostname and portname.
@@ -73,10 +73,33 @@ bool tcp_session_writer::writable() {
 	return true;
 }
 
-void tcp_session_writer::write(const record& rec) {
+void tcp_session_writer::handle_session_start(const record& srec) {
 	if (!_fd) {
 		_open();
 	}
+	srec.write(_fdow);
+}
+
+void tcp_session_writer::handle_session_end(const record& erec) {
+	erec.write(_fdow);
+}
+
+void tcp_session_writer::handle_sync(const record& crec) {
+	if (!_dst_ep->diode()) {
+		crec.write(_fdow);
+		simple_session_writer::read();
+	}
+}
+
+void tcp_session_writer::handle_signature(const record& grec) {
+	grec.write(_fdow);
+}
+
+void tcp_session_writer::handle_control(const record& rec) {
+	rec.write(_fdow);
+}
+
+void tcp_session_writer::handle_event(const record& rec) {
 	rec.write(_fdow);
 }
 
@@ -88,8 +111,12 @@ bool tcp_session_writer::readable() {
 }
 
 std::unique_ptr<record> tcp_session_writer::read() {
-	_fdow.flush();
-	return std::make_unique<record>(_session, _fdor);
+	if (_dst_ep->diode()) {
+		return simple_session_writer::read();
+	} else {
+		_fdow.flush();
+		return std::make_unique<record>(_session, _fdor);
+	}
 }
 
 } /* namespace horace */

@@ -9,8 +9,9 @@
 #include "horace/socket_descriptor.h"
 #include "horace/file_octet_writer.h"
 #include "horace/file_octet_reader.h"
+#include "horace/record.h"
 #include "horace/session_context.h"
-#include "horace/session_writer.h"
+#include "horace/simple_session_writer.h"
 
 namespace horace {
 
@@ -18,7 +19,7 @@ class tcp_endpoint;
 
 /** A class for writing sessions to a TCP connection. */
 class tcp_session_writer:
-	public session_writer {
+	public simple_session_writer {
 private:
 	/** The destination endpoint. */
 	tcp_endpoint* _dst_ep;
@@ -37,6 +38,13 @@ private:
 
 	/** Open a connection. */
 	void _open();
+protected:
+        virtual void handle_session_start(const record& srec);
+        virtual void handle_session_end(const record& erec);
+        virtual void handle_sync(const record& crec);
+        virtual void handle_signature(const record& grec);
+        virtual void handle_control(const record& rec);
+        virtual void handle_event(const record& rec);
 public:
 	/** Construct TCP session writer.
 	 * @param dst_ep the destination endpoint
@@ -46,7 +54,7 @@ public:
 		const std::string& srcid);
 
 	virtual bool writable();
-	virtual void write(const record& rec);
+//	virtual void write(const record& rec);
 	virtual bool readable();
 	virtual std::unique_ptr<record> read();
 };

@@ -143,11 +143,14 @@ respectively. The host defaults to the wildcard address when accepting
 inbound connections, or the loopback address when initiating outbound
 connections. The port defaults to 40960 in both cases.
 .PP
-The only currently supported parameter is:
-.IP
-retry
+Currently supported parameters are:
+.IP retry
 Optionally specify the time (in seconds) to wait before retrying an
 outbound connection attempt if a previous attempt failed.
+.IP diode
+When set to true, select the unidirectional variant of the HORACE protocol
+to allow forwarding through a data diode. Note that reliable delivery is
+not provided in this mode of operation.
 .PP
 For example:
 .PP

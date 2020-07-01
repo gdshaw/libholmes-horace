@@ -63,11 +63,16 @@ protected:
 	 */
 	virtual void handle_signature(const record& grec);
 
+	/** Handle other control record.
+	 * @param rec the control record
+	 */
+	virtual void handle_control(const record& rec);
+
 	/** Handle an event.
 	 * @param rec the event record
 	 */
 	virtual void handle_event(const record& rec) = 0;
-protected:
+
 	/** Get the current session record.
 	 * If there is no session in progress then an exception is thrown.
 	 * @return the current session record

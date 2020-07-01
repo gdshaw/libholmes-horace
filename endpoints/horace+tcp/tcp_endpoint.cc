@@ -13,7 +13,8 @@ namespace horace {
 
 tcp_endpoint::tcp_endpoint(const std::string& name):
 	endpoint(name),
-	_retry(30) {
+	_retry(30),
+	_diode(false) {
 
 	std::string hostportname = this->name().authority().value_or("");
 	size_t index = hostportname.rfind(':');
@@ -29,6 +30,7 @@ tcp_endpoint::tcp_endpoint(const std::string& name):
 	if (std::optional<std::string> query = this->name().query()) {
 		query_string params(*query);
 		_retry = params.find<long>("retry").value_or(_retry);
+		_diode = params.find<bool>("diode").value_or(_diode);
 	}
 }
 
